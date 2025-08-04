@@ -1,8 +1,13 @@
 import logo from "../assets/images/logo.png";
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { Switch } from "@/components/ui/switch";
 const Navbar = () => {
+  const [theme, setTheme] = useState("light");
+
+  const handleSignUp = () => {}
   return (
-    <div className="p-2 px-4 bg-[#0d1b2a] shadow-sm shadow-black flex item-center justify-between">
+    <div className="p-3 px-4 bg-[#0d1b2a] shadow-xl shadow-black flex item-center justify-between">
       <div className=" w-fit rounded-2xl flex gap-4 items-center justify-center">
         <img src={logo} alt="" className="w-12" />
         <div className="text-[#F7FAFC]">
@@ -14,13 +19,23 @@ const Navbar = () => {
       </div>
 
       <div className="gap-5 flex justify-center items-center">
-        <Button variant="ghost" size="sm">
-          ☀️
+          <Switch
+          id="darkThemeToggler"
+          onClick={() => {
+            setTheme((prev) => (prev === "light" ? "dark" : "light")),
+              console.log(theme);
+          }}
+          className="cursor-pointer"
+          /> 
+
+          <label htmlFor="darkThemeToggler">Dark Mpde</label>
+        <Button variant="outline" size="sm" className="cursor-pointer"
+        onClick={handleSignUp}>
+          sign up
         </Button>
-        <Button variant="outline" size="sm">sign up</Button>
       </div>
     </div>
   );
-}
+};
 
-export default Navbar
+export default Navbar;
