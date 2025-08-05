@@ -63,13 +63,17 @@ const Dashboard = () => {
             key={idx}
             className="bg-white/10 backdrop-blur-2xl shadow-10 p-4 basis-[46%] m-3 rounded-md"
           >
-            <div className="flex flex-col">
-              <p> {elem.logo} </p>
-              <h1 className="font-bold text-lg mx-2 text-[#F7FAFC]">
-                {elem.title}
-              </h1>
+            <div className="flex flex-row-reverse justify-between">
+              <div>
+                <p> {elem.logo} </p>
+              </div>
+              <div>
+                <h1 className="font-bold text-lg mx-2 text-[#F7FAFC]">
+                  {elem.stats}
+                </h1>
+              <p className="text-sm text-[#A0AEC0] m-2">{elem.discription}</p>
+              </div>
             </div>
-            <p className="text-sm text-[#A0AEC0] m-2">{elem.description}</p>
           </div>
         ))}
       </div>

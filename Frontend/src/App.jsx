@@ -1,33 +1,32 @@
-import Navbar from "./components/Navbar";
-import Features from "./components/Features";
-import HeroSection from "./components/HeroSection";
-import LanguagesAvailable from "./components/LanguagesAvailable";
-import Feature3 from "./components/Feature3";
-import WorkFlow from "./components/WorkFlow";
-import Footer from "./components/Footer";
-import CTA from "./components/FinalCTA";
 import Dashboard from "./components/secureComponents/dashboard";
-import ProfileHeroSection from "./components/secureComponents/ProfileHeroSection";
 import { Routes, Route, Outlet } from "react-router-dom";
 import ProfileLayout from "./components/secureComponents/ProfileLayout";
+import WebsiteLayout from "./components/WebsiteLayout"
+import Leaderboard from "./components/secureComponents/Leaderboard";
+import CodingRooms from "./components/secureComponents/CodingRooms";
+import McqRooms from "./components/secureComponents/McqRooms"
+import Community from "./components/secureComponents/Community"
+import CollaborativeRooms from "./components/secureComponents/CollaborativeRooms"
 
 const App = () => {
   return (
     <div className="font-[Inter]">
-      {/* <Navbar />
-      <HeroSection />
-      <Features />
-      <LanguagesAvailable />
-      <Feature3 />
-      <WorkFlow />
-      <Footer />
-      <CTA /> */}
-        <Routes>
-          <Route path="/" element={<conten}
-          <Route path="/user/*" element={<ProfileLayout />}>
+      <Routes>
+        <Route path="/" element={<WebsiteLayout />} />
+        <Route path="/user/*" element={<ProfileLayout />}>
           <Route index element={<Dashboard />}></Route>
-          </Route>
-        </Routes>
+          <Route path="leaderboard" element={<Leaderboard />}></Route>
+          <Route path="codingrooms" element={<CodingRooms />}></Route>
+          <Route path="mcqrooms" element={<McqRooms />}></Route>
+          <Route path="codingrooms" element={<CodingRooms />}></Route>
+          <Route path="community" element={<Community />}></Route>
+          <Route
+            path="collaborativerooms"
+            element={<CollaborativeRooms />}
+          ></Route>
+        </Route>
+        
+      </Routes>
     </div>
   );
 };

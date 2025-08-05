@@ -1,6 +1,5 @@
 import React from 'react'
 import logo from '../../assets/images/logo.png'
-import Dashboard from './Dashboard'
 import {NavLink, Routes, Route} from 'react-router-dom'
 const ProfileHeroSection = () => {
   return (
@@ -17,24 +16,24 @@ const ProfileHeroSection = () => {
         </div>
       </div>
       <div className="py-4 pr-4 flex flex-col gap-5 mt-3 basis-[70%] ">
-        <li className="list-none bg-zinc-400 rounded-md px-3 py-[12px] text-sm text-white ">
+        <NavLink to={"/user"} className="list-none bg-zinc-400 rounded-md px-3 py-[12px] text-sm text-white ">
           🐦‍🔥Dashboard
-        </li>
-        <li className="list-none bg-zinc-400 rounded-md px-3 py-[12px] text-sm text-white ">
+        </NavLink>
+        <NavLink to={"/user/leaderboard"} className="list-none bg-zinc-400 rounded-md px-3 py-[12px] text-sm text-white ">
           🐦‍🔥Leaderboard
-        </li>
-        <li className="list-none bg-zinc-400 rounded-md px-3 py-[12px] text-sm text-white ">
+        </NavLink>
+        <NavLink to={"/user/codingrooms"} className="list-none bg-zinc-400 rounded-md px-3 py-[12px] text-sm text-white ">
           🐦‍🔥Coding Room
-        </li>
-        <li className="list-none bg-zinc-400 rounded-md px-3 py-[12px] text-sm text-white ">
+        </NavLink>
+        <NavLink to={"/user/mcqrooms"} className="list-none bg-zinc-400 rounded-md px-3 py-[12px] text-sm text-white ">
           🐦‍🔥MCQ verse
-        </li>
-        <li className="list-none bg-zinc-400 rounded-md px-3 py-[12px] text-sm text-white ">
+        </NavLink>
+        <NavLink to={"/user/community"} className="list-none bg-zinc-400 rounded-md px-3 py-[12px] text-sm text-white ">
           🐦‍🔥Coummunity
-        </li>
-        <li className="list-none bg-zinc-400 rounded-md px-3 py-[12px] text-sm text-white ">
+        </NavLink>
+        <NavLink to={"/user/collaborativerooms"} className="list-none bg-zinc-400 rounded-md px-3 py-[12px] text-sm text-white ">
           🐦‍🔥Collaborative Space
-        </li>
+        </NavLink>
       </div>
       <div className="basis-[10%] pt-3">
         <div className="px-3 py-1 text-white font-semibold text-md backdrop-blur-2xl bg-white/10 rounded-lg my-3 shadow-xl">

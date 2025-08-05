@@ -12,7 +12,7 @@ const HeroSection = () => {
         <h1 className="text-4xl my-4  font-bold text-[#F7FAFC]">
           Code, Compete, Conquer !
         </h1>
-        <p className=" text- my-2 tracking-tighter text-[#A0AEC0] w-2/5">
+        <p className=" my-2 tracking-tighter text-[#A0AEC0] w-2/5">
           master programming concepts through epic battles, set the rules, and
           climb on the leaderboard.
         </p>
