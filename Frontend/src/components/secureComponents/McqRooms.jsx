@@ -96,7 +96,7 @@ const McqRooms = () => {
               <h1 className='text-white font-bold m-2'>{elem.name}</h1>
               <div className='flex text-gray-300 text-sm gap-4 m-2'>
                 <p >
-                  {elem.Questions}
+                  {elem.Questions} questions
                 </p>
                 <p>{elem.time}</p>
               </div>
