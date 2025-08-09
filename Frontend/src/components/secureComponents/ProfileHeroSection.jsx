@@ -14,9 +14,9 @@ const ProfileHeroSection = () => {
   };
 
   return (
-    <div className="bg-slate-100 dark:bg-[hsl(212,53%,12%)] w-2/10 h-screen font-[Inter] px-4 py-3 flex-col border-r-2 border-zinc-300 dark:border-zinc-600 shadow-sm dark:shadow-white transition-all duration-500">
+    <div className="bg-slate-200 dark:bg-black/60 w-2/10 h-screen font-[Inter] px-4 py-3 flex-col border-r-2 border-zinc-300 dark:border-zinc-600 shadow-sm dark:shadow-white transition-all duration-500">
       {/* Logo Section */}
-      <div className="flex gap-4 basis-[10%] bg-black/10 dark:bg-white/5 px-2 py-2 rounded-md">
+      <div className="flex gap-4 basis-[10%] bg-black/10 px-2 py-2 rounded-md">
         <img src={logo} alt="AlgoSprint" className="w-10" />
         <div>
           <h1 className="text-black dark:text-white text-lg font-bold">

@@ -8,7 +8,7 @@ const ProfileLayout = () => {
       <div className="w-full fixed ">
         <ProfileHeroSection />
       </div>
-      <div className="basis-[80%] ml-[253px]">
+      <div className="absolute right-0 top-0 w-[80%]">
         <Outlet />
       </div>
     </div>
