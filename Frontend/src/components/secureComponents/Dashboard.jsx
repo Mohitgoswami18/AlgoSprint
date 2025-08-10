@@ -61,9 +61,9 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="bg-slate-200 dark:bg-black/80 transition-all duration-500 font-[Inter] px-16 pt-4 text-black dark:text-white min-h-screen">
+    <div className="bg-slate-50 dark:bg-black/80 transition-all duration-500 font-[Inter] px-16 pt-4 text-black dark:text-white min-h-screen">
       <div className="flex items-center gap-10">
-        <div className="bg-white dark:bg-[#111] rounded-xl basis-[80%] shadow-md">
+        <div className="bg-slate-50 transition-all duration-500 dark:bg-[#111] rounded-xl basis-[80%] shadow-md">
           <div className="p-4 shadow-lg transition-all duration-500 flex justify-between">
             <div className="transition-all duration-500">
               <h1 className="text-4xl p-1 font-bold">Welcome Back, Name</h1>
@@ -87,14 +87,14 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="rounded-full w-fit p-4 h-4/5 flex items-center justify-center bg-gray-200 dark:bg-[#111]">
+        <div className="rounded-full transition-all duration-500 w-fit p-4 h-4/5 flex items-center justify-center bg-gray-200 dark:bg-[#111]">
           <FaRegUserCircle className="text-9xl" />
         </div>
       </div>
 
       <div className="flex items-center gap-2">
         <div className="Area-chart max-w-md shadow-md mb-6 mt-6">
-          <Card className="bg-white dark:bg-white/4 shadow-md">
+          <Card className="bg-slate-50 dark:bg-white/4 shadow-md">
             <CardHeader>
               <CardTitle>Ranking Chart</CardTitle>
               <CardDescription>Total Battles Fought: 69</CardDescription>

@@ -14,22 +14,22 @@ const ProfileHeroSection = () => {
   };
 
   return (
-    <div className="bg-slate-200 dark:bg-black/60 w-2/10 h-screen font-[Inter] px-4 py-3 flex-col border-r-2 border-zinc-300 dark:border-zinc-600 shadow-sm dark:shadow-white transition-all duration-500">
+    <div className="bg-slate-50 flex flex-col items-start h-screen  justify-between dark:bg-black/60 w-2/10  font-[Inter] px-4 py-3  border-r-2 border-zinc-300 dark:border-zinc-600 shadow-sm dark:shadow-white transition-all duration-500">
       {/* Logo Section */}
-      <div className="flex gap-4 basis-[10%] bg-black/10 px-2 py-2 rounded-md">
-        <img src={logo} alt="AlgoSprint" className="w-10" />
-        <div>
+      <div className="gap-4 bg-black/2 px-2 rounded-md items-center justify-items-center basis-[10%] flex">
+        <img src={logo} alt="AlgoSprint" className="w-8 h-8" />
+        <div className="">
           <h1 className="text-black dark:text-white text-lg font-bold">
             AlgoSprint
           </h1>
-          <p className="text-[12px] font-semibold text-gray-700 dark:text-gray-300">
+          <p className="text-[10px] font-semibold text-gray-700 dark:text-gray-300">
             Level up your skills
           </p>
         </div>
       </div>
 
       {/* Navigation Links */}
-      <div className="py-4 pr-4 flex flex-col gap-5 mt-3 basis-[70%]">
+      <div className="pr-4 gap-3 justify-between flex flex-col basis-[70%]">
         <NavLink
           to={"/user"}
           className="list-none transition-all duration-300 flex gap-2 items-center justify-start hover:bg-black/20 dark:hover:bg-white/6 rounded-md px-3 py-[12px] text-sm text-black dark:text-white"
@@ -70,7 +70,7 @@ const ProfileHeroSection = () => {
       </div>
 
       {/* Toggle and Sign Out */}
-      <div className="basis-[10%] pt-3 flex flex-col gap-2">
+      <div className="basis-[10%] w-full pt-3 flex flex-col gap-2 ">
         <Button
           variant="personal"
           className="hover:bg-cyan-500/70 dark:hover:bg-cyan-600/80"

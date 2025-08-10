@@ -40,7 +40,7 @@ const CommunityRooms = () => {
             <RiUserCommunityFill />
           </div>
           <div className="">
-            <h1 className="text-xl font-bold">
+            <h1 className="text-xl text-black dark:text-white font-bold">
               Community space
             </h1>
             <p className=" text-[12px] tracking-tight">
@@ -55,7 +55,7 @@ const CommunityRooms = () => {
 
         <div className=" p-4 backdrop:2xl rounded-md m-2 ">
           {discussionsList.map((elem, idx) => (
-            <div className="m-4 bg-slate-200 dark:bg-[#222] rounded-md p-4">
+            <div className="m-4 bg-slate-100 dark:bg-[#222] shadow-md rounded-md p-4">
               <h1 className="text-lg font-semibold ">
                 {elem.title}
               </h1>

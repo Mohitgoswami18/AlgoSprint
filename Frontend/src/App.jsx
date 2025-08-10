@@ -10,7 +10,7 @@ import CollaborativeRooms from "./components/secureComponents/CollaborativeRooms
 
 const App = () => {
   return (
-    <div className="font-[Inter]">
+    <div className="font-[Inter] bg-slate-50 dark:bg-black">
       <Routes>
         <Route path="/" element={<WebsiteLayout />} />
         <Route path="/user/*" element={<ProfileLayout />}>
