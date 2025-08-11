@@ -113,10 +113,10 @@ const Leaderboard = () => {
   ]
 
   return (
-    <div className="dark:bg-black transition-all duration-500 bg-slate-100 text-black dark:text-white font-[Inter] p-5">
+    <div className="dark:bg-black transition-all duration-500 bg-slate-50 text-black dark:text-white font-[Inter] p-5">
       <div className="bg-white/10 ring-2 ring-slate-200 backdrop-blur-2xl p-5 rounded-md shadow-xl ">
         <div className="flex gap-4 items-center ">
-          <div className="dark:bg-[#222]  transition-all duration-500 bg-slate-100 text-cyan-500 dark:text-white px-2 py-3 text-4xl rounded-xl">
+          <div className="dark:bg-[#222]  transition-all duration-500 bg-slate-50 text-cyan-500 dark:text-white px-2 py-3 text-4xl rounded-xl">
             <GiLaurelsTrophy />
           </div>
           <div>
@@ -133,7 +133,7 @@ const Leaderboard = () => {
           {LeaderboardStats.map((elem, idx) => (
             <div
               key={idx}
-              className=" dark:bg-[#333] transition-all  flex flex-col items-center justify-center duration-500 bg-slate-100 text-black dark:text-whiteackdrop-blur-2xl p-5 basis-[33%] rounded-md shadow-xl"
+              className=" dark:bg-[#333] ring-[0.5px] dark:ring-white/20 transition-all  flex flex-col items-center justify-center duration-500 bg-slate-50 text-black dark:text-whiteackdrop-blur-2xl p-5 basis-[33%] rounded-md shadow-xl"
             >
               <h1 className=" text-green-500 font-bold">{elem.number}</h1>
               <h2 className="font-bold text-black dark:text-white">
@@ -148,7 +148,7 @@ const Leaderboard = () => {
         {Leaderboardtop3.map((elem, idx) => (
           <div
             key={idx}
-            className="bg-white/10 ring-2 ring-zinc-400 font-bold text-black dark:text-white backdrop-blur-2xl p-5 basis-[30%] rounded-md shadow-xl"
+            className="bg-white/10 ring-[0.5px] dark:ring-white/20 font-bold text-black dark:text-white backdrop-blur-2xl p-5 basis-[30%] rounded-md shadow-xl"
           >
             <div className="flex items-center flex-col p-2 justify-center">
               <h1 className="p-1">{elem.rank}</h1>

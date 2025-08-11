@@ -7,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { FaRestroom } from "react-icons/fa6";
 
 import { Input } from "@/components/ui/input";
 
@@ -15,15 +16,17 @@ const CodingRooms = () => {
     <div className="bg-slate-50 dark:bg-black font-[Inter] p-5 h-screen relative">
       <div className=" backdrop-blur-2xl bg-white/10 p-5 rounded-md shadow-xl ">
         <div className="flex gap-4 items-center ">
-          <div className="bg-white/10 backdrop-blur-2xl px-2 py-3 text-4xl rounded-xl">
-            👑
+          <div className="bg-slate-100 shadow-md dark:bg-white/10 backdrop-blur-2xl px-2 py-3 text-4xl rounded-xl">
+            <FaRestroom />
           </div>
           <div className="">
-            <h1 className="text-xl font-bold text-[#F7FAFC]">
+            <h1 className="text-3xl font-[Inter] text-black dark:text-white font-bold">
               Coding Room
             </h1>
-            <p className="text-[#A0AEC0] text-[12px] tracking-tight w-2/3">
-             Challenge and compete with your friends and college and experience a whole different level of competene through personalised coding rooms
+            <p className=" text-[#4a5568] dark:text-[#A0AEC0] text-[12px] tracking-tight w-2/3">
+              Challenge and compete with your friends and college and experience
+              a whole different level of competene through personalised coding
+              rooms
             </p>
           </div>
         </div>
@@ -35,24 +38,24 @@ const CodingRooms = () => {
             <Card className="w-full max-w-sm dark:bg-[#111] ">
               <CardHeader>
                 <CardTitle className="text-center font-bold text-3xl p-1">
-                  Create Your Space
+                  Create Your Room
                 </CardTitle>
                 <CardDescription>
                   genrate a random code and share it with other so that they can
-                  join thier space
+                  join Public Room
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <form>
                   <div className="flex flex-col gap-6">
                     <div className="flex p-2 items-center gap-2">
-                      <label htmlFor="name" className="text-md">
-                        name
+                      <label htmlFor="name" className="text-md w-1/2 ">
+                        Room id
                       </label>
                       <Input
                         id="name"
                         type="text"
-                        placeholder="enter space name"
+                        placeholder="Enter room id"
                         required
                       />
                     </div>
@@ -71,10 +74,10 @@ const CodingRooms = () => {
             <Card className="w-full max-w-sm dark:bg-[#111]">
               <CardHeader>
                 <CardTitle className="text-center font-bold text-3xl p-1">
-                  Join public Space
+                  Join public Room
                 </CardTitle>
                 <CardDescription>
-                  Enter the random code and Enter space of others
+                  Enter the room id and Room of others
                 </CardDescription>
               </CardHeader>
               <CardContent>

@@ -6,7 +6,12 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { FaRegUserCircle } from "react-icons/fa";
+import { MdOutlineEventRepeat } from "react-icons/md";
+import { FaRankingStar } from "react-icons/fa6";
+import { GiBattleGear } from "react-icons/gi";
+import { SiStylelint } from "react-icons/si";
 import { Progress } from "@/components/ui/progress";
+import samplePfp from "../../assets/images/samplePfp.jpg";
 import {
   Card,
   CardContent,
@@ -14,28 +19,36 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 const Dashboard = () => {
   const feature = [
     {
-      logo: <i className="fa-brands text-5xl mb-4 fa-battle-net "></i>,
-      discription: "Current Streak",
-      stats: "69",
+      logo: <MdOutlineEventRepeat />,
+      discription: "Win Streak",
+      stats: "6",
     },
     {
-      logo: <i className="fa-brands text-5xl mb-4 fa-battle-net"></i>,
+      logo: <GiBattleGear />,
       discription: "Total Battles",
-      stats: "69",
+      stats: "23",
     },
     {
-      logo: <i className="fa-brands text-5xl mb-4 fa-battle-net"></i>,
-      discription: "Win Ratio",
-      stats: "69",
+      logo: <FaRankingStar />,
+      discription: "Max Rank",
+      stats: "1234",
     },
     {
-      logo: <i className="fa-brands text-5xl mb-4 fa-battle-net"></i>,
-      discription: "Battle Wins",
-      stats: "69",
+      logo: <SiStylelint />,
+      discription: "PlayStyle",
+      stats: "Rapid",
     },
   ];
 
@@ -66,7 +79,7 @@ const Dashboard = () => {
         <div className="bg-slate-50 transition-all duration-500 dark:bg-[#111] rounded-xl basis-[80%] shadow-md">
           <div className="p-4 shadow-lg transition-all duration-500 flex justify-between">
             <div className="transition-all duration-500">
-              <h1 className="text-4xl p-1 font-bold">Welcome Back, Name</h1>
+              <h1 className="text-4xl p-1 font-bold">Welcome Back, User</h1>
               <p className="text-sm px-3 text-[#4a5568] dark:text-[#A0AEC0]">
                 Ready for some new challenges today
               </p>
@@ -87,14 +100,14 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="rounded-full transition-all duration-500 w-fit p-4 h-4/5 flex items-center justify-center bg-gray-200 dark:bg-[#111]">
-          <FaRegUserCircle className="text-9xl" />
+        <div className="rounded-full transition-all duration-500 w-fit p-1 hover:scale-105 h-4/5 flex items-center justify-center bg-gray-200 dark:bg-[#111]">
+          <img src={samplePfp} alt="" className="w-full rounded-full" />
         </div>
       </div>
 
       <div className="flex items-center gap-2">
         <div className="Area-chart max-w-md shadow-md mb-6 mt-6">
-          <Card className="bg-slate-50 dark:bg-white/4 shadow-md">
+          <Card className="bg-white ring-[0.5px] dark:ring-white/20 dark:bg-white/4 shadow-md">
             <CardHeader>
               <CardTitle>Ranking Chart</CardTitle>
               <CardDescription>Total Battles Fought: 69</CardDescription>
@@ -124,17 +137,17 @@ const Dashboard = () => {
         </div>
 
         <div className="flex gap-2 flex-col w-4/9 items-center justify-center">
-          <div className="bg-white shadow-md dark:bg-white/4 w-full py-2 text-center p-2 text-md font-bold rounded-md">
+          <div className="bg-white ring-[0.5px] shadow-md dark:ring-white/20 dark:bg-white/4 w-full py-2 text-center p-2 text-md font-bold rounded-md">
             Total Win
             <p className="p-4 text-lg text-green-600 font-bold">102</p>
           </div>
-          <div className="bg-white shadow-md dark:bg-white/4 w-full text-center py-2 text-sm font-bold rounded-md">
+          <div className="bg-white ring-[0.5px] shadow-md dark:ring-white/20 dark:bg-white/4 w-full text-center py-2 text-sm font-bold rounded-md">
             Win ratio
             <p className="p-4 text-orange-500 text-lg">0.7</p>
           </div>
         </div>
 
-        <div className="bg-white shadow-md dark:bg-white/4 p-4 rounded-md">
+        <div className="bg-white shadow-md ring-[0.5px] dark:ring-white/20 dark:bg-white/4 p-4 rounded-md">
           <h1 className="text-center font-bold text-md">Badges Earned</h1>
           <p className="gap-2 p-4 py-9 flex flex-wrap items-center justify-center">
             <Badge variant="outline">100 Streak</Badge>
@@ -148,21 +161,21 @@ const Dashboard = () => {
           </p>
         </div>
       </div>
-
-      <div className="flex flex-wrap justify-between">
+      <div className="flex justify-between gap-3 items-center">
         {feature.map((elem, idx) => (
           <div
             key={idx}
-            className="bg-gray-100 dark:bg-white/10 backdrop-blur-2xl shadow p-4 basis-[48%] mb-2 rounded-md"
+            className="bg-white ring-[0.5px] dark:ring-white/20 dark:bg-white/4 backdrop-blur-2xl shadow-md p-2 basis-[48%] mb-2 rounded-md"
           >
-            <div className="flex flex-row-reverse justify-between">
+            <div className="flex items-center justify-around">
               <div>
-                <p>{elem.logo}</p>
-              </div>
-              <div>
-                <h1 className="font-bold text-lg mx-2 text-gray-900 dark:text-[#F7FAFC]">
+                <h1 className="font-bold text-2xl mx-2 text-gray-900 dark:text-[#F7FAFC]">
                   {elem.stats}
                 </h1>
+              </div>
+
+              <div className="flex flex-col items-center justify-center">
+                <p className="text-5xl font-bold">{elem.logo}</p>
                 <p className="text-sm text-gray-600 dark:text-[#A0AEC0] m-2">
                   {elem.discription}
                 </p>
@@ -170,6 +183,84 @@ const Dashboard = () => {
             </div>
           </div>
         ))}
+      </div>
+
+      <div className="my-4 rounded-md bg-white/4">
+        <Table>
+          <TableCaption>Recent Battles</TableCaption>
+          <TableHeader className="font-[Inter]">
+            <TableRow>
+              <TableHead className="w-[100px] text-md p-4">
+                Match Type
+              </TableHead>
+              <TableHead className="p-4">Result</TableHead>
+              <TableHead className="p-4">opponent</TableHead>
+              <TableHead className="text-right p-4">xp Gained</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <TableRow>
+              <TableCell className="font-medium p-4">bullet</TableCell>
+              <TableCell className="p-4">Win</TableCell>
+              <TableCell className="p-4">user2</TableCell>
+              <TableCell className="p-4 text-right">*15</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className="p-4 font-medium">bullet</TableCell>
+              <TableCell className="p-4">Win</TableCell>
+              <TableCell className="p-4">user2</TableCell>
+              <TableCell className="p-4 text-right">*15</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className="p-4 font-medium">bullet</TableCell>
+              <TableCell className="p-4">Win</TableCell>
+              <TableCell className="p-4">user2</TableCell>
+              <TableCell className="p-4 text-right">*15</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className="font-medium">bullet</TableCell>
+              <TableCell>Win</TableCell>
+              <TableCell>user2</TableCell>
+              <TableCell className="text-right">*15</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className="font-medium">bullet</TableCell>
+              <TableCell>Win</TableCell>
+              <TableCell>user2</TableCell>
+              <TableCell className="text-right">*15</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className="font-medium">bullet</TableCell>
+              <TableCell>Win</TableCell>
+              <TableCell>user2</TableCell>
+              <TableCell className="text-right">*15</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className="font-medium">bullet</TableCell>
+              <TableCell>Win</TableCell>
+              <TableCell>user2</TableCell>
+              <TableCell className="text-right">*15</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className="font-medium">bullet</TableCell>
+              <TableCell>Win</TableCell>
+              <TableCell>user2</TableCell>
+              <TableCell className="text-right">*15</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className="font-medium">bullet</TableCell>
+              <TableCell>Win</TableCell>
+              <TableCell>user2</TableCell>
+              <TableCell className="text-right">*15</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className="font-medium">bullet</TableCell>
+              <TableCell>Win</TableCell>
+              <TableCell>user2</TableCell>
+              <TableCell className="text-right">*15</TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
       </div>
     </div>
   );

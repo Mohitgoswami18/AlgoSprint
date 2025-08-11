@@ -110,7 +110,7 @@ import Autoplay from "embla-carousel-autoplay";
 
 const LanguagesAvailable = () => {
   return (
-    <div className="bg-white dark:bg-[#0e1d2e] font-[Inter] transition-colors duration-500">
+    <div className="bg-slate-50 dark:bg-black font-[Inter] transition-colors duration-500">
       <h1 className="text-center font-bold text-4xl text-[#0e1d2e] dark:text-[#F7FAFC] pt-20 transition-colors duration-500">
         Language Supported
       </h1>

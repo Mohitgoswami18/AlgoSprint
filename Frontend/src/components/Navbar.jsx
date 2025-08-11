@@ -6,7 +6,7 @@ const Navbar = () => {
   const handleSignUp = () => {};
 
   return (
-    <div className="transition-all duration-500 ease-in-out p-3 px-4 bg-zinc-100 dark:bg-gray-900 border-b border-gray-300 dark:border-gray-700 backdrop-blur-md shadow-md flex items-center justify-between">
+    <div className="transition-all duration-500 ease-in-out p-3 px-4 bg-slate-50 dark:bg-black border-b border-gray-300 dark:border-gray-700 backdrop-blur-md shadow-md flex items-center justify-between">
       {/* Logo Section */}
       <div className="w-fit rounded-2xl flex gap-4 items-center justify-center">
         <img src={logo} alt="logo" className="w-12 drop-shadow-md" />

@@ -1,6 +1,6 @@
 import logo from "../../assets/images/logo.png";
 import { NavLink } from "react-router-dom";
-import { MdLeaderboard } from "react-icons/md";
+import { PiRankingFill } from "react-icons/pi";
 import { TbLayoutDashboardFilled } from "react-icons/tb";
 import { RiUserCommunityFill } from "react-icons/ri";
 import { FaLaptopCode } from "react-icons/fa";
@@ -41,7 +41,7 @@ const ProfileHeroSection = () => {
           to={"/user/leaderboard"}
           className="list-none transition-all duration-300 flex gap-2 items-center justify-start hover:bg-black/10 dark:hover:bg-white/6 rounded-md px-3 py-[12px] text-sm text-black dark:text-white"
         >
-          <MdLeaderboard className="text-xl" /> <p>Leaderboard</p>
+          <PiRankingFill className="text-2xl" /> <p>Leaderboard</p>
         </NavLink>
         <NavLink
           to={"/user/codingrooms"}

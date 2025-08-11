@@ -5,9 +5,9 @@ import terminal from "../assets/images/terminal.png";
 
 const HeroSection = () => {
   return (
-    <div className="transition-all duration-500 ease-in-out pt-26 px-10 flex items-center justify-between bg-zinc-100 dark:bg-[#0e1d2e] font-[Inter]">
+    <div className="transition-all duration-500 ease-in-out pt-26 px-10 flex items-center justify-between bg-slate-50 dark:bg-black font-[Inter]">
       <div>
-        <div className="rounded-xl bg-black/10 dark:bg-white/10 w-fit py-1 text-[12px] px-2 text-gray-600 dark:text-[#A0AEC0]">
+        <div className="rounded-xl ease-in-out transition-all duration-500 bg-white shadow-md dark:bg-white/10 w-fit py-1 text-[12px] px-2 text-gray-600 dark:text-[#A0AEC0]">
           🐦‍🔥 join and compete in coding rooms
         </div>
         <h1 className="text-4xl my-4 font-bold text-gray-900 dark:text-[#F7FAFC]">
