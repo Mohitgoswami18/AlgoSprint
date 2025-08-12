@@ -39,7 +39,7 @@ const steps = [
 
 const HowItWorks = () => {
   return (
-    <section className="transition-all pt-24 mt-12 duration-500 ease-in-out bg-slate-50 dark:bg-black font-[Inter] ">
+    <section className="transition-all mt-12 duration-500 ease-in-out bg-slate-50 dark:bg-black font-[Inter] ">
       <h2 className="text-4xl font-bold text-center mb-12 text-black dark:text-white">
         How to start your journey
       </h2>

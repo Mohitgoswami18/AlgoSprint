@@ -185,7 +185,7 @@ const McqRooms = () => {
             <GiMultipleTargets />
           </div>
           <div>
-            <h1 className="text-4xl font-bold text-black dark:text-white">
+            <h1 className="text-xl font-bold text-black dark:text-white">
               MCQ Rooms - Quiz Arena
             </h1>
             <p className="text-zinc-600 dark:text-white text-sm">

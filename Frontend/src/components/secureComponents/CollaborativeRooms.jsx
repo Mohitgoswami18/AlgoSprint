@@ -32,12 +32,12 @@ const CollaborativeRooms = () => {
         </div>
       </div>
 
-      <div className="dark:bg-black w-full mt-10 font-[Inter] p-5 grid place-items-center">
-        <div className="flex items-center p-2 justify-center gap-3 w-full max-w-[900px] mx-auto">
-          <div className="dark:bg-[#33] basis-[48%] transition-all flex flex-col items-center justify-center duration-500 text-black dark:text-whiteackdrop-blur-2xl text-center hover:scale-105 rounded-md">
-            <Card className="w-full max-w-sm dark:bg-[#111] ">
+      <div className="dark:bg-black transition-all duration-500 ease-in-out w-full mt-10 font-[Inter] p-5 grid place-items-center">
+        <div className="flex items-center transition-all duration-500 p-2 justify-center gap-3 w-full max-w-[900px] mx-auto">
+          <div className=" basis-[48%] transition-all flex flex-col items-center justify-center duration-500 text-black dark:text-whiteackdrop-blur-2xl text-center hover:scale-105 rounded-md">
+            <Card className="w-full max-w-sm transition-all duration-500 dark:bg-[#111] ">
               <CardHeader>
-                <CardTitle className="text-center font-bold text-3xl p-1">
+                <CardTitle className="text-center font-bold text-2xl p-1">
                   Create Your Space
                 </CardTitle>
                 <CardDescription>
@@ -70,10 +70,10 @@ const CollaborativeRooms = () => {
               </CardFooter>
             </Card>
           </div>
-          <div className=" basis-[48%] transition-all flex flex-col items-center justify-center duration-500 text-black dark:text-white backdrop-blur-2xl text-center hover:scale-105 rounded-md">
-            <Card className="w-full max-w-sm dark:bg-[#111]">
+          <div className="transition-all duration-500 basis-[48%] flex flex-col items-center justify-center text-black dark:text-white backdrop-blur-2xl text-center hover:scale-105 rounded-md">
+            <Card className="w-full max-w-sm transition-all duration-500 dark:bg-[#111]">
               <CardHeader>
-                <CardTitle className="text-center font-bold text-3xl p-1">
+                <CardTitle className="text-center font-bold text-2xl p-1">
                   Join public Space
                 </CardTitle>
                 <CardDescription>

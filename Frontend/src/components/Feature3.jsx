@@ -7,7 +7,7 @@ const Feature3 = () => {
       <h1 className="text-4xl font-bold text-center text-[#1a202c] dark:text-[#F7FAFC]">
         Personalised Dashboard
       </h1>
-      <p className="text-md text-[#1a202c] text-center dark:text-[#F7FAFC] font-[Inter]">
+      <p className="text-md text-[#4A5568] dark:text-[#A0AEC0] text-center font-[Inter]">
         Keep a track of your progress with you ownpersonalised dashboard{" "}
       </p>
 
@@ -16,12 +16,12 @@ const Feature3 = () => {
           <img
             src={darkDashboard}
             alt=""
-            className="w-full rounded-md shadow-xl"
+            className="w-full rounded-md shadow-[0_0_20px_5px_rgba(255,200,0,0.9)] dark:shadow-[0_0_20px_5px_rgba(255,200,0,0.6)]"
           />
           <img
             src={whiteDashboard}
             alt=""
-            className="w-3/4 absolute bottom-[-60px] shadow-xl right-[-60px] rounded-md"
+            className="w-3/4 absolute bottom-[-60px] dark:shadow-white/20 shadow-md right-[-60px] rounded-md"
           />
         </div>
       </div>

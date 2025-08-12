@@ -13,14 +13,14 @@ import { Input } from "@/components/ui/input";
 
 const CodingRooms = () => {
   return (
-    <div className="bg-slate-50 dark:bg-black font-[Inter] p-5 h-screen relative">
+    <div className="bg-slate-50 transition-all duration-500 dark:bg-black font-[Inter] p-5 h-screen relative">
       <div className=" backdrop-blur-2xl bg-white/10 p-5 rounded-md shadow-xl ">
         <div className="flex gap-4 items-center ">
           <div className="bg-slate-100 shadow-md dark:bg-white/10 backdrop-blur-2xl px-2 py-3 text-4xl rounded-xl">
             <FaRestroom />
           </div>
           <div className="">
-            <h1 className="text-3xl font-[Inter] text-black dark:text-white font-bold">
+            <h1 className="text-xl font-[Inter] text-black dark:text-white font-bold">
               Coding Room
             </h1>
             <p className=" text-[#4a5568] dark:text-[#A0AEC0] text-[12px] tracking-tight w-2/3">
@@ -32,12 +32,12 @@ const CodingRooms = () => {
         </div>
       </div>
 
-      <div className="dark:bg-black w-full mt-10 font-[Inter] p-5 grid place-items-center">
+      <div className="dark:bg-black transition-all duration-500 w-full mt-10 font-[Inter] p-5 grid place-items-center">
         <div className="flex items-center p-2 justify-center gap-3 w-full max-w-[900px] mx-auto">
           <div className="dark:bg-[#33] basis-[48%] transition-all flex flex-col items-center justify-center duration-500 text-black dark:text-whiteackdrop-blur-2xl text-center hover:scale-105 rounded-md">
-            <Card className="w-full max-w-sm dark:bg-[#111] ">
+            <Card className="w-full max-w-sm transition-all duration-500 dark:bg-[#111] ">
               <CardHeader>
-                <CardTitle className="text-center font-bold text-3xl p-1">
+                <CardTitle className="text-center font-bold text-2xl p-1">
                   Create Your Room
                 </CardTitle>
                 <CardDescription>
@@ -71,9 +71,9 @@ const CodingRooms = () => {
             </Card>
           </div>
           <div className=" basis-[48%] transition-all flex flex-col items-center justify-center duration-500 text-black dark:text-white backdrop-blur-2xl text-center hover:scale-105 rounded-md">
-            <Card className="w-full max-w-sm dark:bg-[#111]">
+            <Card className="w-full max-w-sm transition-all duration-500 dark:bg-[#111]">
               <CardHeader>
-                <CardTitle className="text-center font-bold text-3xl p-1">
+                <CardTitle className="text-center font-bold text-2xl p-1">
                   Join public Room
                 </CardTitle>
                 <CardDescription>

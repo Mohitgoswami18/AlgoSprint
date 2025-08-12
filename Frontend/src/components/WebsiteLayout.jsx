@@ -12,8 +12,8 @@ const WebsiteLayout = () => {
     <Navbar />
     <HeroSection />
     <Features />
-    <LanguagesAvailable />
     <Feature3 />
+    <LanguagesAvailable />
     <WorkFlow />
     <CTA />
     <Footer />

@@ -1,12 +1,18 @@
-import React from "react";
-
 const Footer = () => {
   return (
-    <footer className="bg-zinc-600 backdrop-blur-md border-t border-white/10 px-6 py-10 text-gray-300">
+    <footer
+      className="
+        bg-slate-100 dark:bg-zinc-900
+        backdrop-blur-md border-t border-black/10 dark:border-white/10
+        px-6 py-10
+        text-gray-700 dark:text-gray-300
+      "
+    >
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10">
-        {/* Brand and Tagline */}
         <div>
-          <h1 className="text-cyan-400 text-2xl font-bold">CodeSamrat</h1>
+          <h1 className="text-cyan-600 dark:text-cyan-400 text-2xl font-bold">
+            AlgoSprint
+          </h1>
           <p className="mt-2 text-sm">
             Turning DSA practice into an engaging, competitive, and fun
             experience for all coders.
@@ -15,37 +21,47 @@ const Footer = () => {
 
         {/* Quick Links */}
         <div>
-          <h2 className="text-white font-semibold text-lg mb-2">Quick Links</h2>
+          <h2 className="text-black dark:text-white font-semibold text-lg mb-2">
+            Quick Links
+          </h2>
           <ul className="space-y-1 text-sm">
-            <li className="hover:text-white cursor-pointer">Home</li>
-            <li className="hover:text-white cursor-pointer">Leaderboard</li>
-            <li className="hover:text-white cursor-pointer">Features</li>
-            <li className="hover:text-white cursor-pointer">Login</li>
+            <li className="hover:text-black dark:hover:text-white cursor-pointer">
+              Home
+            </li>
+            <li className="hover:text-black dark:hover:text-white cursor-pointer">
+              features
+            </li>
+            <li className="hover:text-black dark:hover:text-white cursor-pointer">
+              languages
+            </li>
+            <li className="hover:text-black dark:hover:text-white cursor-pointer">
+              Login
+            </li>
           </ul>
         </div>
 
         {/* Social / Contact */}
         <div>
-          <h2 className="text-white font-semibold text-lg mb-2">
+          <h2 className="text-black dark:text-white font-semibold text-lg mb-2">
             Stay Connected
           </h2>
           <ul className="space-y-1 text-sm">
             <li>
               <a
-                href="mailto:contact@codesamrat.dev"
-                className="hover:text-white"
+                href="mailto:contact@AlgoSprint.dev"
+                className="hover:text-black dark:hover:text-white"
               >
-                contact@codesamrat.dev
+                contact@AlgoSprint.dev
               </a>
             </li>
             <li className="flex gap-4 mt-2">
-              <a href="#" className="hover:text-white">
+              <a href="#" className="hover:text-black dark:hover:text-white">
                 GitHub
               </a>
-              <a href="#" className="hover:text-white">
+              <a href="#" className="hover:text-black dark:hover:text-white">
                 LinkedIn
               </a>
-              <a href="#" className="hover:text-white">
+              <a href="#" className="hover:text-black dark:hover:text-white">
                 Twitter
               </a>
             </li>
@@ -54,8 +70,8 @@ const Footer = () => {
       </div>
 
       {/* Bottom */}
-      <div className="border-t border-white/10 mt-10 pt-6 text-sm text-center text-gray-400">
-        &copy; {new Date().getFullYear()} CodeSamrat. Built with ❤️ for coders.
+      <div className="border-t border-black/10 dark:border-white/10 mt-10 pt-6 text-sm text-center text-gray-500 dark:text-gray-400">
+        &copy; {new Date().getFullYear()} AlgoSprint. Built with ❤️ for coders.
       </div>
     </footer>
   );

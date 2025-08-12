@@ -120,7 +120,7 @@ const Leaderboard = () => {
             <GiLaurelsTrophy />
           </div>
           <div>
-            <h1 className="text-4xl font-bold text-black dark:text-white">
+            <h1 className="text-3xl font-bold text-black dark:text-white">
               Global Leaderboard
             </h1>
             <p className="text-[#A0AEC0] text-[14px] tracking-tight">

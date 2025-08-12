@@ -55,7 +55,7 @@ const Features = () => {
         Everything you need to become a pro at programming
       </p>
 
-      <div className="flex mt-16 flex-wrap max-w-[1080px] justify-between mx-auto">
+      <div className="flex mt-16 flex-wrap max-w-[900px] justify-between mx-auto">
         {feature.map((elem, idx) => (
           <div
             key={idx}
