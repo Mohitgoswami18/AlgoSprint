@@ -1,9 +1,15 @@
 import logo from "../assets/images/logo.png";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { useNavigate } from "react-router-dom"
 
 const Navbar = () => {
-  const handleSignUp = () => {};
+
+  const navigate = useNavigate();
+
+  const handleSignUp = () => {
+    navigate("/auth/signup");
+  };
 
   return (
     <div className="transition-all duration-500 ease-in-out p-3 px-4 bg-slate-50 dark:bg-black border-b border-gray-300 dark:border-gray-700 backdrop-blur-md shadow-md flex items-center justify-between">
