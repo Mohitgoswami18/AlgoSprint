@@ -1,5 +1,86 @@
-import { NavLink } from "react-router-dom";
+import { useState } from "react";
+import { useSignUp } from "@clerk/clerk-react";
+import { NavLink, useNavigate } from "react-router-dom";
+import Loader from "./Loader";
+import { toast } from "sonner";
+
+
 export default function Signup() {
+  const navigate = useNavigate();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [pendingVerification, setPendingVerification] = useState(false);
+  const [code, setCode] = useState("");
+  const { isLoaded, setActive, signUp } = useSignUp();
+
+  const handleSignUp = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    if(!isLoaded) {
+      return;
+    }
+
+    try {
+      await signUp.create({
+        emailAddress: email,
+        password,
+      });
+    } catch (error) {
+      toast.error("Failed to sign up. Please try again.");
+      setError("Failed to sign up. Please try again.");
+      console.log(error);
+    }
+    setLoading(false);
+
+    try {
+      await signUp.prepareEmailAddressVerification({
+        strategy: "email_code",
+      });
+      toast.success(
+        "Sign up successful! Please check your email for verification code."
+      );
+      setLoading(false);
+      setPendingVerification(true);
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+      toast.error("Failed to verify email. Please try again.");
+      setError("Failed to verify email. Please try again.");
+    }
+  };
+
+   const handleEmailVerification = async (e) => {
+      e.preventDefault();
+      setLoading(true);
+      if(!isLoaded) {
+        return;
+      }
+      try {
+        const signupCompleted = await signUp.attemptEmailAddressVerification({
+          code,
+        });
+
+        if(signupCompleted.status === "complete") {
+          await setActive({session: signupCompleted.createdSessionId});
+          setLoading(false);
+          navigate("/user/dashboard");
+        } else {
+          toast.error("Verification failed. Please try again.");
+          setLoading(false);
+          setError("Invalid code. Please try again.");
+          console.log("Verification failed:", signupCompleted);
+        }
+      } catch (error) {
+        setLoading(false);
+        toast.error("Failed to verify email. Please try again.");
+        setError("Failed to verify email. Please try again.");
+        console.log(error);
+      }
+   }
   return (
     <div className="flex font-[Inter] items-center justify-center bg-slate-50 dark:bg-black px-1 ">
       <div className="w-full max-w-sm ring-[0.5px] dark:ring-zinc-600 rounded-md bg-white dark:bg-zinc-900 backdrop-blur-2xl px-8 pt-2 shadow-lg pb-2">
@@ -10,44 +91,92 @@ export default function Signup() {
           Sign in or create an account to continue
         </p>
 
-        {/* Email Input */}
-        <div className="mt-12 my-4 flex items-center justify-center">
-          <label
-            htmlFor="email"
-            className="block text-md w-1/2 font-medium text-gray-700 dark:text-gray-300"
-          >
-            Email Address
-          </label>
-          <input
-            type="email"
-            id="email"
-            className="w-full text-md rounded-lg border border-gray-300 bg-white dark:bg-zinc-900 dark:border-gray-700 px-4 py-1 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="email"
-          />
-        </div>
+        {!pendingVerification ? (
+          <form onSubmit={handleSignUp}>
+            <div className="mt-12 my-4 flex items-center justify-center">
+              <label
+                htmlFor="email"
+                className="block text-md w-1/2 font-medium text-gray-700 dark:text-gray-300"
+              >
+                Email
+              </label>
+              <input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="w-full text-md rounded-lg border border-gray-300 bg-white dark:bg-zinc-900 dark:border-gray-700 px-4 py-1 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="email"
+              />
+            </div>
 
-        {/* Password Input */}
-        <div className="mt-2 my-8 flex items-center justify-center">
-          <label
-            htmlFor="password"
-            className="block w-1/2 text-md font-medium text-gray-700 dark:text-gray-300"
-          >
-            Password
-          </label>
-          <input
-            type="password"
-            id="password"
-            className="w-full text-md rounded-lg border border-gray-300 bg-white dark:bg-zinc-900 dark:border-gray-700 px-4 py-1 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="••••••••"
-          />
-        </div>
+            {/* Password Input */}
+            <div className="mt-2 my-8 flex items-center justify-center">
+              <label
+                htmlFor="password"
+                className="block w-1/2 text-md font-medium text-gray-700 dark:text-gray-300"
+              >
+                Password
+              </label>
+              <input
+                type="password"
+                id="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full text-md rounded-lg border border-gray-300 bg-white dark:bg-zinc-900 dark:border-gray-700 px-4 py-1 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="••••••••"
+              />
+            </div>
 
-        {/* Action Buttons */}
-        <div className="mt-6 flex gap-3">
-          <button className="w-full cursor-pointer text-md rounded-lg bg-green-600 px-4 py-2 font-semibold text-white hover:bg-green-700 transition">
-            Sign In
-          </button>
-        </div>
+            {/* Action Buttons */}
+            <div className="mt-6 flex gap-3">
+              <button
+                className="w-full h-8 flex items-center justify-center cursor-pointer text-md rounded-lg bg-green-600 px-4 py-2 font-semibold text-white hover:bg-green-700 transition"
+                type="submit"
+              >
+                {!loading ? "Sign Up" : <Loader />}
+              </button>
+            </div>
+          </form>
+        ) : (
+          <form onSubmit={handleEmailVerification}>
+            <div className="mt-2 my-8 flex items-center justify-center">
+              <label
+                htmlFor="code"
+                className="block w-1/2 text-md font-medium text-gray-700 dark:text-gray-300"
+              >
+                code
+              </label>
+              <input
+                type="text"
+                id="code"
+                required
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+                className="w-full text-md rounded-lg border border-gray-300 bg-white dark:bg-zinc-900 dark:border-gray-700 px-4 py-1 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="••••••••"
+              />
+            </div>
+            <div className="mt-6 flex gap-3">
+              <button
+                className="w-full h-8 flex items-center justify-center cursor-pointer text-md rounded-lg bg-green-600 px-4 py-2 font-semibold text-white hover:bg-green-700 transition"
+                type="submit"
+              >
+                {!loading ? "verify" : <Loader />}
+              </button>
+            </div>
+            <div className="mt-6 flex gap-3">
+              <button
+                className="w-full h-8 cursor-pointer flex items-center justify-center text-md rounded-lg bg-green-600 px-4 py-2 font-semibold text-white hover:bg-green-700 transition"
+                onClick={() => setPendingVerification(false)}
+              >
+                Resend Code
+              </button>
+            </div>
+          </form>
+        )}
 
         {/* Divider */}
         <div className=" flex items-center my-4">

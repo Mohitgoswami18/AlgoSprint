@@ -1,5 +1,42 @@
 import { NavLink } from "react-router-dom";
+import { useState } from "react";
+import { useSignIn} from "@clerk/clerk-react";
+import { toast } from "sonner";
+
 export default function Signin() {
+
+  const handleSignIn = async() => {
+    setLoading(true);
+    if(!isLoaded) return;
+
+    try {
+      const signinResult = await signin.create({
+        identifier: email,
+        password: password,
+      });
+
+      if(signinResult.status === "complete") {
+        setActive(signinResult.createdSessionId);
+        toast.success("Sign-in successful! Redirecting...");
+      } else {
+        toast.error("Sign-in incomplete. Please check your credentials.");
+        setError("Sign-in failed. Please check your credentials.");
+      }
+
+      setLoading(false);
+    } catch (error) {
+      toast.error("Failed to sign in. Please try again.");
+      setError("Failed to sign in. Please try again.");
+      console.error("Sign-in error:", error);
+      setLoading(false);
+    }
+  }
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const { signin, setActive, isLoaded } = useSignIn();
 
   return (
     <div className="flex font-[Inter] items-center justify-center bg-slate-50 dark:bg-black px-1 ">
@@ -11,44 +48,53 @@ export default function Signin() {
           Sign in or create an account to continue
         </p>
 
-        {/* Email Input */}
-        <div className="mt-12 my-4 flex items-center justify-center">
-          <label
-            htmlFor="email"
-            className="block text-md w-1/2 font-medium text-gray-700 dark:text-gray-300"
-          >
-            Email Address
-          </label>
-          <input
-            type="email"
-            id="email"
-            className="w-full text-md rounded-lg border border-gray-300 bg-white dark:bg-zinc-900 dark:border-gray-700 px-4 py-1 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="username or email"
-          />
-        </div>
+        <form onSubmit={handleSignIn}>
+          <div className="mt-12 my-4 flex items-center justify-center">
+            <label
+              htmlFor="email"
+              className="block text-md w-1/2 font-medium text-gray-700 dark:text-gray-300"
+            >
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              required
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full text-md rounded-lg border border-gray-300 bg-white dark:bg-zinc-900 dark:border-gray-700 px-4 py-1 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="username or email"
+            />
+          </div>
 
-        {/* Password Input */}
-        <div className="mt-2 my-8 flex items-center justify-center">
-          <label
-            htmlFor="password"
-            className="block w-1/2 text-md font-medium text-gray-700 dark:text-gray-300"
-          >
-            Password
-          </label>
-          <input
-            type="password"
-            id="password"
-            className="w-full text-md rounded-lg border border-gray-300 bg-white dark:bg-zinc-900 dark:border-gray-700 px-4 py-1 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="••••••••"
-          />
-        </div>
+          {/* Password Input */}
+          <div className="mt-2 my-8 flex items-center justify-center">
+            <label
+              htmlFor="password"
+              className="block w-1/2 text-md font-medium text-gray-700 dark:text-gray-300"
+            >
+              Password
+            </label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              required
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full text-md rounded-lg border border-gray-300 bg-white dark:bg-zinc-900 dark:border-gray-700 px-4 py-1 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="••••••••"
+            />
+          </div>
 
-        {/* Action Buttons */}
-        <div className="mt-6 flex gap-3">
-          <button className="w-full cursor-pointer text-md rounded-lg bg-green-600 px-4 py-2 font-semibold text-white hover:bg-green-700 transition">
-            Sign In
-          </button>
-        </div>
+          <div className="mt-6 flex gap-3">
+            <button
+              className="w-full cursor-pointer text-md rounded-lg bg-green-600 px-4 py-2 font-semibold text-white hover:bg-green-700 transition"
+              onClick={handleSignIn}
+            >
+              Sign In
+            </button>
+          </div>
+        </form>
 
         {/* Divider */}
         <div className=" flex items-center my-4">
