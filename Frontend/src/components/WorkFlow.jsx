@@ -3,46 +3,58 @@ import { FaPeopleRoof } from "react-icons/fa6";
 import { MdOutlineSettingsSuggest } from "react-icons/md";
 import { FaShareAlt } from "react-icons/fa";
 import { MdOutlineNotStarted } from "react-icons/md";
-import authDark from "../assets/images/authDark.png"
 import whiteRoom from "../assets/images/whiteRoom.png"
 import darkRoom from "../assets/images/darkRoom.png"
 import authLight from "../assets/images/authLight.png"
+import authDark from "../assets/images/authDark.png"
+import settingLight from "../assets/images/settingLight.png"
+import settingDark from "../assets/images/settingDark.png"
 
 const steps = [
   {
     icon: <GrUserNew />,
     title: "create a Account ",
-    description: "Quickly create an account with an seamless authentication protected and secured by the clerk Authentication",
+    description:
+      "Quickly create an account with an seamless authentication protected and secured by the clerk Authentication",
     color: "text-blue-500",
     imgs: [authDark, authLight],
+    imgStyle: "w-1/3",
   },
   {
     icon: <FaPeopleRoof />,
     title: "Create Room",
-    description: "Quickly create a Personalised Room and genrate a random passkey ( ID ) to share with other to join the room and compete with you .",
+    description:
+      "Quickly create a Personalised Room and genrate a random passkey ( ID ) to share with other to join the room and compete with you .",
     color: "text-green-500",
     imgs: [whiteRoom, darkRoom],
+    imgStyle: "rotate-1",
   },
   {
     icon: <MdOutlineSettingsSuggest />,
     title: "Customize Settings",
-    description: "customize the settings - time, difficulty, opponent all according to you and chellenge anyone ",
+    description:
+      "customize the settings - time, difficulty, opponent all according to you and chellenge anyone ",
     color: "text-purple-500",
-    imgs: [authDark, authDark],
+    imgs: [settingLight, settingDark],
+    imgStyle: "w-3/8 rotate- ml-37",
   },
   {
     icon: <FaShareAlt />,
     title: "Share Link",
-    description: "Send this random genrated room id with other so that they can join thier room and compete with you in realtime battle",
+    description:
+      "Send this random genrated room id with other so that they can join thier room and compete with you in realtime battle",
     color: "text-yellow-500",
     imgs: [authDark, authDark],
+    imgStyle: "",
   },
   {
     icon: <MdOutlineNotStarted />,
     title: "Game Begins",
-    description: "Once both the user joined the room then a timer of 3 second will start and the battle begins ",
+    description:
+      "Once both the user joined the room then a timer of 3 second will start and the battle begins ",
     color: "text-red-500",
     imgs: [authDark, authDark],
+    imgStyle: "",
   },
 ];
 
@@ -56,11 +68,7 @@ const HowItWorks = () => {
       
       </div>
 
-      <div className="flex flex-col px-24 md:flex-row flex-wrap justify-center items-center">
-      <div className="border-l-1 mx-24 border-zinc-700 w-1 h-4">
       
-      </div>
-
       <div className="flex flex-col px-24 md:flex-row flex-wrap justify-center items-center">
         {steps.map((step, index) => {
           return (
@@ -85,12 +93,12 @@ const HowItWorks = () => {
                   <div className="relative w-fit flex">
                     <img
                       src={step.imgs[0]}
-                      className=" rounded-md w-1/2 left-[50%] hover:z-44 hover:scale-105 -0 transition-all rotate-5 duration-100 mx-auto"
+                      className={`${step.imgStyle} rounded-md w-1/2 left-[50%] hover:z-44 hover:scale-105 -0 transition-all rotate-5 duration-100 mx-auto `}
                       alt="Auth Feature"
                     />
                     <img
                       src={step.imgs[1]}
-                      className=" rounded-md w-1/2 left-[10%] z-0 hover:z-99 transition-all hover:scale-105 duration-100 -rotate-12 mx-auto absolute"
+                      className={`${step.imgStyle} rounded-md w-1/2 left-[10%] z-0 hover:z-99 transition-all hover:scale-105 duration-100 -rotate-12 mx-auto absolute`}
                       alt="Auth Feature"
                     />
                   </div>
