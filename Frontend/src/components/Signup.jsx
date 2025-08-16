@@ -8,6 +8,7 @@ import { toast } from "sonner";
 export default function Signup() {
   const navigate = useNavigate();
 
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -26,6 +27,7 @@ export default function Signup() {
 
     try {
       await signUp.create({
+        username,
         emailAddress: email,
         password,
       });
@@ -93,7 +95,24 @@ export default function Signup() {
 
         {!pendingVerification ? (
           <form onSubmit={handleSignUp}>
-            <div className="mt-12 my-4 flex items-center justify-center">
+            <div className="mt-2 my-4 flex items-center justify-center">
+              <label
+                htmlFor="username"
+                className="block w-1/2 text-md font-medium text-gray-700 dark:text-gray-300"
+              >
+                username
+              </label>
+              <input
+                type="text"
+                id="username"
+                required
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full text-md rounded-lg border border-gray-300 bg-white dark:bg-zinc-900 dark:border-gray-700 px-4 py-1 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="username"
+              />
+            </div>
+            <div className="flex items-center my-4 justify-center">
               <label
                 htmlFor="email"
                 className="block text-md w-1/2 font-medium text-gray-700 dark:text-gray-300"
@@ -141,7 +160,7 @@ export default function Signup() {
             </div>
           </form>
         ) : (
-          <form onSubmit={handleEmailVerification}>
+          <div onSubmit={handleEmailVerification}>
             <div className="mt-2 my-8 flex items-center justify-center">
               <label
                 htmlFor="code"
@@ -162,7 +181,7 @@ export default function Signup() {
             <div className="mt-6 flex gap-3">
               <button
                 className="w-full h-8 flex items-center justify-center cursor-pointer text-md rounded-lg bg-green-600 px-4 py-2 font-semibold text-white hover:bg-green-700 transition"
-                type="submit"
+                onClick={handleEmailVerification}
               >
                 {!loading ? "verify" : <Loader />}
               </button>
@@ -172,10 +191,10 @@ export default function Signup() {
                 className="w-full h-8 cursor-pointer flex items-center justify-center text-md rounded-lg bg-green-600 px-4 py-2 font-semibold text-white hover:bg-green-700 transition"
                 onClick={() => setPendingVerification(false)}
               >
-                Resend Code
+                try Again
               </button>
             </div>
-          </form>
+          </div>
         )}
 
         {/* Divider */}

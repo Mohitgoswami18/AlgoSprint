@@ -3,7 +3,7 @@ import { FaLaptop } from "react-icons/fa";
 import { GiRank3 } from "react-icons/gi";
 import { SlBadge } from "react-icons/sl";
 import { GiDiscussion } from "react-icons/gi";
-import { RiChatAiFill } from "react-icons/ri";
+import clerkLogo from "../assets/images/clerkLogo.png"
 
 const AuthFeture = () => {
   return (
@@ -45,10 +45,12 @@ const AuthFeture = () => {
             <GiDiscussion className="text-xl" /> Discuss post-contest with
             others in private collaborative rooms
           </p>
-          <p className="py-2 flex items-center pb-12 gap-4 px-40 text-base text-gray-600 dark:text-[#A0AEC0]">
-            <RiChatAiFill className="text-xl" /> See others Thoughts and share
-            your progress in the global chat
-          </p>
+        </div>
+        <div className="auth-footer mt-4 py-5 flex items-center justify-center">
+          <img src={clerkLogo} alt="Clerk Logo" className="h-6 mr-2 dark:invert" />
+          <span className="text-gray-600 dark:text-white text-sm">
+            Protected by <span className="text-indigo-500 font-bold text-xl">Clerk</span>
+          </span>
         </div>
       </div>
     </div>
