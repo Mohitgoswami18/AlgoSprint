@@ -5,6 +5,13 @@ import Loader from "./Loader";
 import { toast } from "sonner";
 
 
+import { useState } from "react";
+import { useSignUp } from "@clerk/clerk-react";
+import { NavLink, useNavigate } from "react-router-dom";
+import Loader from "./Loader";
+import { toast } from "sonner";
+
+
 export default function Signup() {
   const navigate = useNavigate();
 
@@ -90,6 +97,12 @@ export default function Signup() {
           Welcome to AlgoSprint
         </h1>
         <p className="text-md text-center text-gray-500 dark:text-gray-400">
+    <div className="flex font-[Inter] items-center justify-center bg-slate-50 dark:bg-black px-1 ">
+      <div className="w-full max-w-sm ring-[0.5px] dark:ring-zinc-600 rounded-md bg-white dark:bg-zinc-900 backdrop-blur-2xl px-8 pt-2 shadow-lg pb-2">
+        <h1 className="text-center font-[Inter] mt-2 text-3xl font-bold text-gray-900 dark:text-[#F7FAFC]">
+          Welcome to AlgoSprint
+        </h1>
+        <p className="text-md text-center text-gray-500 dark:text-gray-400">
           Sign in or create an account to continue
         </p>
 
@@ -130,6 +143,24 @@ export default function Signup() {
               />
             </div>
 
+            {/* Password Input */}
+            <div className="mt-2 my-8 flex items-center justify-center">
+              <label
+                htmlFor="password"
+                className="block w-1/2 text-md font-medium text-gray-700 dark:text-gray-300"
+              >
+                Password
+              </label>
+              <input
+                type="password"
+                id="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full text-md rounded-lg border border-gray-300 bg-white dark:bg-zinc-900 dark:border-gray-700 px-4 py-1 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="••••••••"
+              />
+            </div>
             {/* Password Input */}
             <div className="mt-2 my-8 flex items-center justify-center">
               <label
@@ -199,6 +230,7 @@ export default function Signup() {
 
         {/* Divider */}
         <div className=" flex items-center my-4">
+        <div className=" flex items-center my-4">
           <hr className="flex-grow border-gray-300 dark:border-gray-700" />
           <span className="px-2 text-sm text-gray-500 dark:text-gray-400">
             OR
@@ -213,9 +245,19 @@ export default function Signup() {
             alt="Google"
             className="w-5 h-3 text-[12px]"
           />
+          <img
+            src="/google-icon.svg"
+            alt="Google"
+            className="w-5 h-3 text-[12px]"
+          />
           Continue with Google
         </button>
 
+        <p className="text-sm text-center mt-5">
+          Already have an account ?
+          <NavLink to={"/auth/signin"} className="text-indigo-500 pl-2">
+            sign in
+          </NavLink>
         <p className="text-sm text-center mt-5">
           Already have an account ?
           <NavLink to={"/auth/signin"} className="text-indigo-500 pl-2">

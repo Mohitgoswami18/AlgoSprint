@@ -57,6 +57,11 @@ const HowItWorks = () => {
       </div>
 
       <div className="flex flex-col px-24 md:flex-row flex-wrap justify-center items-center">
+      <div className="border-l-1 mx-24 border-zinc-700 w-1 h-4">
+      
+      </div>
+
+      <div className="flex flex-col px-24 md:flex-row flex-wrap justify-center items-center">
         {steps.map((step, index) => {
           return (
             <div
