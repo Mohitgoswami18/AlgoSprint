@@ -9,7 +9,7 @@ const MatchSchema = new Schema({
   style: {
     type: String,
     required: true,
-    enum: ["lightSpeed", "casual", "day", "rapid"],
+    enum: ["Blitz", "rapid", "classical"],
   },
   opponentId: {
     type: Schema.Types.ObjectId,

@@ -1,8 +1,25 @@
 import { Button } from "@/components/ui/button";
-import { DiCode } from "react-icons/di";
+import { useUser, SignedIn, SignedOut } from "@clerk/clerk-react"
+import { useNavigate } from "react-router-dom";
+import { Skeleton } from "@/components/ui/skeleton";
 import Eye from "./Eyepart";
 
 const HeroSection = () => {
+
+  const navigate = useNavigate();
+  const { isLoaded, isSignedIn } = useUser();
+
+  const HandlePrimaryButton = () => {
+
+    if(!isLoaded) return;
+
+    if(isSignedIn) {
+      navigate("/user/")
+    } else {
+      navigate("/auth/signup")
+    }
+  }
+
   return (
     <div className="transition-all duration-500 ease-in-out pt-7 px-8 flex flex-col items-center bg-slate-50 dark:bg-black font-[Inter] relative overflow-hidden">
       <div className="relative flex justify-center w-1/10 max-w-[600px]">
@@ -21,15 +38,30 @@ const HeroSection = () => {
 
       {/* Buttons */}
       <div className="flex items-center transition-all duration-500 justify-center gap-4 border-b-2 p-6 px-16 border-gray-300 dark:border-[#A0AEC0] mt-6">
-        <button className="relative group overflow-hidden px-4 py-2 rounded-md bg-cyan-600 text-white text-lg font-semibold">
-          <div className="absolute top-0 left-0 w-0 h-full bg-zinc-300 transition-all duration-400 group-hover:w-full z-10"></div>
-          <span className="relative z-20 group-hover:text-black transition-colors duration-400">
-            Start your journey
-          </span>
-        </button>
-        <Button variant="outline" className="cursor-pointer transition-all duration-500">
-          Explore ➡️
-        </Button>
+        {isLoaded ? (
+          <>
+            <button
+              className="relative group overflow-hidden px-4 py-2 rounded-md bg-cyan-600 text-white text-lg font-semibold"
+              onClick={HandlePrimaryButton}
+            >
+              <div className="absolute top-0 left-0 w-0 h-full bg-zinc-300 transition-all duration-400 group-hover:w-full z-10"></div>
+              <span className="relative z-20 group-hover:text-black transition-colors duration-400">
+                {isSignedIn ? "Continue to dashboard" : "Start your journey"}
+              </span>
+            </button>
+            <Button
+              variant="outline"
+              className="cursor-pointer transition-all duration-500"
+            >
+              Explore ➡️
+            </Button>
+          </>
+        ) : (
+          <>
+            <Skeleton className="h-[20px] w-[100px] rounded-full bg-slate-300" />
+            <Skeleton className="h-[20px] w-[100px] rounded-full bg-slate-300" />
+          </>
+        )}
       </div>
     </div>
   );

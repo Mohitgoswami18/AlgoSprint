@@ -150,11 +150,12 @@ const Dashboard = () => {
         <div className="bg-white shadow-md ring-[0.5px] dark:ring-white/20 dark:bg-white/4 p-4 rounded-md">
           <h1 className="text-center font-bold text-md">Badges Earned</h1>
           <p className="gap-2 p-4 py-9 flex flex-wrap items-center justify-center">
-            <Badge variant="outline">100 Streak</Badge>
-            <Badge variant="default">battleMaster</Badge>
-            <Badge variant="destructive">battleMaster</Badge>
-            <Badge variant="ghost">battleMaster</Badge>
-            <Badge variant="secondary">Undefeatable</Badge>
+            <Badge variant="outline">Newbie</Badge>
+            <Badge variant="default">Gladiator</Badge>
+            <Badge variant="destructive">SpeedDemon</Badge>
+            <Badge variant="ghost">AlgoMaster</Badge>
+            <Badge variant="ghost">Flash</Badge>
+            <Badge variant="secondary">CodingSage</Badge>
             <button className="cursor-pointer bg-gray-300 dark:bg-white/10 px-2 py-1 rounded-lg">
               see all
             </button>

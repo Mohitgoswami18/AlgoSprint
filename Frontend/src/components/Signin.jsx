@@ -1,9 +1,23 @@
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
-import { useSignIn} from "@clerk/clerk-react";
+import { SignIn, useSignIn} from "@clerk/clerk-react";
 import { toast } from "sonner";
 
 export default function Signin() {
+
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+    const { signIn, setActive, isLoaded } = useSignIn();
+
+  const handleGoogleSignIn = async () => {
+    await signIn.authenticateWithRedirect({
+      strategy:"oauth_google",
+      redirectUrl:"/sso-callback",
+      redirectUrlComplete:"/user/login"
+    })
+  }
 
   const handleSignIn = async() => {
     setLoading(true);
@@ -31,12 +45,6 @@ export default function Signin() {
       setLoading(false);
     }
   }
-
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const { signin, setActive, isLoaded } = useSignIn();
 
   return (
     <div className="flex font-[Inter] items-center justify-center bg-slate-50 dark:bg-black px-1 ">
@@ -106,7 +114,8 @@ export default function Signin() {
         </div>
 
         {/* Social Login */}
-        <button className="w-full flex items-center cursor-pointer justify-center gap-2 rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-800 transition">
+        <button className="w-full flex items-center cursor-pointer justify-center gap-2 rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-800 transition"
+        onClick={handleGoogleSignIn}>
           <img
             src="/google-icon.svg"
             alt="Google"

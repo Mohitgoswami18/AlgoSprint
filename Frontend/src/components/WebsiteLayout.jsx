@@ -6,18 +6,22 @@ import Feature3 from "./Feature3";
 import WorkFlow from "./WorkFlow";
 import Footer from "./Footer";
 import CTA from "./FinalCTA";
+import RankLine from "./Rank"
 
 const WebsiteLayout = () => {
-  return <div>
-    <Navbar />
-    <HeroSection />
-    <Features />
-    <Feature3 />
-    <LanguagesAvailable />
-    <WorkFlow />
-    <CTA />
-    <Footer />
-  </div>;
+  return (
+    <div>
+      <Navbar />
+      <HeroSection />
+      <Features />
+      <Feature3 />
+      <RankLine />
+      <LanguagesAvailable />
+      <WorkFlow />
+      <CTA />
+      <Footer />
+    </div>
+  );
 };
 
 export default WebsiteLayout;

@@ -1,14 +1,22 @@
 import logo from "../assets/images/logo.png";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom";
+import { useUser } from "@clerk/clerk-react";
+import { useEffect } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Navbar = () => {
 
   const navigate = useNavigate();
+  const { isLoaded, isSignedIn } = useUser();
 
   const handleSignUp = () => {
-    navigate("/auth/signup");
+    if(isSignedIn) {
+      navigate("/user/")
+    } else {
+      navigate("/auth/signup")
+    }
   };
 
   return (
@@ -40,14 +48,18 @@ const Navbar = () => {
           Dark Mode
         </label>
 
-        <Button
-          variant="outline"
-          size="sm"
-          className="cursor-pointer transition-all hover:bg-gray-200 dark:hover:bg-gray-800 dark:border-gray-600"
-          onClick={handleSignUp}
-        >
-          Sign Up
-        </Button>
+        {isLoaded ? (
+          <Button
+            variant="outline"
+            size="sm"
+            className="cursor-pointer transition-all hover:bg-gray-200 dark:hover:bg-gray-800 dark:border-gray-600"
+            onClick={handleSignUp}
+          >
+            {isSignedIn ? "Continue" : "Sign up"}
+          </Button>
+        ) : (
+          <Skeleton className="h-8 w-[90px] rounded-md bg-slate-300" />
+        )}
       </div>
     </div>
   );

@@ -9,6 +9,8 @@ import authLight from "../assets/images/authLight.png"
 import authDark from "../assets/images/authDark.png"
 import settingLight from "../assets/images/settingLight.png"
 import settingDark from "../assets/images/settingDark.png"
+import shareLight from "../assets/images/shareLight.png"
+import shareDark from "../assets/images/shareDark.png"
 
 const steps = [
   {
@@ -44,8 +46,8 @@ const steps = [
     description:
       "Send this random genrated room id with other so that they can join thier room and compete with you in realtime battle",
     color: "text-yellow-500",
-    imgs: [authDark, authDark],
-    imgStyle: "",
+    imgs: [shareLight, shareDark],
+    imgStyle: "rotate-3 shadow-md ml-24",
   },
   {
     icon: <MdOutlineNotStarted />,

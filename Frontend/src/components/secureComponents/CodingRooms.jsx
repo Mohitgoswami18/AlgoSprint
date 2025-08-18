@@ -117,11 +117,11 @@ const CodingRooms = () => {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="30min">
-                              Blitz (30 mins)
+                              Flash - 30 mins
                             </SelectItem>
-                            <SelectItem value="1hr">Rapid (1hr)</SelectItem>
+                            <SelectItem value="1hr">Rapid - 1Hrs</SelectItem>
                             <SelectItem value="3hr">
-                              Classical (2 hrs)
+                              Classical - 2 hrs
                             </SelectItem>
                           </SelectContent>
                         </Select>
@@ -189,7 +189,7 @@ const CodingRooms = () => {
             </Label>
             <Input
               id="code"
-              defaultValue="here goes the random code genrated by the code"
+              defaultValue="5127326"
               readOnly
             />
           </div>

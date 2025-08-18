@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useSignUp } from "@clerk/clerk-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import Loader from "./Loader";
+import google from "../assets/images/google.png"
 import { toast } from "sonner";
 
 export default function Signup() {
@@ -11,10 +12,25 @@ export default function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLogin] = useState(false);
   const [error, setError] = useState("");
   const [pendingVerification, setPendingVerification] = useState(false);
   const [code, setCode] = useState("");
   const { isLoaded, setActive, signUp } = useSignUp();
+
+  const handleGoogleSignUp = async () => {
+    setGoogleLogin(true);
+    await signUp.authenticateWithRedirect(
+      {
+        strategy:"oauth_google",
+        redirectUrl:"/sso-callback",
+        redirectUrlComplete:"/user/dashboard"
+      }
+    )
+    setGoogleLogin(false);
+
+    toast.success("Login Successfully !")
+  };
 
   const handleSignUp = async (e) => {
     e.preventDefault();
@@ -194,21 +210,27 @@ export default function Signup() {
             </div>
           </form>
         )}
-
-        {/* Divider */}
         <div className="flex items-center my-4">
           <div className="flex-grow h-px bg-gray-300 dark:bg-gray-600"></div>
           <span className="px-4 text-gray-500 text-sm font-medium">OR</span>
           <div className="flex-grow h-px bg-gray-300 dark:bg-gray-600"></div>
         </div>
-        {/* Social Login */}
-        <button className="w-full flex items-center cursor-pointer justify-center gap-2 rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-800 transition">
-          <img src="/google-icon.svg" alt="Google" className="w-5 h-5" />
-          Continue with Google
+        <button
+          className="w-full flex items-center h-8 cursor-pointer justify-center gap-2 rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-800 transition"
+          onClick={handleGoogleSignUp}
+        >
+          {googleLoading ? (
+            <Loader />
+          ) : (
+            <div className="flex items-center justify-center">
+              <img src={google} alt="Google" className="w-5 h-5" />
+              "continue with google"
+            </div>
+          )}
         </button>
 
         <p className="text-sm text-center mt-5">
-          Already have an account?{" "}
+          Already have an account?
           <NavLink to={"/auth/signin"} className="text-indigo-500 pl-1">
             Sign in
           </NavLink>

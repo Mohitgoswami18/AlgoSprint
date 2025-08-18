@@ -29,8 +29,8 @@ const userSchema = new Schema(
     },
     rank: {
       type: String,
-      enum: ["Bronze", "Silver", "Gold", "Platinum", "Diamond"],
-      default: "Bronze",
+      enum: ["unRanked", "Bronze", "Silver", "Gold", "Platinum", "Diamond", "Ace", "Legend"],
+      default: "unRanked",
     },
     xp: {
       type: Number,

@@ -49,7 +49,7 @@ const AuthFeture = () => {
         <div className="auth-footer mt-4 py-5 flex items-center justify-center">
           <img src={clerkLogo} alt="Clerk Logo" className="h-6 mr-2 dark:invert" />
           <span className="text-gray-600 dark:text-white text-sm">
-            Protected by <span className="text-indigo-500 font-bold text-xl">Clerk</span>
+            Secured by <span className="text-indigo-500 font-bold text-xl">Clerk</span>
           </span>
         </div>
       </div>
