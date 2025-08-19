@@ -8,8 +8,14 @@ const ratingSchema = new Schema(
     },
     ratings: [
       {
-        value: { type: Number, required: true },
-        date: { type: Date, default: Date.now },
+        value: { 
+          type: Number,
+          required: true 
+        },
+        date: { 
+          type: Date,
+          default: Date.now 
+        },
       },
     ],
   },

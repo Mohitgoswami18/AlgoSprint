@@ -3,19 +3,24 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
-import { useEffect } from "react";
+import { useClerk } from "@clerk/clerk-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
 
 const Navbar = () => {
 
   const navigate = useNavigate();
   const { isLoaded, isSignedIn } = useUser();
+  const { signOut } = useClerk();
 
   const handleSignUp = () => {
-    if(isSignedIn) {
-      navigate("/user/")
+    if(!isSignedIn) {
+     navigate("/auth/signup");
     } else {
-      navigate("/auth/signup")
+      signOut(() => {
+        navigate("/auth/signup")
+        toast.success("Successfully signed out!");
+      })
     }
   };
 
@@ -55,7 +60,7 @@ const Navbar = () => {
             className="cursor-pointer transition-all hover:bg-gray-200 dark:hover:bg-gray-800 dark:border-gray-600"
             onClick={handleSignUp}
           >
-            {isSignedIn ? "Continue" : "Sign up"}
+            {isSignedIn ? "Sign Out" : "Sign up"}
           </Button>
         ) : (
           <Skeleton className="h-8 w-[90px] rounded-md bg-slate-300" />

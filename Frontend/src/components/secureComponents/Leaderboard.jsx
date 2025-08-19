@@ -1,5 +1,8 @@
 import { GiLaurelsTrophy } from "react-icons/gi";
 import { CiUser } from "react-icons/ci";
+import pic1 from "../../assets/images/pic1.jpg";
+import pic2 from "../../assets/images/pic2.jpeg";
+import pic3 from "../../assets/images/pic3.jpeg";
 
 const Leaderboard = () => {
 
@@ -145,39 +148,87 @@ const Leaderboard = () => {
       </div>
 
       <div className="flex items-center justify-around pt-6">
-        {Leaderboardtop3.map((elem, idx) => (
-          <div
-            key={idx}
-            className="bg-white/10 ring-[0.5px] dark:ring-white/20 font-bold text-black dark:text-white backdrop-blur-2xl p-5 basis-[30%] rounded-md shadow-xl"
-          >
-            <div className="flex items-center flex-col p-2 justify-center">
-              <h1 className="p-1">{elem.rank}</h1>
-              {/* <img
-                className="w-10 p-12 rounded-full"
-                src={elem.img}
-                alt="User1"
-              /> */}
-              <p className="m-10 rounded-full  text-4xl">
-                <CiUser />
-              </p>
-              <p className="text-black dark:text-white font-bold">
-                {elem.name}
-              </p>
-              <div className="rounded-full bg-cyan-300 font-semibold text-sm px-2 py-1">
-                {elem.title}
-              </div>
-            </div>
+        {/*  #3rd Rank holder */}
 
-            <div className="flex items-center justify-between p-1 pt-6">
-              <p>Points: </p>
-              <p className="text-green-500">{elem.points}</p>
-            </div>
-            <div className="flex items-center justify-between p-1">
-              <p>Battle Won: </p>
-              <p className="text-green-500">{elem.BattleWon}</p>
+        <div className="bg-white/10 ring-[0.5px] dark:ring-white/20 text-sm text-black dark:text-white backdrop-blur-2xl px-5 basis-[30%] rounded-md shadow-xl">
+          <div className="flex items-center flex-col p-2 justify-center">
+            <h1 className="p-1">#3</h1>
+            <p className="py-2 rounded-full text-4xl">
+              <img src={pic3} alt="" className="w-24 h-24 rounded-full p-1" />
+            </p>
+            <p className="text-black dark:text-white font-bold">John</p>
+            <div className="rounded-full bg-cyan-300 font-semibold text-sm px-2 py-1">
+              AlgoMaster
             </div>
           </div>
-        ))}
+
+          <div className="flex items-center justify-between p-1 pt-6">
+            <p>Points </p>
+            <p className="text-green-500 text-md ">234</p>
+          </div>
+          <div className="flex items-center justify-between p-1">
+            <p>Battle Won </p>
+            <p className="text-green-500">22</p>
+          </div>
+          <div className="flex items-center justify-between p-1">
+            <p>Ratings </p>
+            <p className="text-green-500">234</p>
+          </div>
+        </div>
+
+        {/* #1 Rank Holder */}
+        <div className="bg-white/10 py-8 ring-[0.5px] dark:ring-white/20 text-sm text-black dark:text-white backdrop-blur-2xl p-5 basis-[30%] rounded-md shadow-xl">
+          <div className="flex items-center flex-col p-2 justify-center">
+            <h1 className="p-1">#1</h1>
+            <p className="py-2 rounded-full text-4xl">
+              <img src={pic1} alt="" className="w-24 h-24 rounded-full p-1" />
+            </p>
+            <p className="text-black dark:text-white font-bold">Sun Flower</p>
+            <div className="rounded-full bg-cyan-300 font-semibold text-sm px-6 py-1">
+              Flash
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between p-1 pt-6">
+            <p>Points </p>
+            <p className="text-green-500">299</p>
+          </div>
+          <div className="flex items-center justify-between p-1">
+            <p>Battle Won </p>
+            <p className="text-green-500">34</p>
+          </div>
+          <div className="flex items-center justify-between p-1">
+            <p>Ratings: </p>
+            <p className="text-green-500">345</p>
+          </div>
+        </div>
+
+        {/* #2nd Rank Holder */}
+        <div className="bg-white/10 ring-[0.5px] dark:ring-white/20 text-sm text-black dark:text-white backdrop-blur-2xl px-5 basis-[30%] rounded-md shadow-xl">
+          <div className="flex items-center flex-col p-2 justify-center">
+            <h1 className="p-1">#2</h1>
+            <p className="py-2 rounded-full text-4xl">
+              <img src={pic2} alt="" className="w-24 h-24 rounded-full p-1" />
+            </p>
+            <p className="text-black dark:text-white font-bold">priya</p>
+            <div className="rounded-full bg-cyan-300 font-semibold text-sm px-2 py-1">
+              CodingSage
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between p-1 pt-6">
+            <p>Points </p>
+            <p className="text-green-500">236</p>
+          </div>
+          <div className="flex items-center justify-between p-1">
+            <p>Battle Won </p>
+            <p className="text-green-500">24</p>
+          </div>
+          <div className="flex items-center justify-between p-1">
+            <p>Ratings </p>
+            <p className="text-green-500">245</p>
+          </div>
+        </div>
       </div>
 
       <div className="backdrop-blur-2xl m-3 rounded-xl bg-white/10 p-4">

@@ -11,11 +11,11 @@ import AuthenticationLayout from "./components/AuthenticationLayout";
 import Signin from "./components/Signin";
 import Signup from "./components/Signup";
 import { useEffect, useState } from "react";
-import { useUser } from "@clerk/clerk-react"
+import { SignedIn,} from "@clerk/clerk-react";
+import NotFound from "./components/NotFound";
 
 const App = () => {
   const [clickEffects, setClickEffects] = useState([]);
-  const { isLoaded, isSignedIn } = useUser();
 
   const handleClick = (e) => {
     const newEffect = {
@@ -41,6 +41,7 @@ const App = () => {
 
   return (
     <div className="font-[Inter] bg-slate-50 dark:bg-black relative min-h-screen">
+      {/* Cursor Click Animation */}
       {clickEffects.map((c) => (
         <span
           key={c.id}
@@ -55,26 +56,30 @@ const App = () => {
         </span>
       ))}
 
+      {/* Public Routes */}
       <Routes>
-        <Route path="/" element={<WebsiteLayout />}></Route>
+        <Route path="/" element={<WebsiteLayout />} />
         <Route path="/auth/*" element={<AuthenticationLayout />}>
-          <Route path="signin" element={<Signin />}></Route>
-          <Route path="signup" element={<Signup />}></Route>
+          <Route path="signin" element={<Signin />} />
+          <Route path="signup" element={<Signup />} />
         </Route>
+        <Route path="*" element={<NotFound />}></Route>
       </Routes>
+
+      {/* Protected Routes */}
+      <SignedIn>
         <Routes>
           <Route path="/user/*" element={<ProfileLayout />}>
-            <Route index element={<Dashboard />}></Route>
-            <Route path="leaderboard" element={<Leaderboard />}></Route>
-            <Route path="codingrooms" element={<CodingRooms />}></Route>
-            <Route path="mcqrooms" element={<McqRooms />}></Route>
-            <Route path="community" element={<Community />}></Route>
-            <Route
-              path="collaborativerooms"
-              element={<CollaborativeRooms />}
-            ></Route>
+            <Route index element={<Dashboard />} />
+            <Route path="leaderboard" element={<Leaderboard />} />
+            <Route path="codingrooms" element={<CodingRooms />} />
+            <Route path="mcqrooms" element={<McqRooms />} />
+            <Route path="community" element={<Community />} />
+            <Route path="collaborativerooms" element={<CollaborativeRooms />} />
           </Route>
         </Routes>
+      </SignedIn>
+      
     </div>
   );
 };

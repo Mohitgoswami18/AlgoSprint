@@ -1,14 +1,27 @@
 import logo from "../../assets/images/logo.png";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { PiRankingFill } from "react-icons/pi";
 import { TbLayoutDashboardFilled } from "react-icons/tb";
+import { toast } from "sonner";
 import { RiUserCommunityFill } from "react-icons/ri";
 import { FaLaptopCode } from "react-icons/fa";
 import { GiChoice } from "react-icons/gi";
 import { SiGoogleclassroom } from "react-icons/si";
 import { Button } from "../../components/ui/button";
+import { useClerk } from "@clerk/clerk-react";
 
 const ProfileHeroSection = () => {
+
+  const { signOut } = useClerk();
+  const navigate = useNavigate();
+
+  const HandleSignOut = () => {
+    signOut(() => {
+      navigate("/auth/signin");
+      toast.success("Successfully signed out!");
+    });
+  };
+
   const ToggleTheme = () => {
     document.documentElement.classList.toggle("dark");
   };
@@ -81,6 +94,7 @@ const ProfileHeroSection = () => {
         <Button
           variant="destructive"
           className="hover:bg-red-600/70 dark:hover:bg-red-600/60"
+          onClick={HandleSignOut}
         >
           Sign Out
         </Button>

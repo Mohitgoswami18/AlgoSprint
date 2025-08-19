@@ -12,14 +12,14 @@ export default function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLogin] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
   const [pendingVerification, setPendingVerification] = useState(false);
   const [code, setCode] = useState("");
   const { isLoaded, setActive, signUp } = useSignUp();
 
   const handleGoogleSignUp = async () => {
-    setGoogleLogin(true);
+    setGoogleLoading(true);
     await signUp.authenticateWithRedirect(
       {
         strategy:"oauth_google",
@@ -27,8 +27,7 @@ export default function Signup() {
         redirectUrlComplete:"/user/dashboard"
       }
     )
-    setGoogleLogin(false);
-
+    setGoogleLoading(false);
     toast.success("Login Successfully !")
   };
 

@@ -3,7 +3,7 @@ import { FaLaptop } from "react-icons/fa";
 import { GiRank3 } from "react-icons/gi";
 import { SlBadge } from "react-icons/sl";
 import { GiDiscussion } from "react-icons/gi";
-import clerkLogo from "../assets/images/clerkLogo.png"
+import clerkLogo from "../assets/images/clerklogo.png"
 
 const AuthFeture = () => {
   return (

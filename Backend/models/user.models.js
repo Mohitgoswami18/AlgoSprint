@@ -29,8 +29,29 @@ const userSchema = new Schema(
     },
     rank: {
       type: String,
-      enum: ["unRanked", "Bronze", "Silver", "Gold", "Platinum", "Diamond", "Ace", "Legend"],
+      enum: [
+        "unRanked",
+        "Bronze",
+        "Silver",
+        "Gold",
+        "Platinum",
+        "Diamond",
+        "Ace",
+        "Legend",
+      ],
       default: "unRanked",
+    },
+    title: {
+      type: String,
+      enum: [
+        "Newbie",
+        "SpeedDemon",
+        "Gladiator",
+        "AlgoMaster",
+        "Flash",
+        "CodingSage",
+      ],
+      default: "Newbie",
     },
     xp: {
       type: Number,
@@ -48,14 +69,18 @@ const userSchema = new Schema(
       type: Number,
       default: 0,
     },
-    matches: [{
-      type: Schema.Types.ObjectId,
-      ref: "Match",
-    }],
-    ratingHistory: [{
-      type: Schema.Types.ObjectId,      
-      ref: "Ranking",
-    }],
+    matches: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Match",
+      },
+    ],
+    ratingHistory: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Ranking",
+      },
+    ],
   },
   { timestamps: true }
 );

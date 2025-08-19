@@ -1,7 +1,9 @@
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
-import { SignIn, useSignIn} from "@clerk/clerk-react";
+import { useSignIn} from "@clerk/clerk-react";
+import google from "../assets/images/google.png";
 import { toast } from "sonner";
+import Loader from "./Loader"
 
 export default function Signin() {
 
@@ -10,13 +12,19 @@ export default function Signin() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const { signIn, setActive, isLoaded } = useSignIn();
+    const [googleLoading, setGoogleLoading] = useState(false);
 
   const handleGoogleSignIn = async () => {
-    await signIn.authenticateWithRedirect({
-      strategy:"oauth_google",
-      redirectUrl:"/sso-callback",
-      redirectUrlComplete:"/user/login"
-    })
+    setGoogleLoading(true);
+    await signIn
+      .authenticateWithRedirect({
+        strategy: "oauth_google",
+        redirectUrl: "/sso-callback",
+        redirectUrlComplete: "/user/",
+      })
+      .then(() => toast.success("Login Successfully !"))
+      .catch(() => toast.error("Login Failed !"))
+      .finally(() => setGoogleLoading(false));
   }
 
   const handleSignIn = async() => {
@@ -114,14 +122,18 @@ export default function Signin() {
         </div>
 
         {/* Social Login */}
-        <button className="w-full flex items-center cursor-pointer justify-center gap-2 rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-800 transition"
-        onClick={handleGoogleSignIn}>
-          <img
-            src="/google-icon.svg"
-            alt="Google"
-            className="w-5 h-3 text-[12px]"
-          />
-          Continue with Google
+        <button
+          className="w-full flex items-center h-8 cursor-pointer justify-center gap-2 rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-800 transition"
+          onClick={handleGoogleSignIn}
+        >
+          {googleLoading ? (
+            <Loader />
+          ) : (
+            <div className="flex items-center justify-center">
+              <img src={google} alt="Google" className="w-5 h-5" />
+              "continue with google"
+            </div>
+          )}
         </button>
 
         <p className="text-sm text-center mt-5">

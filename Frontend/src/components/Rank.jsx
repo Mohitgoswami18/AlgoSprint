@@ -6,6 +6,7 @@ import ace from "../assets/images/ace.png";
 import platinum from "../assets/images/platinum.png";
 import daimond from "../assets/images/daimond.png";
 import legend from "../assets/images/legend.png";
+import leaderboard from "../assets/images/leaderboard.png";
 import { Badge } from "@/components/ui/badge";
 
 const ranks = [
@@ -22,10 +23,13 @@ const RankLine = () => {
   return (
     <div>
       <div className="w-full mt-24 flex max-w-[900px] mx-auto transition-all duration-500 flex-col items-center px-4 py-8">
-        <h2 className="text-4xl font-bold mb-6 text-gray-800 dark:text-gray-100">
+        <h2 className="text-4xl mb-1 font-bold text-gray-800 dark:text-gray-100">
           Rise the Ranks Climb the Ladder
         </h2>
-
+        <p className="text-md text-[#4A5568] mb-6 dark:text-[#A0AEC0]">
+          A Whole setup to pass the gaming vibe while practicing for competitive
+          coding.
+        </p>
         <div className="relative w-full mt-14 h-[0.5px] b bg-gray-200 dark:bg-zinc-900/50 rounded-full">
           {ranks.map((rank, idx) => (
             <div
@@ -53,11 +57,11 @@ const RankLine = () => {
       </div>
       <div className="flex w-full mt-32 items-center max-w-[900px] mx-auto">
         <div className="basis-[48%]">
-          <h1 className="text-4xl text-center font-bold mb-6 text-gray-800 dark:text-gray-100">
+          <h1 className="text-2xl text-center font-bold mb-2 text-gray-800 dark:text-gray-100">
             Earn Badges
           </h1>
           <div className="flex flex-wrap gap-10 p-12 border-[0.5px] border-zinc-900 w-full mx-auto">
-            <Badge variant="ghost" >Newbie</Badge>
+            <Badge variant="ghost">Newbie</Badge>
             <Badge variant="default">Gladiator</Badge>
             <Badge variant="destructive">SpeedDemon</Badge>
             <Badge variant="ghost">AlgoMaster</Badge>
@@ -65,10 +69,13 @@ const RankLine = () => {
             <Badge variant="secondary">CodingSage</Badge>
           </div>
         </div>
-        <div className="basis-[48%]">
-          <h1 className="text-4xl text-center font-bold mb-6  text-gray-800 dark:text-gray-100">
+        <div className="basis-[48%] ml-6">
+          <h1 className="text-2xl text-center font-bold mb-2  text-gray-800 dark:text-gray-100">
             Climb Leaderboard
           </h1>
+          <div>
+            <img src={leaderboard} alt="" />
+          </div>
         </div>
       </div>
     </div>
