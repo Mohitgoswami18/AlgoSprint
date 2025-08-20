@@ -1,10 +1,14 @@
-import ConnectToDatabase from "./Database/database";
+import ConnectToDatabase from "./Database/database.js";
+import dotenv from "dotenv";
+import app from "./app.js";
 
-ConnectToDatabase()
-.then (() => {
-    console.log("Connection to the database is established");
-})
-.catch((err)=> {
-    console.log("There was an error while connecting to the database", err);
-})
 
+dotenv.config();
+
+const port = process.env.PORT || 3000
+
+const connectingDatabase = async () => {
+  await ConnectToDatabase();
+};
+
+connectingDatabase();

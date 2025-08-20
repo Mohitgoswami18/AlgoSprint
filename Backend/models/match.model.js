@@ -18,4 +18,4 @@ const MatchSchema = new Schema({
   },
 });
 
-const Match = mongoose.model("Match", MatchSchema);
+export const Match = mongoose.model("Match", MatchSchema);
