@@ -24,7 +24,7 @@ export default function Signup() {
       {
         strategy:"oauth_google",
         redirectUrl:"/sso-callback",
-        redirectUrlComplete:"/user/dashboard"
+        redirectUrlComplete:"/user/"
       }
     )
     setGoogleLoading(false);

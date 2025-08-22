@@ -86,7 +86,7 @@ const Dashboard = () => {
             </div>
             <div className="pt-1 flex flex-col items-end gap-2">
               <div className="backdrop-blur-2xl bg-gradient-to-br from-indigo-400 to-purple-600 rounded-lg shadow-xs text-white px-2">
-                Amateur
+                Newbie
               </div>
               <div className="text-sm font-semibold">Level 6</div>
             </div>

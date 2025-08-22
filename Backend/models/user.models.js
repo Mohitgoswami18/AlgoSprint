@@ -2,6 +2,11 @@ import mongoose, { model, Schema } from "mongoose"
 
 const userSchema = new Schema(
   {
+    clerkId: {
+      type:String,
+      requires:true,
+      unique:true,
+    },
     username: {
       type: String,
       required: true,
@@ -41,18 +46,9 @@ const userSchema = new Schema(
       ],
       default: "unRanked",
     },
-    title: {
-      type: String,
-      enum: [
-        "Newbie",
-        "SpeedDemon",
-        "Gladiator",
-        "AlgoMaster",
-        "Flash",
-        "CodingSage",
-      ],
-      default: "Newbie",
-    },
+    title:[
+      {type: String}
+    ],
     xp: {
       type: Number,
       default: 0,

@@ -63,7 +63,7 @@ const App = () => {
           <Route path="signin" element={<Signin />} />
           <Route path="signup" element={<Signup />} />
         </Route>
-        <Route path="*" element={<NotFound />}></Route>
+        
       </Routes>
 
       {/* Protected Routes */}
@@ -79,6 +79,10 @@ const App = () => {
           </Route>
         </Routes>
       </SignedIn>
+
+      <Routes>
+        <Route path="*" element={<NotFound />}></Route>
+      </Routes>
       
     </div>
   );

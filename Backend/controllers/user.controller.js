@@ -1,10 +1,197 @@
 import { ApiError } from "../utils/apiError.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { User } from "../models/user.model.js";
+import { Match } from "../models/match.model.js";
+import { Discuss } from "../models/discuss.models.js"
+import uploadToCloudinary from "../Utils/cloudinary.js";
 
-const dashboardController = (req, res) => {
-    const { username } = req.body;
-    if(!username) {
-        throw new ApiError ()
+const dashboardController = async (req, res, next) => {
+  try {
+    const { username } = req.params;
+    if (!username) {
+      throw new ApiError(404, "User Not Found in the request body");
     }
+
+    const userData = await User.findOne({ username });
+    if (!userData) {
+      throw new ApiError(404, "User Not Found");
+    }
+
+    const playstyle = await Match.aggregate([
+      {
+        $match: {
+          clerkId: userData.clerkId,
+        },
+      },
+      {
+        $group: {
+          _id: { playstyle: "$style" },
+          countPlayStyle: { $sum: 1 },
+        },
+      },
+      {
+        $sort: {
+          countPlayStyle: -1,
+        },
+      },
+      {
+        $limit: 1,
+      },
+    ]);
+
+    res.status(200).json(
+      new ApiResponse(200, "User Fetched !", {
+        username: userData.username,
+        title: userData.title,
+        level: userData.level,
+        xp: userData.xp,
+        profileImage: userData.profilePicture,
+        ranking: userData.ratingHistory,
+        totalBattles: userData.totalBattles,
+        totalWin: userData.totalWins,
+        winRatio: userData.totalWin
+          ? userData.totalBattles / userData.totalWin
+          : 0,
+        Titles: userData.title,
+        winStreak: userData.winStreak,
+        maximumRatings: userData.highestRating,
+        playstyle: playstyle,
+        recentMatches: userData.matches,
+      })
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
+const updateUserName = async (req, res, next) => {
+  try {
+    const { userId } = req.auth;
+    const { newUsername } = req.body;
+    const currentUserDetails = await User.findOneAndUpdate(
+      { clerkId: userId },
+      {
+        $set: {
+          username: newUsername,
+        },
+      },
+      {
+        new: true,
+      }
+    );
+
+    res.status(200).json(
+      new ApiResponse(200, "Username Updated", {
+        username: currentUserDetails.username,
+      })
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
+const UpdateUserProfilePicture = async (req, res, next) => {
+  try {
+    const { username } = req.params;
+    if (!username) {
+      throw new ApiError(404, "User Not Found");
+    }
+
+    const profilePhotoLocalPath = req.file?.path;
+    if (!profilePhotoLocalPath) {
+      throw new ApiError(404, "profile image not found");
+    }
+
+    const profilePhotoUpdatedURL = await uploadToCloudinary(
+      profilePhotoLocalPath
+    );
+    if (!profilePhotoUpdatedURL) {
+      throw new ApiError(
+        500,
+        "There was an error while uploading the profile photo please try again later"
+      );
+    }
+
+    const currentUser = await User.findOneAndUpdate(
+      { username },
+      {
+        profilePicture: profilePhotoUpdatedURL,
+      },
+      {
+        new: true,
+      }
+    );
+
+    if (!currentUser) {
+      throw new ApiError(404, "User Not Found");
+    }
+
+    console.log("Profile photo updated successfully");
+
+    res.status(200).json(
+      new ApiResponse(200, "Profile photo updated successfully", {
+        profilePicture: currentUser.profilePicture,
+      })
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
+const LeaderboardStats = async (req, res, next) => {
+  try {
+    const totalUsers = User.aggregate([
+      {
+        $group:{
+          _id:null,
+          totalUsers: {
+            $sum: 1,
+          }
+        }
+      }
+    ])
+
+    const totalBattleFought = await Match.countDocuments();
+    const top10 = await User.countDocuments();
+
+    res.status(200).json(
+      new ApiResponse(200, "LeaderBoard data fetched successfully! ",
+        {
+          totalUsers, 
+          totalBattleFought,
+          top10
+        }
+      )
+    )
+
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+const DiscussionDataFetcher = async (_, res, next) => {
+  try {
+    const discussionData = await Discuss.aggregate([
+      {$sort: {
+        createdAt: -1,
+      }}, 
+      {$limit: 20}
+    ])
+
+    res.status(200).json(
+      new ApiResponse(200, "Data Fetched Successfully", {
+      discussionData,
+    }))
+  } catch (error) {
+    next(error);
+  }
 }
 
-export { dashboardController }
+export {
+  dashboardController,
+  updateUserName,
+  UpdateUserProfilePicture,
+  LeaderboardStats,
+  DiscussionDataFetcher,
+};
