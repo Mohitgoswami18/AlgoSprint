@@ -1,8 +1,8 @@
-import { ApiError } from "../utils/apiError.js";
+import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../models/user.model.js";
 import { Match } from "../models/match.model.js";
-import { Discuss } from "../models/discuss.models.js"
+import { Discuss } from "../models/discuss.model.js"
 import uploadToCloudinary from "../Utils/cloudinary.js";
 
 const dashboardController = async (req, res, next) => {
@@ -138,39 +138,39 @@ const UpdateUserProfilePicture = async (req, res, next) => {
   }
 };
 
-const LeaderboardStats = async (req, res, next) => {
+const leaderboardStats = async (req, res, next) => {
   try {
-    const totalUsers = User.aggregate([
-      {
-        $group:{
-          _id:null,
-          totalUsers: {
-            $sum: 1,
-          }
-        }
-      }
-    ])
-
+    const totalUsers = await User.countDocuments();
     const totalBattleFought = await Match.countDocuments();
-    const top10 = await User.countDocuments();
+    const top10 = await User.aggregate([
+      { $sort: { currentRating: -1 } },
+      { $limit: 10 },
+      {
+        $project: {
+          level: 1,
+          username: 1,
+          currentRating: 1,
+          title: 1,
+          totalWins: 1,
+          profilePicture: 1,
+        },
+      },
+    ]);
 
     res.status(200).json(
-      new ApiResponse(200, "LeaderBoard data fetched successfully! ",
-        {
-          totalUsers, 
-          totalBattleFought,
-          top10
-        }
-      )
-    )
-
+      new ApiResponse(200, "LeaderBoard data fetched successfully! ", {
+        totalUsers,
+        totalBattleFought,
+        top10,
+      })
+    );
   } catch (error) {
     next(error);
   }
 };
 
 
-const DiscussionDataFetcher = async (_, res, next) => {
+const discussionDataFetcher = async (_, res, next) => {
   try {
     const discussionData = await Discuss.aggregate([
       {$sort: {
@@ -192,6 +192,6 @@ export {
   dashboardController,
   updateUserName,
   UpdateUserProfilePicture,
-  LeaderboardStats,
-  DiscussionDataFetcher,
+  leaderboardStats,
+  discussionDataFetcher,
 };

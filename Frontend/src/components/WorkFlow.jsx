@@ -11,6 +11,8 @@ import settingLight from "../assets/images/settingLight.png"
 import settingDark from "../assets/images/settingDark.png"
 import shareLight from "../assets/images/shareLight.png"
 import shareDark from "../assets/images/shareDark.png"
+import startDark from "../assets/images/startDark.png"
+import startLight from "../assets/images/startLight.png"
 
 const steps = [
   {
@@ -46,7 +48,7 @@ const steps = [
     description:
       "Send this random genrated room id with other so that they can join thier room and compete with you in realtime battle",
     color: "text-yellow-500",
-    imgs: [shareLight, shareDark],
+    imgs: [shareDark, shareLight],
     imgStyle: "rotate-3 shadow-md ml-24",
   },
   {
@@ -55,8 +57,8 @@ const steps = [
     description:
       "Once both the user joined the room then a timer of 3 second will start and the battle begins ",
     color: "text-red-500",
-    imgs: [authDark, authDark],
-    imgStyle: "",
+    imgs: [startLight, startDark],
+    imgStyle: "ml-28 rotate-2",
   },
 ];
 

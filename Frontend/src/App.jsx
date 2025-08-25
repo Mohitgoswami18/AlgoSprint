@@ -13,6 +13,8 @@ import Signup from "./components/Signup";
 import { useEffect, useState } from "react";
 import { SignedIn,} from "@clerk/clerk-react";
 import NotFound from "./components/NotFound";
+import EditorLayout from "./components/EditorLayout"
+import CodeEditor from "./components/EditorLayout";
 
 const App = () => {
   const [clickEffects, setClickEffects] = useState([]);
@@ -58,12 +60,12 @@ const App = () => {
 
       {/* Public Routes */}
       <Routes>
+        <Route path="/code" element={<CodeEditor />}></Route>
         <Route path="/" element={<WebsiteLayout />} />
         <Route path="/auth/*" element={<AuthenticationLayout />}>
           <Route path="signin" element={<Signin />} />
           <Route path="signup" element={<Signup />} />
         </Route>
-        
       </Routes>
 
       {/* Protected Routes */}
@@ -83,7 +85,6 @@ const App = () => {
       <Routes>
         <Route path="*" element={<NotFound />}></Route>
       </Routes>
-      
     </div>
   );
 };

@@ -25,4 +25,4 @@ const discussSchema = new Schema ({
     ]
 },{timestamps: true})
 
-const Discuss = mongoose.model("Discuss", discussSchema);
+export const Discuss = mongoose.model("Discuss", discussSchema);

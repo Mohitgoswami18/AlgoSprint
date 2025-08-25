@@ -15,24 +15,28 @@ export default function Signin() {
     const [googleLoading, setGoogleLoading] = useState(false);
 
   const handleGoogleSignIn = async () => {
-    setGoogleLoading(true);
+    try {
+      setGoogleLoading(true);
     await signIn
       .authenticateWithRedirect({
         strategy: "oauth_google",
         redirectUrl: "/sso-callback",
         redirectUrlComplete: "/user/",
       })
-      .then(() => toast.success("Login Successfully !"))
-      .catch(() => toast.error("Login Failed !"))
-      .finally(() => setGoogleLoading(false));
+    } catch (error) {
+      console.log("An error Occured");
+      toast.error("Login failed");
+      setGoogleLoading(false)
+    }
   }
 
-  const handleSignIn = async() => {
+  const handleSignIn = async(e) => {
+    e.preventDefault();
     setLoading(true);
     if(!isLoaded) return;
 
     try {
-      const signinResult = await signin.create({
+      const signinResult = await signIn.create({
         identifier: email,
         password: password,
       });
@@ -105,7 +109,7 @@ export default function Signin() {
           <div className="mt-6 flex gap-3">
             <button
               className="w-full cursor-pointer text-md rounded-lg bg-green-600 px-4 py-2 font-semibold text-white hover:bg-green-700 transition"
-              onClick={handleSignIn}
+              onClick={() => handleSignIn(e)}
             >
               Sign In
             </button>
