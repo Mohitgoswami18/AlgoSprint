@@ -1,8 +1,10 @@
 import { RiUserCommunityFill } from "react-icons/ri";
 import { Button } from "@/components/ui/button"
+import { useState } from "react"
+import { useNavigate } from "react-router-dom";
+import { v4 as uuid } from "uuid";
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
@@ -13,6 +15,26 @@ import {
 import { Input } from "@/components/ui/input";
 
 const CollaborativeRooms = () => {
+
+  const [username, setUsername] = useState("")
+  const [roomid, setRoomid] = useState("")
+
+  const handleUuid = () => {
+    const id = uuid();
+    setRoomid(id)
+  }
+
+  const navigate = useNavigate();
+  console.log(roomid);
+  
+
+  const HandleJoin = () => {
+    navigate(`/room/${roomid}` , {
+      state: { username },
+    })
+
+  }
+
   return (
     <div className="bg-slate-50 transition-all duration-500 dark:bg-black h-screen text-black dark:text-white font-[Inter] p-5">
       <div className=" backdrop-blur-2xl bg-white/10 p-5 rounded-md shadow-xl ">
@@ -34,72 +56,58 @@ const CollaborativeRooms = () => {
 
       <div className="dark:bg-black transition-all duration-500 ease-in-out w-full mt-10 font-[Inter] p-5 grid place-items-center">
         <div className="flex items-center transition-all duration-500 p-2 justify-center gap-3 w-full max-w-[900px] mx-auto">
-          <div className=" basis-[48%] transition-all flex flex-col items-center justify-center duration-500 text-black dark:text-whiteackdrop-blur-2xl text-center hover:scale-105 rounded-md">
-            <Card className="w-full max-w-sm transition-all duration-500 dark:bg-[#111] ">
+          <div className="w-full transition-all flex flex-col items-center justify-center duration-500 text-black dark:text-whiteackdrop-blur-2xl text-center rounded-md">
+            <Card className="w-lg hover:scale-105 shadow-md bg-slate-200/10 transition-all duration-500 dark:bg-[#111] ">
               <CardHeader>
                 <CardTitle className="text-center font-bold text-2xl p-1">
-                  Create Your Space
+                  Create or join a collaborative space
                 </CardTitle>
                 <CardDescription>
-                  genrate a random code and share it with other so that they can
-                  join thier space
+                  enter a room id to join other collaborative space or create
+                  your owns and invite your firends
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <form>
-                  <div className="flex flex-col gap-6">
+                  <div className="flex flex-col mt-4">
                     <div className="flex p-2 items-center gap-2">
                       <label htmlFor="name" className="text-md">
-                        name
+                        username
                       </label>
                       <Input
                         id="name"
                         type="text"
+                        value = {username} 
+                        onChange = {(e) => setUsername(e.target.value)}
                         placeholder="enter space name"
                         required
                       />
                     </div>
-                  </div>
-                </form>
-              </CardContent>
-              <CardFooter className="flex-col gap-2">
-                <Button className="w-full">Genrate Code</Button>
-                <Button type="submit" className="w-full">
-                  share
-                </Button>
-              </CardFooter>
-            </Card>
-          </div>
-          <div className="transition-all duration-500 basis-[48%] flex flex-col items-center justify-center text-black dark:text-white backdrop-blur-2xl text-center hover:scale-105 rounded-md">
-            <Card className="w-full max-w-sm transition-all duration-500 dark:bg-[#111]">
-              <CardHeader>
-                <CardTitle className="text-center font-bold text-2xl p-1">
-                  Join public Space
-                </CardTitle>
-                <CardDescription>
-                  Enter the random code and Enter space of others
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form>
-                  <div className="flex flex-col gap-6">
                     <div className="flex p-2 items-center gap-2">
-                      <label htmlFor="code" className="text-md">
-                        code
+                      <label htmlFor="name" className="w-[20%] text-md">
+                        room id
                       </label>
                       <Input
-                        id="code"
+                        id="roomid"
                         type="text"
-                        placeholder="enter space name"
+                        value = {roomid}
+                        onChange = {(e) => setRoomid(e.target.value)}
+                        placeholder="enter space id"
                         required
+                        className="px-2"
                       />
                     </div>
                   </div>
                 </form>
               </CardContent>
-              <CardFooter className="flex-col gap-2">
-                <Button type="submit" className="w-full">
-                  Join
+              <CardFooter className="flex-col gap-2 mt-4">
+                <p className="text-[12px]">
+                  Don't have a room id? <span className="text-cyan-500 cursor-pointer underline" 
+                  onClick={handleUuid}>create new id</span>
+                </p>
+                <Button variant="personal" className="w-full"
+                onClick={HandleJoin}>
+                  join
                 </Button>
               </CardFooter>
             </Card>

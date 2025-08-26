@@ -13,8 +13,7 @@ import Signup from "./components/Signup";
 import { useEffect, useState } from "react";
 import { SignedIn,} from "@clerk/clerk-react";
 import NotFound from "./components/NotFound";
-import EditorLayout from "./components/EditorLayout"
-import CodeEditor from "./components/EditorLayout";
+import CollabEditor from "./components/secureComponents/EditorLayout";
 
 const App = () => {
   const [clickEffects, setClickEffects] = useState([]);
@@ -60,7 +59,6 @@ const App = () => {
 
       {/* Public Routes */}
       <Routes>
-        <Route path="/code" element={<CodeEditor />}></Route>
         <Route path="/" element={<WebsiteLayout />} />
         <Route path="/auth/*" element={<AuthenticationLayout />}>
           <Route path="signin" element={<Signin />} />
@@ -79,6 +77,15 @@ const App = () => {
             <Route path="community" element={<Community />} />
             <Route path="collaborativerooms" element={<CollaborativeRooms />} />
           </Route>
+        </Routes>
+      </SignedIn>
+
+      <SignedIn>
+        <Routes>
+          <Route
+            path="/room/:roomid"
+            element={<CollabEditor />}
+          ></Route>
         </Routes>
       </SignedIn>
 

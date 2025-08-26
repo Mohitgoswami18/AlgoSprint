@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
 import { IoPlay } from "react-icons/io5";
 import { FaStop } from "react-icons/fa6";
 import { VscDebugRestart } from "react-icons/vsc";
@@ -31,21 +30,23 @@ const Timer = () => {
   };
 
   return (
-    <div style={{ fontSize: "1rem", fontFamily: "Inter" }} className="flex items-center justify-center gap-4">
+    <div
+      style={{ fontSize: "1rem", fontFamily: "Inter" }}
+      className="flex items-center justify-center gap-4"
+    >
       <div>{formatTime(seconds)}</div>
       <div className="gap-2 bg-zinc-200 px-4 py-2 rounded-md dark:bg-white/4 flex items-center justify-center">
-        <IoPlay
-          className="text-[18px] hover:scale-110 focus:bg-white transition-all duration-100 cursor-pointer"
+        <div
           onClick={() => {
-            setIsRunning(true);
+            setIsRunning((prev)=> !prev);
           }}
-        />
-        <FaStop
-          className="text-[18px] hover:scale-110 focus:bg-white transition-all duration-100 cursor-pointer"
-          onClick={() => {
-            setIsRunning(false);
-          }}
-        />
+        >
+          {!isRunning ? (
+            <IoPlay className="text-[18px] hover:scale-110 focus:bg-white transition-all duration-100 cursor-pointer" />
+          ) : (
+            <FaStop className="text-[18px] hover:scale-110 focus:bg-white transition-all duration-100 cursor-pointer" />
+          )}
+        </div>
         <VscDebugRestart
           className="text-[18px] hover:scale-110 focus:bg-white transition-all duration-100 cursor-pointer"
           onClick={() => {
