@@ -3,7 +3,6 @@ import cors from "cors";
 import cookieParser from "cookie-parser"
 
 const app = express();
-const port = process.env.PORT || 3000;
 
 app.use(cors({origin:process.env.ORIGIN, credentials:true}));
 app.use(cookieParser())
@@ -21,10 +20,5 @@ app.use((err, req, res, _) => {
     console.log(err);
     res.status(500).json({ error: "Internal Server Error" });
 })
-
-app.listen(port, () =>{
-    console.log(`Server is running on port ${port}`);
-})
-
 
 export default app;

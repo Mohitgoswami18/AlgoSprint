@@ -6,15 +6,12 @@ import {
 import { Button } from "@/components/ui/button";
 import Editor from "@monaco-editor/react";
 import { useEffect, useRef, useState } from "react";
-import {
-  useNavigate,
-  useParams,
-  useLocation,
-} from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { Switch } from "@/components/ui/switch";
 import Loader from "../Loader";
 import Avatar from "react-avatar";
 import { toast } from "sonner";
+import { initialiseSocket } from "../../socket.io";
 import {
   Select,
   SelectContent,
@@ -26,6 +23,18 @@ import {
 } from "@/components/ui/select";
 import Clock from "../Clock";
 import axios from "axios";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const EditorLayout = () => {
   const starterCode = {
@@ -39,33 +48,11 @@ const EditorLayout = () => {
     cpp: '#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Hello, World!" << endl;\n    return 0;\n}',
   };
 
-  useEffect(() => {
-    const username = location.state?.username;
-    const roomid = param.roomid;
-   if (!username && !roomid) {
-     navigate("/user/collaborativerooms");
-   }
-  }, []);
-
   const handleEditorMount = (editor) => {
     editorRef.current = editor;
   };
 
-  const users = [
-    {
-      avatar: <Avatar name="Parth " size="40" className="rounded-lg" />,
-      username: "Parth",
-      socketid: 1,
-    },
-    {
-      avatar: <Avatar name="Khushi" size="40" className="rounded-lg" />,
-      username: "Khushi",
-      socketid: 2,
-    },
-  ];
-
   const [language, setLanguage] = useState([]);
-  const [theme, setTheme] = useState(1); // 0 -> light 1->dark
   const [data, setData] = useState(false);
   const [versions, setVersions] = useState([]);
   const [code, setCode] = useState(starterCode[language]);
@@ -76,7 +63,9 @@ const EditorLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const param = useParams();
-
+  const socketRef = useRef();
+  const [users, setUsers] = useState([]);
+  const isRemoteChange = useRef(false);
 
   useEffect(() => {
     let versionWithLanguage;
@@ -99,7 +88,96 @@ const EditorLayout = () => {
         setVersions(versionWithLanguage);
       })
       .catch((error) => console.log("error occured", error));
+
+    const username = location.state?.username;
+    const roomid = param.roomid;
+
+    if (!username || !roomid) {
+      toast.error("Enter a username");
+      navigate("/user/collaborativerooms", { replace: true });
+    } else {
+      const connectToSockets = async () => {
+        socketRef.current = await initialiseSocket();
+
+        const handleError = (err) => {
+          console.log("socket error", err);
+          toast.error("Socket connection failed, try again later");
+          navigate("/user/collaborativerooms", { replace: true });
+        };
+
+        socketRef.current.on("connect_error", handleError);
+        socketRef.current.on("connect_failed", handleError);
+
+        socketRef.current.emit("join", { username, roomid });
+
+        socketRef.current.on(
+          "connected",
+          ({ connectedUsers, user, socketId }) => {
+            const updatedConnectedUsers = connectedUsers.map((user) => ({
+              ...user,
+              avatar: (
+                <Avatar name={user.username} size="40" className="rounded-md" />
+              ),
+            }));
+
+            setUsers(updatedConnectedUsers);
+
+            if (user === username) {
+              toast.success("Joined the room successfully!");
+            } else {
+              toast.success(`${user} joined the room`);
+            }
+          }
+        );
+
+        socketRef.current.on("user-disconnected", ({ username, socketId }) => {
+          setUsers((prev) => prev.filter((user) => user.socketId !== socketId));
+          toast.success(`${username} left the room`);
+        });
+      };
+      connectToSockets();
+    }
+
+    return () => {
+      socketRef.current.emit("leave", { username, roomid });
+      socketRef.current.disconnect();
+    };
   }, []);
+
+  const handleRemoteCodeChange = ({ code }) => {
+  if (code !== editorRef.current.getValue()) {
+    isRemoteChange.current = true;
+    editorRef.current.setValue(code);
+    setCode(code);
+    isRemoteChange.current = false;
+  }
+};
+
+useEffect(() => {
+  if (!socketRef.current) return;
+  socketRef.current.on("code-change", handleRemoteCodeChange);
+
+  socketRef.current.on("langChanged", ({lang, ver}) => {
+    console.log(lang, ver);
+    setLanguage([lang, ver]);
+
+  });
+
+  socketRef.current.on("codeOutput", ({output, err}) => {
+    setOutput(output);
+    setErr(err);
+  });
+
+  return () => {
+    socketRef.current.off("code-change", handleRemoteCodeChange);
+  };
+}, [socketRef.current]);
+
+  const handleCodeChange = (newCode) => {
+    if (isRemoteChange.current) return;
+    setCode(newCode);
+    socketRef.current.emit("change", { roomid: param.roomid, code: newCode });
+  };
 
   const HandleSubmitRequest = async () => {
     setLoading(true);
@@ -119,6 +197,12 @@ const EditorLayout = () => {
       .then((response) => {
         setErr(response.data.run.stderr);
         setOutput(response.data.run.output);
+
+        socketRef.current.emit("codeOutput", {
+          roomid: param.roomid,
+          output: response.data.run.output,
+          err: response.data.run.stderr,
+        });
       })
       .catch((error) => {
         console.log("there was an error while runnign the code", error);
@@ -132,18 +216,61 @@ const EditorLayout = () => {
   return (
     <div className="flex items-center gap-2 justify-between px-2 font-[Inter]">
       {/* Left Section of the collaborative screen */}
-      <div className="w-[20%] rounded-md bg-slate-200 dark:bg-white/4 h-screen text-2xl px-2 font-bold pt-8">
-        <h1> Participants</h1>
-        <div className="mt-4">
-          {users.map((elem, idx) => (
-            <div
-              className="p-2 text-sm gap-2 dark:text-white flex items-center"
-              key={idx}
-            >
-              <p>{elem.avatar}</p>
-              <p>{elem.username}</p>
-            </div>
-          ))}
+      <div className="w-[20%] justify-between py-4 flex flex-col gap-2 rounded-md bg-slate-200 dark:bg-white/4 h-screen text-2xl px-2 font-bold pt-8">
+        <div>
+          <h1>Members</h1>
+          <div className="mt-4">
+            {users.map((elem, idx) => (
+              <div
+                className="p-2 text-sm gap-2 dark:text-white flex items-center"
+                key={idx}
+              >
+                <p>{elem.avatar}</p>
+                <p>{elem.username}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="m-1">
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline">Share Room Id</Button>
+            </DialogTrigger>
+            <DialogContent className="">
+              <DialogHeader>
+                <DialogTitle>Share Room Id</DialogTitle>
+                <DialogDescription>
+                  Anyone who has this Room Id can join the room.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="flex items-center gap-2">
+                <div className="grid flex-1 gap-2">
+                  <Label htmlFor="link" className="sr-only">
+                    Link
+                  </Label>
+                  <Input id="link" defaultValue={param.roomid} readOnly />
+                </div>
+              </div>
+              <DialogFooter className="sm:justify-start">
+                <DialogClose asChild>
+                  <Button type="button" variant="secondary">
+                    Close
+                  </Button>
+                </DialogClose>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          <Button
+            className="m-1"
+            variant="destructive"
+            onClick={() => {
+              toast.success("Leaved the room successfully!");
+              navigate("/user/collaborativerooms", { replace: true });
+            }}
+          >
+            Leave
+          </Button>
         </div>
       </div>
 
@@ -157,7 +284,13 @@ const EditorLayout = () => {
                 setLanguage([lang, ver]);
                 setCode(
                   lang === "c++" ? starterCode["cpp"] : starterCode[lang]
-                ); // set starter code
+                );
+                handleCodeChange(
+                  lang === "c++" ? starterCode["cpp"] : starterCode[lang]
+                );
+
+                console.log(lang, ver);
+                socketRef.current.emit("langChange", {roomid: param.roomid, lang, ver})
               }}
             >
               <SelectTrigger className="w-[180px]">
@@ -179,7 +312,6 @@ const EditorLayout = () => {
           </div>
           <div className="mx-auto pr-[15%] flex items-center justify-center gap-2">
             <p className="px-2 text-sm font-bold">
-              {" "}
               Participants: {users.length}
             </p>
             <Button
@@ -218,9 +350,9 @@ const EditorLayout = () => {
                     width={"100vw"}
                     language={language[0] === "c++" ? "cpp" : language[0]}
                     value={code}
-                    theme={theme == 0 ? "light" : "vs-dark"}
+                    theme={"vs-dark"}
                     onMount={handleEditorMount}
-                    onChange={(change) => setCode(change)}
+                    onChange={(newCode) => handleCodeChange(newCode)}
                   />
                 </div>
               </span>
