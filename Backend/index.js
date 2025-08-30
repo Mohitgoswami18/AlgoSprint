@@ -16,8 +16,11 @@ const config = {
 const server = http.createServer(app);
 const io = new Server(server, config);
 const user = {};
+const roomUsers = {};
 
 io.on("connection", (socket) => {
+
+  // Events for Collaborative Rooms
 
   socket.on("join", ({ username, roomid }) => {
 
@@ -74,6 +77,33 @@ io.on("connection", (socket) => {
   });
 
   
+  // Events for Creating or joining rooms 
+
+  socket.on("userJoin", ({roomid, username}) => {
+    console.log(username, "joined the room", roomid);
+    roomUsers[socket.id] = username;
+
+    socket.join(roomid);
+    const connectedPlayers = Array.from( io.sockets.adapter.rooms.get(roomid) || []).map((socketId) => {
+      return { socketId, username: roomUsers[socketId] };
+    });
+
+    console.log(connectedPlayers)
+    console.log("Sending the userList to the frontend");
+
+    connectedPlayers.forEach(({ socketId }) => {
+      io.to(socketId).emit("userJoined", {
+        connectedPlayers,
+        user: username,
+        socketId: socket.id,
+      });
+    });
+  });
+
+  socket.on("ready", ({roomid, username}) => {
+    socket.to(roomid).emit("ready", {username});
+  });
+
 });
 
 const port = process.env.PORT || 3000;

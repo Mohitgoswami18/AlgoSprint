@@ -54,7 +54,7 @@ const CollaborativeRooms = () => {
         </div>
       </div>
 
-      <div className="dark:bg-black transition-all duration-500 ease-in-out w-full mt-10 font-[Inter] p-5 grid place-items-center">
+      <div className="dark:bg-black transition-all duration-500 ease-in-out w-full mt-4 px-8 font-[Inter] p-5 grid place-items-center">
         <div className="flex items-center transition-all duration-500 p-2 justify-center gap-3 w-full max-w-[900px] mx-auto">
           <div className="w-full transition-all flex flex-col items-center justify-center duration-500 text-black dark:text-whiteackdrop-blur-2xl text-center rounded-md">
             <Card className="w-lg hover:scale-105 shadow-md bg-slate-200/10 transition-all duration-500 dark:bg-[#111] ">

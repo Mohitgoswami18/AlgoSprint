@@ -14,6 +14,8 @@ import { useEffect, useState } from "react";
 import { SignedIn,} from "@clerk/clerk-react";
 import NotFound from "./components/NotFound";
 import CollabEditor from "./components/secureComponents/EditorLayout";
+import CodingLobby from "./components/secureComponents/CodingLobby";
+import Playground from "./components/secureComponents/Playground";
 
 const App = () => {
   const [clickEffects, setClickEffects] = useState([]);
@@ -42,7 +44,6 @@ const App = () => {
 
   return (
     <div className="font-[Inter] bg-slate-50 dark:bg-black relative min-h-screen">
-      {/* Cursor Click Animation */}
       {clickEffects.map((c) => (
         <span
           key={c.id}
@@ -69,29 +70,22 @@ const App = () => {
       {/* Protected Routes */}
       <SignedIn>
         <Routes>
-          <Route path="/user/*" element={<ProfileLayout />}>
-            <Route index element={<Dashboard />} />
+          <Route path="/:user/*" element={<ProfileLayout />}>
+            <Route path="dashboard" element={<Dashboard />} />
             <Route path="leaderboard" element={<Leaderboard />} />
             <Route path="codingrooms" element={<CodingRooms />} />
             <Route path="mcqrooms" element={<McqRooms />} />
             <Route path="community" element={<Community />} />
             <Route path="collaborativerooms" element={<CollaborativeRooms />} />
           </Route>
+
+          <Route path="/codingroom/:roomid/lobby" element={<CodingLobby />} />
+          <Route path="/room/:roomid" element={<CollabEditor />} />
+          <Route path="/codingroom/:roomid/arena" element={<Playground />} />
+
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </SignedIn>
-
-      <SignedIn>
-        <Routes>
-          <Route
-            path="/room/:roomid"
-            element={<CollabEditor />}
-          ></Route>
-        </Routes>
-      </SignedIn>
-
-      <Routes>
-        <Route path="*" element={<NotFound />}></Route>
-      </Routes>
     </div>
   );
 };

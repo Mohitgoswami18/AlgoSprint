@@ -16,6 +16,13 @@ app.use('/static', express.static('public'))
 import userRoute from "./Routes/user.routes.js";
 app.use("/api/v1", userRoute);  
 
+import webhookHandler from "./Webhook/webhook.js";
+app.post(
+  "/api/webhooks/clerk",
+  express.raw({ type: "application/json" }),
+  webhookHandler
+);
+
 app.use((err, req, res, _) => {
     console.log(err);
     res.status(500).json({ error: "Internal Server Error" });
