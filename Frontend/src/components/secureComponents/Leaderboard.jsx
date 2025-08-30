@@ -3,72 +3,85 @@ import { CiUser } from "react-icons/ci";
 import pic1 from "../../assets/images/pic1.jpg";
 import pic2 from "../../assets/images/pic2.jpeg";
 import pic3 from "../../assets/images/pic3.jpeg";
+import { useEffect } from "react";
+import { useParams } from "react-router-dom";
+import axios from "axios";
 
 const Leaderboard = () => {
+  const params = useParams();
+  const username = params.username;
+  const [leaderboardData, setLeaderboardData] = useState([]);
+
+  useEffect(()=>{
+    axios.get(`https://algosprint-vxi4.onrender.com/api/v1/user/leaderboard`)
+      .then((res) => {
+        setLeaderboardData(res.data);
+      });
+  }, []);
 
   const Leaderboardtop10 = [
     {
       rank: "#4",
-      img: "",
-      name: "User1",
-      title: "Algo Master",
-      points: "1,233",
-      level: "2",
-      BattleWon: "45",
+      name: leaderboardData.top10[3]?.username,
+      title: leaderboardData.top10[3]?.title,
+      img: leaderboardData.top10[3]?.profilePicture,
+      points: leaderboardData.top10[3]?.currentRating,
+      BattleWon: leaderboardData.top10[3]?.totalWins,
+      level: leaderboardData.top10[3]?.level,
     },
     {
       rank: "#5",
-      img: "",
-      name: "User1",
-      title: "Algo Master",
-      points: "1,233",
-      level: "2",
-      BattleWon: "45",
+      img: leaderboardData.top10[4]?.profilePicture,
+      name: leaderboardData.top10[4]?.username,
+      title: leaderboardData.top10[4]?.title,
+      points: leaderboardData.top10[4]?.currentRating,
+      level: leaderboardData.top10[4]?.level,
+      BattleWon: leaderboardData.top10[4]?.totalWins,
     },
     {
       rank: "#6",
-      img: "",
-      name: "User1",
-      title: "Algo Master",
-      points: "1,233",
-      level: "2",
-      BattleWon: "45",
+      img: leaderboardData.top10[5]?.profilePicture,
+      name: leaderboardData.top10[5]?.username,
+      title: leaderboardData.top10[5]?.title,
+      points: leaderboardData.top10[5]?.currentRating,
+      level: leaderboardData.top10[5]?.level,
+      BattleWon: leaderboardData.top10[5]?.totalWins,
     },
     {
       rank: "#7",
-      img: "",
-      name: "User1",
-      title: "Algo Master",
-      points: "1,233",
-      level: "2",
-      BattleWon: "45",
+      img: leaderboardData.top10[6]?.profilePicture,
+      name: leaderboardData.top10[6]?.username,
+      title: leaderboardData.top10[6]?.title,
+      points: leaderboardData.top10[6]?.currentRating,
+      level: leaderboardData.top10[6]?.level,
+      BattleWon: leaderboardData.top10[6]?.totalWins,
     },
     {
       rank: "#8",
-      img: "",
-      name: "User1",
-      title: "Algo Master",
-      points: "1,233",
-      level: "2",
-      BattleWon: "45",
+      img: leaderboardData.top10[7]?.profilePicture,
+      name: leaderboardData.top10[7]?.username,
+      title: leaderboardData.top10[7]?.title,
+      points: leaderboardData.top10[7]?.currentRating,
+      level: leaderboardData.top10[7]?.level,
+      BattleWon: leaderboardData.top10[7]?.totalWins,
     },
     {
       rank: "#9",
-      img: "",
-      name: "User1",
-      title: "Algo Master",
-      points: "1,233",
-      level: "2",
-      BattleWon: "45",
+      img: leaderboardData.top10[8]?.profilePicture,
+      name: leaderboardData.top10[8]?.username,
+      title: leaderboardData.top10[8]?.title,
+      points: leaderboardData.top10[8]?.currentRating,
+      level: leaderboardData.top10[8]?.level,
+      BattleWon: leaderboardData.top10[8]?.totalWins,
     },
     {
       rank: "#10",
-      img: "",
-      name: "User1",
-      title: "Algo Master",
-      points: "1,233",
-      level: "2",
-      BattleWon: "45",
+      img: leaderboardData.top10[9]?.profilePicture,
+      name: leaderboardData.top10[9]?.username,
+      title: leaderboardData.top10[9]?.title,
+      points: leaderboardData.top10[9]?.currentRating,
+      level: leaderboardData.top10[9]?.level,
+      BattleWon: leaderboardData.top10[9]?.totalWins,
     },
 
   ];
@@ -76,44 +89,44 @@ const Leaderboard = () => {
   const Leaderboardtop3 = [
     {
       rank: "1",
-      name: "User1",
-      title: "Algo Master",
-      img: "",
-      points: "1,233",
-      BattleWon: "45",
+      name: leaderboardData.top10[0]?.username,
+      title: leaderboardData.top10[0]?.title,
+      img: leaderboardData.top10[0]?.profilePicture,
+      points: leaderboardData.top10[0]?.currentRating,
+      BattleWon: leaderboardData.top10[0]?.totalWins,
     },
     {
       rank: "2",
-      name: "User2",
-      title: "Algo Queen",
-      img: "",
-      points: "1,123",
-      BattleWon: "35",
+      name: leaderboardData.top10[1]?.username,
+      title: leaderboardData.top10[1]?.title,
+      img: leaderboardData.top10[1]?.profilePicture,
+      points: leaderboardData.top10[1]?.currentRating,
+      BattleWon: leaderboardData.top10[1]?.totalWins,
     },
     {
       rank: "3",
-      name: "User3",
-      title: "Algo assauler",
-      img: "",
-      points: "1,000",
-      BattleWon: "39",
+      name: leaderboardData.top10[2]?.username,
+      title: leaderboardData.top10[2]?.title,
+      img: leaderboardData.top10[2]?.profilePicture,
+      points: leaderboardData.top10[2]?.currentRating,
+      BattleWon: leaderboardData.top10[2]?.totalWins,
     },
   ];
 
   const LeaderboardStats = [
     {
-      number: "1,243",
-      name: "Active Coders"
+      number: leaderboardData.totalUsers,
+      name: "Active Coders",
     },
     {
-      number: "4,578",
-      name: "Problem Solved"
+      number: "7465",
+      name: "Problem Solved",
     },
     {
-      number: "890",
-      name: "Battles Faughts"
-    }
-  ]
+      number: leaderboardData.totalBattleFought,
+      name: "Battles Faughts",
+    },
+  ];
 
   return (
     <div className="dark:bg-black transition-all duration-500 bg-slate-50 text-black dark:text-white font-[Inter] p-5">

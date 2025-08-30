@@ -1,6 +1,6 @@
 import { Webhook } from "svix";
-import { ApiResponse } from "../utils/ApiResponse.js";
-import { User } from "../models/User.model.js";
+import { ApiResponse } from "../Utils/ApiResponse.js";
+import { User } from "../models/user.model.js";
 
 const secret = process.env.WEBHOOK_SECRET;
 
@@ -17,7 +17,7 @@ const webhookHandler = async (req, res) => {
     if (type === "user.created") {
       const { email_addresses, id, image_url, first_name, last_name } = data;
 
-      const email = email_addresses?.[0]?.email_address; // ✅ Extract first email
+      const email = email_addresses?.[0]?.email_address;
 
       if (!email || !id || !image_url || !first_name || !last_name) {
         return res
@@ -29,7 +29,7 @@ const webhookHandler = async (req, res) => {
         clerkId: id,
         email: email,
         profilePicture: image_url,
-        username: `${first_name} ${last_name}`, // ✅ cleaner
+        username: `${first_name} ${last_name}`,
       });
 
       return res

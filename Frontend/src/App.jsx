@@ -70,7 +70,7 @@ const App = () => {
       {/* Protected Routes */}
       <SignedIn>
         <Routes>
-          <Route path="/:user/*" element={<ProfileLayout />}>
+          <Route path="/:username/" element={<ProfileLayout />}>
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="leaderboard" element={<Leaderboard />} />
             <Route path="codingrooms" element={<CodingRooms />} />

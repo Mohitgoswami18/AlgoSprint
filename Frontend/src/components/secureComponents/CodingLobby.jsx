@@ -77,7 +77,7 @@ const CodingLobby = () => {
       if(playerReady.ready === false) return;
     })
 
-    navigate(`/codingroom/${roomid}/arena`)
+    // navigate(`/codingroom/${roomid}/arena`) SOME DEBUGGING IS NEEDED HERE
   },[players])
 
   return (

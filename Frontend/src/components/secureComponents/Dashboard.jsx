@@ -5,7 +5,6 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { FaRegUserCircle } from "react-icons/fa";
 import { MdOutlineEventRepeat } from "react-icons/md";
 import { FaRankingStar } from "react-icons/fa6";
 import { GiBattleGear } from "react-icons/gi";
@@ -28,27 +27,35 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";  
+
 const Dashboard = () => {
+
+  const params = useParams();
+  const username = params.username;
+  const [userDetails, setUserDetails] = useState("");
+
   const feature = [
     {
       logo: <MdOutlineEventRepeat />,
       discription: "Win Streak",
-      stats: "6",
+      stats: userDetails.winStreak,
     },
     {
       logo: <GiBattleGear />,
       discription: "Total Battles",
-      stats: "23",
+      stats: userDetails.totalBattles,
     },
     {
       logo: <FaRankingStar />,
       discription: "Max Rank",
-      stats: "1234",
+      stats: userDetails.maximumRatings,
     },
     {
       logo: <SiStylelint />,
       discription: "PlayStyle",
-      stats: "Rapid",
+      stats: userDetails.playstyle,
     },
   ];
 
@@ -73,35 +80,53 @@ const Dashboard = () => {
     },
   };
 
+  useEffect(() => {
+    axios
+      .get(`https://algosprint-vxi4.onrender.com/api/v1/${username}/dashboard`)
+      .then((res) => {
+        setUserDetails(res.data);
+      });
+  }, []);
+
   return (
     <div className="bg-slate-50 dark:bg-black/80 transition-all duration-500 font-[Inter] px-16 pt-4 text-black dark:text-white min-h-screen">
       <div className="flex items-center gap-10">
         <div className="bg-slate-50 transition-all duration-500 dark:bg-[#111] rounded-xl basis-[80%] shadow-md">
           <div className="p-4 shadow-lg transition-all duration-500 flex justify-between">
             <div className="transition-all duration-500">
-              <h1 className="text-4xl p-1 font-bold">Welcome Back, User</h1>
+              <h1 className="text-4xl p-1 font-bold">
+                Welcome Back, {userDetails.username}
+              </h1>
               <p className="text-sm px-3 text-[#4a5568] dark:text-[#A0AEC0]">
                 Ready for some new challenges today
               </p>
             </div>
             <div className="pt-1 flex flex-col items-end gap-2">
               <div className="backdrop-blur-2xl bg-gradient-to-br from-indigo-400 to-purple-600 rounded-lg shadow-xs text-white px-2">
-                Newbie
+                {userDetails.raranking} {/* FIX THIS BASED ON THE RANK LATER */}
               </div>
-              <div className="text-sm font-semibold">Level 6</div>
+              <div className="text-sm font-semibold">
+                Level {userDetails.level}
+              </div>
             </div>
           </div>
           <div className="flex items-center justify-between px-6 py-1">
             <div className="text-[11px] font-semibold">XP Progress</div>
-            <div className="text-[11px] text-sm font-semibold">10/100 XP</div>
+            <div className="text-[11px] text-sm font-semibold">
+              {userDetails.xp}/100 XP
+            </div>
           </div>
           <div className="w-19/20 mx-auto pb-3">
-            <Progress value={10} />
+            <Progress value={userDetails.xp} />
           </div>
         </div>
 
         <div className="rounded-full transition-all duration-500 w-fit p-1 hover:scale-105 h-4/5 flex items-center justify-center bg-gray-200 dark:bg-[#111]">
-          <img src={samplePfp} alt="" className="w-full rounded-full" />
+          <img
+            src={userDetails.profileImage}
+            alt=""
+            className="w-full rounded-full"
+          />
         </div>
       </div>
 
@@ -110,7 +135,9 @@ const Dashboard = () => {
           <Card className="bg-white ring-[0.5px] dark:ring-white/20 dark:bg-white/4 shadow-md">
             <CardHeader>
               <CardTitle>Ranking Chart</CardTitle>
-              <CardDescription>Total Battles Fought: 69</CardDescription>
+              <CardDescription>
+                Total Battles Fought: {userDetails.totalBattles}
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <ChartContainer config={chartConfig}>
@@ -139,11 +166,15 @@ const Dashboard = () => {
         <div className="flex gap-2 flex-col w-4/9 items-center justify-center">
           <div className="bg-white ring-[0.5px] shadow-md dark:ring-white/20 dark:bg-white/4 w-full py-2 text-center p-2 text-md font-bold rounded-md">
             Total Win
-            <p className="p-4 text-lg text-green-600 font-bold">102</p>
+            <p className="p-4 text-lg text-green-600 font-bold">
+              {userDetails.totalWin}
+            </p>
           </div>
           <div className="bg-white ring-[0.5px] shadow-md dark:ring-white/20 dark:bg-white/4 w-full text-center py-2 text-sm font-bold rounded-md">
             Win ratio
-            <p className="p-4 text-orange-500 text-lg">0.7</p>
+            <p className="p-4 text-orange-500 text-lg">
+              {userDetails.winRatio}
+            </p>
           </div>
         </div>
 
