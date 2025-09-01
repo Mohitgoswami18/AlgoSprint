@@ -6,13 +6,19 @@ const CommunityRooms = () => {
   const [discussionsList, setDiscussionList] = useState([]);
 
   useEffect(()=>{
-    axios.get("https://algosprint-vxi4.onrender.com/api/v1/user/discussion")
-    .then((res) => {
-      setDiscussionList(res.data);
-    })
-    .catch((err) => {
-      console.log("There was an error while fetching the content",err);
-    })
+    const handleDataFetching = async () => {
+      await axios
+        .get("https://algosprint-vxi4.onrender.com/api/v1/user/discussion")
+        .then((res) => {
+          setDiscussionList(res.data);
+        })
+        .catch((err) => {
+          console.log("There was an error while fetching the content", err);
+        });
+    }
+
+    handleDataFetching();
+    
   }, [])
 
   return (

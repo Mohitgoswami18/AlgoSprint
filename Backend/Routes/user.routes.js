@@ -5,7 +5,7 @@ import { discussionDataFetcher } from "../controllers/user.controller.js";
 
 const router = Router();
 
-router.route("/user/dashboard").get(dashboardController);
+router.route("/:user/dashboard").get(dashboardController);
 router.route("/user/leaderboard").get(leaderboardStats);
 router.route("/user/discussion").get(discussionDataFetcher);
 

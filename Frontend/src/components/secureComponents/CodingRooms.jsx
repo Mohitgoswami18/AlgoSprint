@@ -218,7 +218,7 @@ const CodingRooms = () => {
         >
           <h2 className="text-2xl font-bold mb-4">Join Room</h2>
           <div
-            className={`text-center    ${
+            className={`text-center transition-all   ${
               activeCard === "join" ? "inline" : "hidden"
             }`}
           >
@@ -268,66 +268,7 @@ const CodingRooms = () => {
                   Try creating a room
                 </span>
               </p>
-              <Dialog>
-                <DialogTrigger asChild>
-                  <p className="bg-gray-100 dark:bg-white/10 p-2 rounded-md">
-                    Customize settings
-                  </p>
-                </DialogTrigger>
-                <DialogContent className="max-w-md">
-                  <DialogHeader>
-                    <DialogTitle className="text-lg font-semibold">
-                      Game Settings
-                    </DialogTitle>
-                  </DialogHeader>
-
-                  <div className="space-y-2">
-                    <Label>PlayStyle</Label>
-                    <Select>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Choose PlayStyle" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="30min">Flash - 30 mins</SelectItem>
-                        <SelectItem value="1hr">Rapid - 1Hrs</SelectItem>
-                        <SelectItem value="3hr">Classical - 2 hrs</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Number of Problems</Label>
-                    <Select>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Choose Number of Problems" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="2">2</SelectItem>
-                        <SelectItem value="4">4</SelectItem>
-                        <SelectItem value="6">6</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Difficulty </Label>
-                    <Select>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select Difficulty" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="easy">easy</SelectItem>
-                        <SelectItem value="Medium">Medium</SelectItem>
-                        <SelectItem value="hard">hard</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <Button className="w-full mt-4 rounded-2xl shadow-md">
-                    Save Settings
-                  </Button>
-                </DialogContent>
-              </Dialog>
+              
               <Button variant="outline" className="w-full mt-4"
               onClick={() => { handleCreateLogic(username, "join")}}
               >
