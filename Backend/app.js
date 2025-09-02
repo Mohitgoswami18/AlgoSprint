@@ -16,7 +16,7 @@ import userRoute from "./Routes/user.routes.js";
 app.use("/api/v1", userRoute);
 
 import webhookRoute from "./Routes/webhook.routes.js";
-app.post("/api/v1", webhookRoute);
+app.use("/api/v1", webhookRoute);
 
 app.use((err, req, res, _) => {
   console.log(err);

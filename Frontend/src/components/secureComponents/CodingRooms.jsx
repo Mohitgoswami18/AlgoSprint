@@ -28,7 +28,6 @@ const CodingRooms = () => {
   const [settings, setSettings] = useState({
     playStyle:"rapid",
     numberOfProblems: 2,
-    difficulty:"easy",
   })
   const navigate = useNavigate();
 
@@ -38,7 +37,7 @@ const CodingRooms = () => {
     setRoomid(id);
   };
 
-  const handleCreateLogic = (event) => {
+  const handleCreateLogic = () => {
     if (!username || !roomid) {
       toast.error("Please enter a username and room ID");
       return;
@@ -173,24 +172,6 @@ const CodingRooms = () => {
                           <SelectItem value="2">2</SelectItem>
                           <SelectItem value="4">4</SelectItem>
                           <SelectItem value="6">6</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Difficulty </Label>
-                      <Select
-                        onValueChange={(value) =>
-                          setSettings({ ...settings, difficulty: value })
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select Difficulty" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="easy">easy</SelectItem>
-                          <SelectItem value="Medium">Medium</SelectItem>
-                          <SelectItem value="hard">hard</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>

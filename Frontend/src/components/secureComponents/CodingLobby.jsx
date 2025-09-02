@@ -14,12 +14,24 @@ const CodingLobby = () => {
   const roomid = param.roomid;
   const username = location.state?.username;
   const navigate = useNavigate();
+  const settings = location.state.settings;
+
+  
 
   useEffect(() => {
     const ConnectSocket = async () => {
       socketRef.current = await initialiseSocket();
 
       socketRef.current.emit("userJoin", { roomid, username });
+
+      const handleError = (err) => {
+        console.log("socket error", err);
+        toast.error("Socket connection failed, try again later");
+        navigate("/user/codingrooms", { replace: true });
+      };
+
+      socketRef.current.on("connect_error", handleError);
+      socketRef.current.on("connect_failed", handleError);
 
       socketRef.current.on(
         "userJoined",
@@ -72,25 +84,41 @@ const CodingLobby = () => {
     socketRef.current.emit("ready", ({ roomid, username }));
   };
 
-  useEffect(()=>{
-    players.forEach((playerReady) => {
-      if(playerReady.ready === false) return;
-    })
+  useEffect(() => {
+    if (players.length === 0) return;
 
-    // navigate(`/codingroom/${roomid}/arena`) SOME DEBUGGING IS NEEDED HERE
-  },[players])
+    for (let i = 0; i < players.length; i++) {
+      if (!players[i].ready) return;
+    }
+
+    navigate(`/codingroom/${roomid}/arena`, {state: {setting: settings}}
+    );
+  }, [players]);
+
 
   return (
-    <div className="h-screen bg-cyan-900 p-10 animate-fadeIn text-white ">
+    <div className="h-screen font-[Inter] bg-cyan-900 p-10 animate-fadeIn text-white ">
       <h1 className="text-center text-4xl font-bold p-4 text-white">
         Waiting Lobby
       </h1>
-      <p className="text-center text-slate-xinc-600 dark:text-zinc-600">
+      <p className="text-center text-slate-xinc-600">
         Welcome to the waiting lobby! The room is being prepared for the coding
         challenge. Get ready for the intense battle!
       </p>
 
-      <div className="flex border-4 h-[60%] overflow-y-auto max-w-[600px] mx-auto flex-wrap border-zinc-500 items-center justify-center p-10 m-10 rounded-md">
+      <div>
+        {
+          settings && (
+            <div className="text-center flex items-center gap-4 font-bold justify-center mt-4 text-slate-xinc-600">
+              <p>PlayStyle: {settings.playStyle}</p>
+              <p>Number of Problems: {settings.numberOfProblems}</p>
+              <p>Difficulty: {settings.difficulty}</p>
+            </div>
+          )
+        }
+      </div>
+
+      <div className="flex border-4 h-[50%] overflow-y-auto max-w-[600px] mx-auto flex-wrap border-zinc-500 items-center justify-center p-10 m-10 rounded-md">
         {players.map((elem, idx) => (
           <div key={idx} className="basis-[24%] text-center">
             {elem.avatar}
