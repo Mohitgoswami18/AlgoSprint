@@ -6,6 +6,7 @@ const secret = process.env.WEBHOOK_SECRET;
 
 const webhookHandler = async (req, res) => {
   try {
+    console.log("The webhook is beign prepared")
     const payload = req.body.toString();
     console.log("Webhook payload:", payload);
     const header = req.headers;

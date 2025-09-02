@@ -14,8 +14,15 @@ app.use("/static", express.static("public"));
 // Protected Routes
 import userRoute from "./Routes/user.routes.js";
 app.use("/api/v1", userRoute);
+app.use("/api/v1", userRoute);
 
 import webhookRoute from "./Routes/webhook.routes.js";
+app.use("/webhooks", (req, res, next) => {
+  console.log("Headers:", req.headers);
+  console.log("Body type:", typeof req.body);
+  console.log("Body length:", req.body?.length);
+  next();
+});
 app.use("/api/v1", webhookRoute);
 
 app.use((err, req, res, _) => {

@@ -38,13 +38,12 @@ const Playground = () => {
   const [versions, setVersions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [code, setCode] = useState(starterCode["python"]);
-  const [err, setErr] = useState("");
+  const [err, setErr] = useState(false);
   const [output, setOutput] = useState("");
 
   const editorRef = useRef();
   const location = useLocation();
   const setting = location.state?.setting;
-  console.log(setting)
 
   const timeMapping = {
     rapid: 3600,
@@ -53,15 +52,29 @@ const Playground = () => {
   };
   const [time, setTime] = useState(timeMapping[setting?.playStyle] || 3600);
   const [problems, setProblems] = useState({});
+  console.log(problems)
 
   useEffect(() => {
     const fetchQuestionsfromBackend = async () => {
-      await axios.get("https://algosprint-vxi4.onrender.com/api/v1/user/problems", {
-        questions: setting?.numberOfProblems,
-      })
-      .then((res) => {
-        console.log(res);
-      })
+      console.log("Fetching the data from the backend")
+      await axios
+        .get(
+          "https://algosprint-vxi4.onrender.com/api/v1/user/codingrooms/arena/problems",
+          {
+            questions: setting?.numberOfProblems,
+          }
+        )
+        .then((res) => {
+          console.log(res);
+          setProblems(res.data.data.problems); // Change it on the basis of backend
+          setData(true);
+          setErr(false);
+        })
+        .catch((err) => {
+          console.log("some error occured", err);
+          setErr(true);
+          setData(false);
+        });
     }
 
     fetchQuestionsfromBackend ();
@@ -186,11 +199,18 @@ const Playground = () => {
         >
           <ResizablePanel
             defaultSize={40}
-            className=" border-r-3 border-blue-500"
+            className=" border-r-3 border-zinc-600 active:border-r-3"
           >
-            <div className="flex h-[200px] items-center justify-center p-6">
-              <span className="font-semibold">Problem Statement</span>
-            </div>
+            {err ? (
+              <p className="text-red-500 text-xl h-[80%] flex items-center justify-center text-center font-bold font-[Inter]">
+                {" "}
+                There was an error while fetching the questions please try again
+              </p>
+            ) : (
+              <div className="flex h-[200px] items-center justify-center p-6">
+                <span className="font-semibold">Problem Statement</span>
+              </div>
+            )}
           </ResizablePanel>
 
           <ResizableHandle />
@@ -201,7 +221,7 @@ const Playground = () => {
                 defaultSize={70}
                 className="w-full h-full overflow-hidden"
               >
-                <div className="flex h-full items-center justify-center w-full rounded-md">
+                <div className="flex py-2 pl-2 h-full items-center justify-center w-full rounded-md">
                   <Editor
                     className="w-full h-full"
                     language={language[0] === "c++" ? "cpp" : language[0]}
@@ -217,7 +237,7 @@ const Playground = () => {
 
               <ResizablePanel
                 defaultSize={30}
-                className="border-t-3 border-blue-500"
+                className="border-t-3 border-zinc-600"
               >
                 <div className="flex flex-col h-full w-full p-6 overflow-auto">
                   <span className="font-semibold ">Output:</span>

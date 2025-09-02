@@ -112,7 +112,6 @@ const CodingLobby = () => {
             <div className="text-center flex items-center gap-4 font-bold justify-center mt-4 text-slate-xinc-600">
               <p>PlayStyle: {settings.playStyle}</p>
               <p>Number of Problems: {settings.numberOfProblems}</p>
-              <p>Difficulty: {settings.difficulty}</p>
             </div>
           )
         }

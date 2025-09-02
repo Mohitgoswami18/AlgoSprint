@@ -3,6 +3,7 @@ import { ApiResponse } from "../Utils/ApiResponse.js";
 import { User } from "../models/user.model.js";
 import { Match } from "../models/match.model.js";
 import { Discuss } from "../models/discuss.model.js"
+import { Problem } from "../models/problem.model.js"
 import uploadToCloudinary from "../Utils/cloudinary.js";
 
 const dashboardController = async (req, res, next) => {
@@ -188,10 +189,38 @@ const discussionDataFetcher = async (_, res, next) => {
   }
 }
 
+const QuestionFetcher = async (req, res) => {
+  const { questions } = req.body;
+
+  if(!questions) {
+    throw new ApiError(400, "Number of Questions are required");
+  }
+
+  try {
+    const quesitonsData = await Problem.aggregate([
+      { $sample: { size: questions } },
+    ]);
+
+    if(!quesitonsData) {
+      throw new ApiError(505, "error while Fetching the questions");
+    }
+
+    res.status(200).json(
+      new ApiResponse(200, "data was fetched successfully", {
+        questions: quesitonsData,
+      })
+    );
+  } catch (err) {
+    console.log("an error occured ", err);
+  }
+
+}
+
 export {
   dashboardController,
   updateUserName,
   UpdateUserProfilePicture,
   leaderboardStats,
   discussionDataFetcher,
+  QuestionFetcher,
 };
