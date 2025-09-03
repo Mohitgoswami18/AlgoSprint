@@ -1,8 +1,10 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import dotenv from "dotenv"
 
 const app = express();
+dotenv.config({path: "./.env"})
 
 app.use(cors({ origin: process.env.ORIGIN, credentials: true }));
 app.use(cookieParser());
@@ -14,15 +16,8 @@ app.use("/static", express.static("public"));
 // Protected Routes
 import userRoute from "./Routes/user.routes.js";
 app.use("/api/v1", userRoute);
-app.use("/api/v1", userRoute);
 
 import webhookRoute from "./Routes/webhook.routes.js";
-app.use("/webhooks", (req, res, next) => {
-  console.log("Headers:", req.headers);
-  console.log("Body type:", typeof req.body);
-  console.log("Body length:", req.body?.length);
-  next();
-});
 app.use("/api/v1", webhookRoute);
 
 app.use((err, req, res, _) => {

@@ -1,4 +1,4 @@
-import { Problem } from "../Models/problem.model.js";
+import { Problem } from "../models/problem.model.js";
 import ConnectToDatabase from "../Database/database.js"
 
 
@@ -3728,15 +3728,19 @@ const problemData = [
   },
 ];
 
-ConnectToDatabase();
+const connectingToDatabase = async () => {
+  await ConnectToDatabase();
+} 
+connectingToDatabase();
+
 
 const updateProblemToDatabase = async () => {
     try {
-        const response = await Problem.insertMany(seedProblems);
+        const response = await Problem.insertMany(problemData);
         console.log("Problems updated successfully:", response);
     } catch (error) {
         console.error("Error updating problem:", error);
     }
 }
 
-updateProblemToDatabase();
+updateProblemToDatabase ();

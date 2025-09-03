@@ -71,8 +71,8 @@ const McqRooms = () => {
       toast.error("Please enter a username and room ID");
       return;
     }
-    navigate(`/codingroom/${roomid}/lobby`, {
-      state: { username, event },
+    navigate(`/${"mcq"}/${roomid}/lobby`, {
+      state: { username, event, redirected: "mcqrooms" },
     });
   }
 

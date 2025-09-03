@@ -190,19 +190,33 @@ const discussionDataFetcher = async (_, res, next) => {
 }
 
 const QuestionFetcher = async (req, res) => {
-  const { questions } = req.body;
+  console.log("We are in the questionFetcher Controller")
 
+  if(!req.params) {
+    throw new ApiError(400, "Request body not found please provide a request body")
+  }
+  
+  
+  const {questions}  = req.query;
+  console.log("Number of questions are :", questions)
+  
+  const numberofQuestions = parseInt(questions, 10);
+  console.log(typeof numberofQuestions);
+  
   if(!questions) {
     throw new ApiError(400, "Number of Questions are required");
   }
 
   try {
+    console.log("Fetching questions from the database")
     const quesitonsData = await Problem.aggregate([
-      { $sample: { size: questions } },
+      { $sample: { size: numberofQuestions } },
     ]);
 
     if(!quesitonsData) {
       throw new ApiError(505, "error while Fetching the questions");
+    } else {
+      console.log("questions fetched successfully")
     }
 
     res.status(200).json(

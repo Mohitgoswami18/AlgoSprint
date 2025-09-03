@@ -11,11 +11,12 @@ import AuthenticationLayout from "./components/AuthenticationLayout";
 import Signin from "./components/Signin";
 import Signup from "./components/Signup";
 import { useEffect, useState } from "react";
-import { SignedIn,} from "@clerk/clerk-react";
+import { SignedIn } from "@clerk/clerk-react";
 import NotFound from "./components/NotFound";
 import CollabEditor from "./components/secureComponents/EditorLayout";
 import CodingLobby from "./components/secureComponents/CodingLobby";
 import Playground from "./components/secureComponents/Playground";
+import McqArena from "./components/secureComponents/McqArena";
 
 const App = () => {
   const [clickEffects, setClickEffects] = useState([]);
@@ -80,8 +81,10 @@ const App = () => {
           </Route>
 
           <Route path="/codingroom/:roomid/lobby" element={<CodingLobby />} />
+          <Route path="/mcq/:roomid/lobby" element={<CodingLobby />} />
           <Route path="/room/:roomid" element={<CollabEditor />} />
           <Route path="/codingroom/:roomid/arena" element={<Playground />} />
+          <Route path="/mcqrooms/:roomid/arena" element={<McqArena />} />
 
           <Route path="*" element={<NotFound />} />
         </Routes>

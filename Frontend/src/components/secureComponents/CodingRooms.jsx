@@ -43,7 +43,7 @@ const CodingRooms = () => {
       return;
     }
     navigate(`/codingroom/${roomid}/lobby`, {
-      state: { username, settings },
+      state: { username, settings, redirectedFrom: "codingRoom" },
     });
   }
 

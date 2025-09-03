@@ -30,7 +30,7 @@ const CollaborativeRooms = () => {
 
   const HandleJoin = () => {
     navigate(`/room/${roomid}` , {
-      state: { username },
+      state: { username},
     })
 
   }

@@ -14,9 +14,8 @@ const CodingLobby = () => {
   const roomid = param.roomid;
   const username = location.state?.username;
   const navigate = useNavigate();
-  const settings = location.state.settings;
-
-  
+  const settings = location.state?.settings || " ";
+  const redirectedFrom = location.state?.redirectedFrom || "";
 
   useEffect(() => {
     const ConnectSocket = async () => {
@@ -56,18 +55,25 @@ const CodingLobby = () => {
       );
 
       socketRef.current.on("ready", ({ username }) => {
-        console.log(username)
+        console.log(username);
         setPlayers((prev) =>
           prev.map((player) =>
-            player.name === username ? { ...player, ready: !player.ready } : player
+            player.name === username
+              ? { ...player, ready: !player.ready }
+              : player
           )
         );
       });
     };
 
+    socketRef.current?.on("user-disconnected", ({ username, socketId }) => {
+      setUsers((prev) => prev.filter((user) => user.socketId !== socketId));
+      toast.success(`${username} left the room`);
+    });
     ConnectSocket();
 
     return () => {
+      socketRef.current.emit("leave", { username, roomid });
       socketRef.current?.disconnect();
     };
   }, [roomid, username]);
@@ -80,8 +86,8 @@ const CodingLobby = () => {
         player.name === username ? { ...player, ready: !player.ready } : player
       )
     );
-    console.log(roomid)
-    socketRef.current.emit("ready", ({ roomid, username }));
+    console.log(roomid);
+    socketRef.current.emit("ready", { roomid, username });
   };
 
   useEffect(() => {
@@ -91,13 +97,13 @@ const CodingLobby = () => {
       if (!players[i].ready) return;
     }
 
-    navigate(`/codingroom/${roomid}/arena`, {state: {setting: settings}}
-    );
+    navigate(`/${redirectedFrom}/${roomid}/arena`, {
+      state: { setting: settings },
+    });
   }, [players]);
 
-
   return (
-    <div className="h-screen font-[Inter] bg-cyan-900 p-10 animate-fadeIn text-white ">
+    <div className="h-screen font-[Inter] bg-zinc-800 p-10 animate-fadeIn text-white ">
       <h1 className="text-center text-4xl font-bold p-4 text-white">
         Waiting Lobby
       </h1>
@@ -107,14 +113,12 @@ const CodingLobby = () => {
       </p>
 
       <div>
-        {
-          settings && (
-            <div className="text-center flex items-center gap-4 font-bold justify-center mt-4 text-slate-xinc-600">
-              <p>PlayStyle: {settings.playStyle}</p>
-              <p>Number of Problems: {settings.numberOfProblems}</p>
-            </div>
-          )
-        }
+        {settings && (
+          <div className="text-center flex items-center gap-4 font-bold justify-center mt-4 text-slate-xinc-600">
+            <p>PlayStyle: {settings.playStyle}</p>
+            <p>Number of Problems: {settings.numberOfProblems}</p>
+          </div>
+        )}
       </div>
 
       <div className="flex border-4 h-[50%] overflow-y-auto max-w-[600px] mx-auto flex-wrap border-zinc-500 items-center justify-center p-10 m-10 rounded-md">
@@ -132,19 +136,27 @@ const CodingLobby = () => {
         ))}
       </div>
 
-      <div className="flex items-center justify-center">
+      <div className="flex items-center gap-4 justify-center">
         <Button
-          className="mx-auto border-3 shadow-md"
+          className="border-3 shadow-md"
           variant="outline"
-          size="lg"
+          size="sm"
           onClick={() => handleReadyLogic(username)}
         >
           {players.find((player) => player.name === username)?.ready
             ? "Cancel"
-            : "Ready"
-            
-          }
-
+            : "Ready"}
+        </Button>
+        <Button
+          className="border-3 shadow-md"
+          variant="destructive"
+          size="sm"
+          onClick={() => {
+            toast.success("Leaved the room successfully!");
+            navigate(`/user/${redirectedFrom}`, { replace: true });
+          }}
+        >
+          leave
         </Button>
       </div>
     </div>
