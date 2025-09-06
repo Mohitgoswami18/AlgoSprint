@@ -17,6 +17,7 @@ import CollabEditor from "./components/secureComponents/EditorLayout";
 import CodingLobby from "./components/secureComponents/CodingLobby";
 import Playground from "./components/secureComponents/Playground";
 import McqArena from "./components/secureComponents/McqArena";
+import ResultPage from "./components/secureComponents/ResultPage";
 
 const App = () => {
   const [clickEffects, setClickEffects] = useState([]);
@@ -80,6 +81,7 @@ const App = () => {
             <Route path="collaborativerooms" element={<CollaborativeRooms />} />
           </Route>
 
+          <Route path="/codingroom/:roomid/result" element={<ResultPage/>}/>
           <Route path="/codingroom/:roomid/lobby" element={<CodingLobby />} />
           <Route path="/mcq/:roomid/lobby" element={<CodingLobby />} />
           <Route path="/room/:roomid" element={<CollabEditor />} />

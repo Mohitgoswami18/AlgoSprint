@@ -14,8 +14,13 @@ const CodingLobby = () => {
   const roomid = param.roomid;
   const username = location.state?.username;
   const navigate = useNavigate();
+  const topic = location.state?.topic || " "
+  const time = location.state?.time || " "
   const settings = location.state?.settings || " ";
   const redirectedFrom = location.state?.redirectedFrom || "";
+  console.log(topic, time)
+
+  console.log("you were redirected from " , redirectedFrom)
 
   useEffect(() => {
     const ConnectSocket = async () => {
@@ -98,7 +103,11 @@ const CodingLobby = () => {
     }
 
     navigate(`/${redirectedFrom}/${roomid}/arena`, {
-      state: { setting: settings },
+      state: { setting: settings, 
+        username: username,
+        time: time, 
+        topic:topic
+       },
     });
   }, [players]);
 
@@ -113,12 +122,18 @@ const CodingLobby = () => {
       </p>
 
       <div>
-        {settings && (
-          <div className="text-center flex items-center gap-4 font-bold justify-center mt-4 text-slate-xinc-600">
-            <p>PlayStyle: {settings.playStyle}</p>
-            <p>Number of Problems: {settings.numberOfProblems}</p>
-          </div>
-        )}
+        {settings &&
+          (redirectedFrom === "mcqrooms" ? (
+            <div className="text-center flex items-center gap-4 font-bold justify-center mt-4 text-slate-xinc-600">
+              <p>Topic: {topic}</p>
+              <p>Time Limit: {time}</p>
+            </div>
+          ) : (
+            <div className="text-center flex items-center gap-4 font-bold justify-center mt-4 text-slate-xinc-600">
+              <p>PlayStyle: {settings.playStyle}</p>
+              <p>Number of Problems: {settings.numberOfProblems}</p>
+            </div>
+          ))}
       </div>
 
       <div className="flex border-4 h-[50%] overflow-y-auto max-w-[600px] mx-auto flex-wrap border-zinc-500 items-center justify-center p-10 m-10 rounded-md">

@@ -72,7 +72,7 @@ const McqRooms = () => {
       return;
     }
     navigate(`/${"mcq"}/${roomid}/lobby`, {
-      state: { username, event, redirected: "mcqrooms" },
+      state: { username, event, redirectedFrom: "mcqrooms", topic: event, time:"20 Mins" },
     });
   }
 

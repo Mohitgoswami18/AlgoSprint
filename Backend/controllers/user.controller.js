@@ -2,8 +2,9 @@ import { ApiError } from "../Utils/ApiError.js";
 import { ApiResponse } from "../Utils/ApiResponse.js";
 import { User } from "../models/user.model.js";
 import { Match } from "../models/match.model.js";
-import { Discuss } from "../models/discuss.model.js"
-import { Problem } from "../models/problem.model.js"
+import { Discuss } from "../models/discuss.model.js";
+import { Problem } from "../models/problem.model.js";
+import { Question } from "../models/mcq.model.js";
 import uploadToCloudinary from "../Utils/cloudinary.js";
 
 const dashboardController = async (req, res, next) => {
@@ -170,53 +171,57 @@ const leaderboardStats = async (req, res, next) => {
   }
 };
 
-
 const discussionDataFetcher = async (_, res, next) => {
   try {
     const discussionData = await Discuss.aggregate([
-      {$sort: {
-        createdAt: -1,
-      }}, 
-      {$limit: 20}
-    ])
+      {
+        $sort: {
+          createdAt: -1,
+        },
+      },
+      { $limit: 20 },
+    ]);
 
     res.status(200).json(
       new ApiResponse(200, "Data Fetched Successfully", {
-      discussionData,
-    }))
+        discussionData,
+      })
+    );
   } catch (error) {
     next(error);
   }
-}
+};
 
 const QuestionFetcher = async (req, res) => {
-  console.log("We are in the questionFetcher Controller")
+  console.log("We are in the questionFetcher Controller");
 
-  if(!req.params) {
-    throw new ApiError(400, "Request body not found please provide a request body")
+  if (!req.params) {
+    throw new ApiError(
+      400,
+      "Request body not found please provide a request body"
+    );
   }
-  
-  
-  const {questions}  = req.query;
-  console.log("Number of questions are :", questions)
-  
+
+  const { questions } = req.query;
+  console.log("Number of questions are :", questions);
+
   const numberofQuestions = parseInt(questions, 10);
   console.log(typeof numberofQuestions);
-  
-  if(!questions) {
+
+  if (!questions) {
     throw new ApiError(400, "Number of Questions are required");
   }
 
   try {
-    console.log("Fetching questions from the database")
+    console.log("Fetching questions from the database");
     const quesitonsData = await Problem.aggregate([
       { $sample: { size: numberofQuestions } },
     ]);
 
-    if(!quesitonsData) {
+    if (!quesitonsData) {
       throw new ApiError(505, "error while Fetching the questions");
     } else {
-      console.log("questions fetched successfully")
+      console.log("questions fetched successfully");
     }
 
     res.status(200).json(
@@ -227,8 +232,63 @@ const QuestionFetcher = async (req, res) => {
   } catch (err) {
     console.log("an error occured ", err);
   }
+};
 
-}
+const mcqQuestionFetcher = async (req, res) => {
+  if (!req.headers) {
+    throw new ApiError(404, "Headers not found in the request");
+  }
+  const { topic } = req.headers;
+
+  try {
+    const response = await Question.aggregate(
+      {
+        $match: { topic: topic },
+      },
+      {
+        $sample: { size: 20 },
+      }
+    );
+
+    if (!response) {
+      throw new ApiError(404, "Questions not found in the database");
+    }
+
+    res.status(200).json(
+      new ApiResponse(200, "Questions Fetched Successfully form the database", {
+        Questions: response,
+      })
+    );
+  } catch (error) {
+    throw new ApiError(500, "Internal server error ", error);
+    console.log(
+      "there was an unknown error while fetching the questions from the database"
+    );
+  }
+};
+
+// COMPLETE THIS CONTROLLER TOMMOROW I AM FED UP NOW GOING TO SLEEP 
+
+const updateProgress = async (req, res) => {
+//   if (!req.body) {
+//     throw new ApiError(404, "Request body not found");
+//   }
+
+//   const {
+//     xpGained,
+//     rankingUpdated,
+//     recentMatch,
+//     position,
+//     opposition,
+//     result,
+//   } = req.body; // UPDATE THIS AS PER THE NEED LATER ON THIS IS JUST AN TEMPLATE FOR THE WORK FLOW
+
+//   if(!xpGained || !rankingUpdated || !result) {
+//     throw new ApiError (400, "not sufficient data provided to update the user ratings")
+//   }
+
+//   const userPreviousData = s
+};
 
 export {
   dashboardController,
@@ -237,4 +297,6 @@ export {
   leaderboardStats,
   discussionDataFetcher,
   QuestionFetcher,
+  mcqQuestionFetcher,
+  updateProgress,
 };

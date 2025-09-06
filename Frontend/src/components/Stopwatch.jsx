@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 export default function Stopwatch({ initialTime }) {
-  const [timeLeft, setTimeLeft] = useState(initialTime); // in seconds
+  const [timeLeft, setTimeLeft] = useState(initialTime);
   const intervalRef = useRef(null);
 
   useEffect(() => {
