@@ -1,22 +1,24 @@
 import { useEffect, useRef, useState } from "react";
 
 export default function Stopwatch({ initialTime }) {
-  const [timeLeft, setTimeLeft] = useState(initialTime);
+  const [timeLeft, setTimeLeft] = useState(Number(initialTime));
   const intervalRef = useRef(null);
 
   useEffect(() => {
-    // Check if end time already exists in localStorage
+    // Clear any existing interval before starting a new one
+    if (intervalRef.current) clearInterval(intervalRef.current);
+
     let savedEnd = localStorage.getItem("countdownEnd");
     let endTime;
 
-    if (savedEnd) {
-      endTime = parseInt(savedEnd, 10);
+    if (savedEnd && !isNaN(Number(savedEnd))) {
+      endTime = Number(savedEnd);
     } else {
-      endTime = Date.now() + initialTime * 1000;
+      endTime = Date.now() + Number(initialTime) * 1000;
       localStorage.setItem("countdownEnd", endTime);
     }
 
-    intervalRef.current = setInterval(() => {
+    const tick = () => {
       const remaining = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
       setTimeLeft(remaining);
 
@@ -24,7 +26,12 @@ export default function Stopwatch({ initialTime }) {
         clearInterval(intervalRef.current);
         localStorage.removeItem("countdownEnd");
       }
-    }, 1000);
+    };
+
+    // Run immediately so UI updates instantly
+    tick();
+
+    intervalRef.current = setInterval(tick, 1000);
 
     return () => clearInterval(intervalRef.current);
   }, [initialTime]);

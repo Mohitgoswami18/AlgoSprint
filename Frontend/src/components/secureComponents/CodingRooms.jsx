@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaRestroom } from "react-icons/fa6";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { v4 as uuid } from "uuid";
 import { Label } from "@/components/ui/label";
+import Loader from "../Loader"
 import {
   Dialog,
   DialogContent,
@@ -19,32 +20,86 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { useNavigate }  from "react-router-dom";
+import { useNavigate, useParams }  from "react-router-dom";
+import axios from "axios";
 
 const CodingRooms = () => {
   const [activeCard, setActiveCard] = useState("create");
   const [username, setUsername] = useState("");
+  const[loading, setLoading] = useState(false);
   const [roomid, setRoomid] = useState("");
-  const [settings, setSettings] = useState({
-    playStyle:"rapid",
-    numberOfProblems: 2,
-  })
-  const navigate = useNavigate();
 
+  const timeMapping = {
+      rapid: 3600,
+      flash: 1800,
+      classical: 7200,
+    };
+  
+  
+  const [settings, setSettings] = useState({
+    playStyle: "rapid",
+    numberOfProblems: 2,
+    time: timeMapping["rapid"],
+  });
+  const params = useParams();
+  const realUserName = params.username;
+  const navigate = useNavigate();
 
   const handleUuid = () => {
     const id = uuid();
     setRoomid(id);
   };
 
-  const handleCreateLogic = () => {
+  const handleCreateLogic = async() => {
     if (!username || !roomid) {
       toast.error("Please enter a username and room ID");
       return;
     }
+
+    setLoading(true);
+    const response = await axios.post(
+      "http://localhost:8000/api/v1/user/rooms/createNewRoom",
+      {
+        roomCode: roomid,
+        username: realUserName,
+      }
+    );
+    
+    console.log(response)
+    setLoading(false);
+
+    if (response.data.message !== "Room Created Successfully") {
+      toast.error("Ther was some error PLease try again");
+      return;
+    }
+
+
     navigate(`/codingroom/${roomid}/lobby`, {
-      state: { username, settings, redirectedFrom: "codingRoom" },
+      state: { realUserName, username, settings, redirectedFrom: "codingRoom" },
     });
+  }
+
+  const handleJoinLogic = async () => {
+    if (!username || !roomid) {
+      toast.error("Please enter a username and room ID");
+      return;
+    }
+
+    const response = await axios.post("http://localhost:8000/api/v1/user/rooms/joinRoom",
+      {
+        roomCode: roomid,
+        username: realUserName
+      }
+    );``
+
+    if (response.data.message !== "Room joined successfully") {
+      console.log(response.data.message);
+      toast.error("there was some error while joining the room try again later");
+      return;
+    }
+      navigate(`/codingroom/${roomid}/lobby`, {
+        state: { username, settings, redirectedFrom: "codingRoom" },
+      });
   }
 
   return (
@@ -153,7 +208,9 @@ const CodingRooms = () => {
                         <SelectContent>
                           <SelectItem value="Flash">Flash - 30 mins</SelectItem>
                           <SelectItem value="Rapid">Rapid - 1Hrs</SelectItem>
-                          <SelectItem value="Classical">Classical - 2 hrs</SelectItem>
+                          <SelectItem value="Classical">
+                            Classical - 2 hrs
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -182,9 +239,12 @@ const CodingRooms = () => {
                   </DialogContent>
                 </Dialog>
 
-                <Button variant="personal" className="w-1/2 mt-4"
-                onClick={() => handleCreateLogic("create")}>
-                  create
+                <Button
+                  variant="personal"
+                  className="w-1/2 mt-4"
+                  onClick={() => handleCreateLogic("create")}
+                >
+                  {loading ? <Loader /> : "Create"}
                 </Button>
               </div>
             </div>
@@ -239,7 +299,7 @@ const CodingRooms = () => {
               </div>
 
               <p className="text-[12px] mt-6">
-                Don't have a room id?{" "}
+                Don't have a room id?
                 <span
                   className="text-cyan-500 cursor-pointer underline"
                   onClick={() => {
@@ -249,9 +309,13 @@ const CodingRooms = () => {
                   Try creating a room
                 </span>
               </p>
-              
-              <Button variant="outline" className="w-full mt-4"
-              onClick={() => { handleCreateLogic(username, "join")}}
+
+              <Button
+                variant="outline"
+                className="w-full mt-4"
+                onClick={() => {
+                  handleJoinLogic(username, "join");
+                }}
               >
                 Join
               </Button>

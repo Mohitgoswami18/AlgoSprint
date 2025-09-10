@@ -10,7 +10,7 @@ const Leaderboard = () => {
   const [err, setErr] = useState(false);
   const [leaderboardData, setLeaderboardData] = useState({ top10: [] });
   let leaderboardTop10 = [];
-  let leaderboardStats = [];
+  let leaderboardStats = [];zz
 
   useEffect(() => {
     const fetchData = async () => {

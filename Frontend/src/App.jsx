@@ -18,6 +18,8 @@ import CodingLobby from "./components/secureComponents/CodingLobby";
 import Playground from "./components/secureComponents/Playground";
 import McqArena from "./components/secureComponents/McqArena";
 import ResultPage from "./components/secureComponents/ResultPage";
+import McqResultPage from "./components/secureComponents/MCQResult";
+import McqLobby from "./components/secureComponents/McqLobby";
 
 const App = () => {
   const [clickEffects, setClickEffects] = useState([]);
@@ -81,9 +83,10 @@ const App = () => {
             <Route path="collaborativerooms" element={<CollaborativeRooms />} />
           </Route>
 
-          <Route path="/codingroom/:roomid/result" element={<ResultPage/>}/>
+          <Route path="/codingroom/:roomid/result" element={<ResultPage />} />
+          <Route path="/mcqroom/:roomid/result" element={<McqResultPage />} />
           <Route path="/codingroom/:roomid/lobby" element={<CodingLobby />} />
-          <Route path="/mcq/:roomid/lobby" element={<CodingLobby />} />
+          <Route path="/mcq/:roomid/lobby" element={<McqLobby />} />
           <Route path="/room/:roomid" element={<CollabEditor />} />
           <Route path="/codingroom/:roomid/arena" element={<Playground />} />
           <Route path="/mcqrooms/:roomid/arena" element={<McqArena />} />

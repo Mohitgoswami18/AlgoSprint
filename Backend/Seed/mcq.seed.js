@@ -1,5 +1,5 @@
-import ConnectToDatabase from "./Database/database.js"
-import { Question } from "./models/mcq.model.js";
+import ConnectToDatabase from "../Database/database.js"
+import { Question } from "../models/mcq.model.js";
 
 const sampleMCQ = [
   {
@@ -2009,7 +2009,7 @@ ConnectToDatabase()
 
 const insertIntoDatabase = async () => {
     try {
-        const inserted = await Question.insertMany(mcqData);
+        const inserted = await Question.insertMany(sampleMCQ);
         if(inserted) {
             console.log("the data have been seccessfully pushed inside the mongo db database");
         } else {

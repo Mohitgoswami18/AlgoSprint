@@ -32,7 +32,7 @@ const CodingLobby = () => {
       const handleError = (err) => {
         console.log("socket error", err);
         toast.error("Socket connection failed, try again later");
-        navigate(`/${realUsername }/codingrooms`, { replace: true });
+        navigate(`/${realUsername }/mcqroom`, { replace: true });
       };
 
       socketRef.current.on("connect_error", handleError);
@@ -102,18 +102,18 @@ const CodingLobby = () => {
     const FetchQuestionsFromTheBackend = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:8000/api/v1/user/codingrooms/arena/problems",
+          `http://localhost:8000/api/v1/user/mcqroom/arena/${topic}/problems`,
           {
             params: {
-              questions: settings?.numberOfProblems,
+              topic: topic
             },
           }
         );
 
-        const codingQuestions = res.data.data.questions;
+        const mcqQuestions = res.data.data.questions;
         setData(true);
 
-        await updateCurrentRoomSettings(codingQuestions);
+        await updateCurrentRoomSettings(mcqQuestions);
       } catch (err) {
         console.log("some error occurred", err);
         setData(false);
@@ -122,8 +122,8 @@ const CodingLobby = () => {
 
     FetchQuestionsFromTheBackend();
 
-    const updateCurrentRoomSettings = async (codingQuestions) => {
-      console.log("Final data going to backend:", codingQuestions);
+    const updateCurrentRoomSettings = async (mcqQuestions) => {
+      console.log("Final data going to backend:", mcqQuestions);
       await axios.post(
         "http://localhost:8000/api/v1/user/codingrooms/updateRoomDetails",
         {
@@ -139,7 +139,7 @@ const CodingLobby = () => {
     }
 
     if(data) {
-      navigate(`/codingroom/${roomid}/arena`, {
+      navigate(`/mcqroom/${roomid}/arena`, {
         state: {
           setting: settings,
           username: username,
@@ -171,8 +171,8 @@ const CodingLobby = () => {
 
       <div>
         <div className="text-center flex items-center gap-4 font-bold justify-center mt-4 text-slate-xinc-600">
-          <p>PlayStyle: {settings.playStyle}</p>
-          <p>Number of Problems: {settings.numberOfProblems}</p>
+            <p>Topic: {topic}</p>
+            <p>Time Limit: {time}</p>
         </div>
       </div>
 
@@ -211,7 +211,7 @@ const CodingLobby = () => {
           size="sm"
           onClick={() => {
             toast.success("Leaved the room successfully!");
-            navigate(`/${realUsername}/codingroom`, { replace: true });
+            navigate(`/${realUsername}/mcqroom`, { replace: true });
           }}
         >
           leave

@@ -1,13 +1,30 @@
 import { GiMultipleTargets } from "react-icons/gi";
-import { Button } from "@/components/ui/button";
+import axios from "axios"
 import { useParams, useNavigate } from "react-router-dom"
 import { v4 as uuid } from "uuid";
+import { useState } from "react"
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const McqRooms = () => {
 
   const params = useParams();
+  const realUserName = params.username
   const navigate = useNavigate();
   const username = params.username;
+  const [loading, setLoading] = useState(false);
   const handleUuid = () => {
     const id = uuid();
     return id;
@@ -65,25 +82,63 @@ const McqRooms = () => {
     },
   ];
 
-  const handleCreateLogic = (event) => {
+  const handleCreateLogic = async (event) => {
+
     const roomid = handleUuid();
     if (!username || !roomid) {
       toast.error("Please enter a username and room ID");
       return;
     }
-    navigate(`/${"mcq"}/${roomid}/lobby`, {
-      state: { username, event, redirectedFrom: "mcqrooms", topic: event, time:"20 Mins" },
-    });
-  }
 
-  const handleJoinLogic = (event) => {
-    if(!username) {
+    if (!username || !roomid) {
       toast.error("Please enter a username and room ID");
       return;
     }
 
-    navigate(`/codingroom/${roomid}/lobby`, {
-      state: { username, event },
+    setLoading(true);
+    const response = await axios.post(
+      "http://localhost:8000/api/v1/user/rooms/createNewRoom",
+      {
+        roomCode: roomid,
+        username: realUserName,
+      }
+    );
+    
+    console.log(response)
+    setLoading(false);
+
+    if (response.data.message !== "Room Created Successfully") {
+      toast.error("Ther was some error PLease try again");
+      return;
+    }
+
+    navigate(`/mcq/${roomid}/lobby`, {
+      state: { username, topic: event, time:"20 Mins" },
+    });
+  }
+
+  const handleJoinLogic = async (event) => {
+    if (!username || !roomid) {
+      toast.error("Please enter a username and room ID");
+      return;
+    }
+    
+    const response = await axios.post("http://localhost:8000/api/v1/user/rooms/joinRoom",
+      {
+        roomCode: roomid,
+        username: realUserName
+      }
+    );
+    
+    if (response.data.message !== "Room joined successfully") {
+      console.log(response.data.message);
+      toast.error("there was some error while joining the room try again later");
+      return;
+    }
+
+
+    navigate(`/mcq/${roomid}/lobby`, {
+      state: { username, settings, redirectedFrom: "mcqroom" },
     });
   }
 
@@ -134,13 +189,44 @@ const McqRooms = () => {
                 >
                   create
                 </Button>
-                <Button
+                {/* <Button
                   size="sm"
                   variant="outline"
                   onClick={() => handleJoinLogic(elem.name)}
                 >
                   join
-                </Button>
+                </Button> */}
+
+                <Dialog>
+                  <form>
+                    <DialogTrigger asChild>
+                      <Button variant="outline">Join</Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[425px]">
+                      <DialogHeader>
+                        <DialogTitle>Join room</DialogTitle>
+                        <DialogDescription>
+                          enter room id to join the room
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="grid gap-4">
+                        <div className="grid gap-3">
+                          <Label htmlFor="name-1">roomid</Label>
+                          <Input
+                            id="roomid"
+                            name="roomid"
+                          />
+                        </div>
+                      </div>
+                      <DialogFooter>
+                        <DialogClose asChild>
+                          <Button variant="outline">Cancel</Button>
+                        </DialogClose>
+                        <Button type="submit">join</Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </form>
+                </Dialog>
               </div>
               <div className="text-black dark:text-white text-sm">
                 *{elem.reward}

@@ -6,6 +6,7 @@ import { Discuss } from "../models/discuss.model.js";
 import { Problem } from "../models/problem.model.js";
 import { Question } from "../models/mcq.model.js";
 import uploadToCloudinary from "../Utils/cloudinary.js";
+import { Room } from "../models/room.model.js";
 
 const dashboardController = async (req, res, next) => {
   try {
@@ -235,21 +236,30 @@ const QuestionFetcher = async (req, res) => {
 };
 
 const mcqQuestionFetcher = async (req, res) => {
-  if (!req.headers) {
-    throw new ApiError(404, "Headers not found in the request");
+  console.log("INside the mcqFEtcher Controller");
+  if (!req.params) {
+    throw new ApiError(404, "url params not found in the request");
   }
-  const { topic } = req.headers;
+
+  const topic = req.params.topic;
+
+  if (!topic) {
+    throw new ApiError(404, "The topic not found");
+  }
+
+  console.log("Finding questions from database");
 
   try {
-    const response = await Question.aggregate(
+    const response = await Question.aggregate([
       {
-        $match: { topic: topic },
+        $match: { topic: topic.toUpperCase() },
       },
       {
         $sample: { size: 20 },
-      }
-    );
+      },
+    ]);
 
+    console.log(response);
     if (!response) {
       throw new ApiError(404, "Questions not found in the database");
     }
@@ -267,28 +277,183 @@ const mcqQuestionFetcher = async (req, res) => {
   }
 };
 
-// COMPLETE THIS CONTROLLER TOMMOROW I AM FED UP NOW GOING TO SLEEP 
+// COMPLETE THIS CONTROLLER TOMMOROW I AM FED UP NOW GOING TO SLEEP
 
 const updateProgress = async (req, res) => {
-//   if (!req.body) {
-//     throw new ApiError(404, "Request body not found");
-//   }
-
-//   const {
-//     xpGained,
-//     rankingUpdated,
-//     recentMatch,
-//     position,
-//     opposition,
-//     result,
-//   } = req.body; // UPDATE THIS AS PER THE NEED LATER ON THIS IS JUST AN TEMPLATE FOR THE WORK FLOW
-
-//   if(!xpGained || !rankingUpdated || !result) {
-//     throw new ApiError (400, "not sufficient data provided to update the user ratings")
-//   }
-
-//   const userPreviousData = s
+  //   if (!req.body) {
+  //     throw new ApiError(404, "Request body not found");
+  //   }
+  //   const {
+  //     xpGained,
+  //     rankingUpdated,
+  //     recentMatch,
+  //     position,
+  //     opposition,
+  //     result,
+  //   } = req.body; // UPDATE THIS AS PER THE NEED LATER ON THIS IS JUST AN TEMPLATE FOR THE WORK FLOW
+  //   if(!xpGained || !rankingUpdated || !result) {
+  //     throw new ApiError (400, "not sufficient data provided to update the user ratings")
+  //   }
+  //   const userPreviousData = s
 };
+
+const CreateRoom = async (req, res) => {
+  try {
+    const { roomCode, username } = req.body;
+
+    if (!roomCode || !username) {
+      return res
+        .status(200)
+        .json(
+          new ApiResponse(
+            404,
+            "not sufficient information provided in the req body"
+          )
+        );
+    }
+
+    const userData = await User.findOne({ username });
+    if (!userData) {
+      return res.status(200).json(new ApiResponse(404, "User not found"));
+    }
+
+    const userRoomDetail = {
+      roomCode,
+      participants: {
+        userId: userData,
+        username: username,
+      },
+    };
+
+    const UpdatingToDatabase = await Room.create(userRoomDetail);
+    if (!UpdatingToDatabase) {
+      return res
+        .status(200)
+        .json(
+          new ApiResponse(
+            500,
+            "There was an error while connecting to the database try again later"
+          )
+        );
+    }
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, "Room Created Successfully"));
+  } catch (error) {
+    console.log("Unexpected error occured ", error);
+    return res.status(500).json(new ApiResponse(500, "Internal Server Error"));
+  }
+};
+
+
+const joinRoomHandler = async (req, res) => {
+  try {
+    const { roomCode, username } = req.body;
+
+    if (!roomCode || !username) {
+      return res
+        .status(200)
+        .json(new ApiResponse(404, "Not Found required data in the request body"));
+    }
+
+    const userData = await User.findOne({ username });
+    if (!userData) {
+      return res
+        .status(200)
+        .json(
+          new ApiResponse(404, " User not found")
+        );
+    }
+
+    const UpdatingToDatabase = await Room.findOneAndUpdate(
+      { roomCode },
+      {
+        $push: {
+          participants: {
+            userId: userData,
+            username: username,
+          },
+        },
+      },
+      { new: true }
+    );
+
+    if (!UpdatingToDatabase) {
+      return res.status(200).json(new ApiResponse(500, "Internal server error"));
+    }
+
+    res.status(200).json({
+      message: "Room joined successfully",
+      room: UpdatingToDatabase,
+    });
+  } catch (error) {
+    console.error("Unexpected error occurred", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+
+const findQuestionFromBackend = async (req, res) => {
+  const { roomid } = req.query;
+  
+  if (!roomid) {
+    throw new ApiError(404, "Roomid not found in the request parameters");
+  }
+  
+  console.log("got the room id")
+  console.log("Entring the required controller")
+
+const response = await Room.findOne({roomCode: roomid})
+.populate("question").exec();
+  if (!response) {
+    throw new ApiError(404, "room not found or expired");
+  }
+
+  console.log("Found the room with id ROOMCODE")
+
+  if (Date.now() > response.endTime) {
+    throw new ApiError(200, "The room is expired");
+  }
+
+  res.status(200).json( new ApiResponse (200, "Questions fetched successfully", {questions: response.question}))
+};
+
+const updateRoomDetails = async (req, res) => {
+  try {
+    const { roomCode, time, questions} = req.body;
+  
+    if(!roomCode || !questions || !time) {
+      throw new ApiError(404, "Required data not found in the request body");
+    }
+
+    console.log(time, roomCode, questions)
+  
+    const roomDetails = await Room.findOneAndUpdate(
+      {roomCode},
+      {
+        $set: {
+          startTime: Date.now(),
+          endTime: ((Date.now()) + (time*1000)),
+          question: questions
+        }
+      },
+      {new : true}
+    )
+  
+    if(!roomDetails) {
+      throw new ApiError (500, "internal server Error")
+    }
+
+    console.log("The RoomDetails get Updated", roomDetails)
+  
+    res.status(200).json(
+      new ApiResponse(200, "Successfully updated room Details")
+    );
+  } catch (error) {
+    console.log("an unexpected Error occured", error);
+  }
+}
 
 export {
   dashboardController,
@@ -299,4 +464,8 @@ export {
   QuestionFetcher,
   mcqQuestionFetcher,
   updateProgress,
+  CreateRoom,
+  findQuestionFromBackend,
+  joinRoomHandler,
+  updateRoomDetails,
 };
