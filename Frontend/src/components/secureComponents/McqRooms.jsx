@@ -17,13 +17,14 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import Loader from "../Loader"
 
 const McqRooms = () => {
 
   const params = useParams();
-  const realUserName = params.username
   const navigate = useNavigate();
-  const username = params.username;
+  const realUsername = params.username;
+  const [roomid, setRoomid] = useState("");
   const [loading, setLoading] = useState(false);
   const handleUuid = () => {
     const id = uuid();
@@ -117,28 +118,34 @@ const McqRooms = () => {
     });
   }
 
-  const handleJoinLogic = async (event) => {
-    if (!username || !roomid) {
+  const handleJoinLogic = async () => {
+
+    setLoading(true);
+
+    if (!realUsername || !roomid) {
       toast.error("Please enter a username and room ID");
+      setLoading(false)
       return;
     }
     
-    const response = await axios.post("http://localhost:8000/api/v1/user/rooms/joinRoom",
+    const response = await axios.post(
+      "http://localhost:8000/api/v1/user/rooms/joinRoom",
       {
         roomCode: roomid,
-        username: realUserName
+        username: realUsername,
       }
     );
     
     if (response.data.message !== "Room joined successfully") {
       console.log(response.data.message);
       toast.error("there was some error while joining the room try again later");
+      setLoading(false)
       return;
     }
 
-
+    setLoading(false)
     navigate(`/mcq/${roomid}/lobby`, {
-      state: { username, settings, redirectedFrom: "mcqroom" },
+      state: { username, topic: event, time: "20 Mins" },
     });
   }
 
@@ -189,13 +196,6 @@ const McqRooms = () => {
                 >
                   create
                 </Button>
-                {/* <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => handleJoinLogic(elem.name)}
-                >
-                  join
-                </Button> */}
 
                 <Dialog>
                   <form>
@@ -212,17 +212,19 @@ const McqRooms = () => {
                       <div className="grid gap-4">
                         <div className="grid gap-3">
                           <Label htmlFor="name-1">roomid</Label>
-                          <Input
-                            id="roomid"
-                            name="roomid"
-                          />
+                          <Input id="roomid" value={roomid} onChange={(e)=> setRoomid(e.target.value)} />
                         </div>
                       </div>
                       <DialogFooter>
                         <DialogClose asChild>
                           <Button variant="outline">Cancel</Button>
                         </DialogClose>
-                        <Button type="submit">join</Button>
+                        <Button
+                          type="submit"
+                          onClick={() => handleJoinLogic(elem.name)}
+                        >
+                          {loading ? <Loader /> : <p>join</p>}
+                        </Button>
                       </DialogFooter>
                     </DialogContent>
                   </form>

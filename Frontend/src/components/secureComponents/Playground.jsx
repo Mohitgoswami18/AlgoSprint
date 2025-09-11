@@ -20,11 +20,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import Editor from "@monaco-editor/react";
 import axios from "axios";
 import CountdownTimer from "../Stopwatch";
@@ -55,6 +50,7 @@ const Playground = () => {
   const [submitLoading, setSubmitLoading] = useState(false);
   const [err, setErr] = useState(false);
   const [idx, setIdx] = useState(0);
+  const [testCaseIndex, setTestCaseIndex] = useState(0);
   const roomid = params.roomid;
   const [outputRunned, setOutputRunned] = useState(
     Array.from({ length: numberOfProblems }, () => false)
@@ -85,42 +81,48 @@ const Playground = () => {
     Array.from({ length: numberOfProblems }, () => [])
   );
 
-  const [submitOutput, setSubmitOutput ] = useState({});
+  const [submitOutput, setSubmitOutput] = useState({});
 
   let problemTestCasses = [];
   if (data && problems[idx]) {
     problemTestCasses = problems.map((elem, idx) => ({
       testCases: elem.problemTestCases.slice(0, 2),
     }));
+
+    console.log(problemTestCasses);
   }
 
-  useEffect(()=>{
+  useEffect(() => {
     const FetchQuestionsFromBackend = async () => {
-      console.log("FEtching questions from backend")
-      await axios.get(
-        "http://localhost:8000/api/v1/user/codingrooms/arena/getProblems",
-        {
-          params: {
-            roomid,
-          },
-        }
-      )
-      .then ((res) => {
-        console.log("response of the questions")
-        console.log(res.data.data.questions);
-        setProblems(res.data.data.questions);
-        setData(true);
-        setErr(false)
-      })
-      .catch((err) => {
-        console.log("Error occured while fetching the question from the backend", err);
-        setData(false);
-        setErr(true);
-      })
-    }
+      console.log("FEtching questions from backend");
+      await axios
+        .get(
+          "http://localhost:8000/api/v1/user/codingrooms/arena/getProblems",
+          {
+            params: {
+              roomid,
+            },
+          }
+        )
+        .then((res) => {
+          console.log("response of the questions");
+          console.log(res.data.data.questions);
+          setProblems(res.data.data.questions);
+          setData(true);
+          setErr(false);
+        })
+        .catch((err) => {
+          console.log(
+            "Error occured while fetching the question from the backend",
+            err
+          );
+          setData(false);
+          setErr(true);
+        });
+    };
 
     FetchQuestionsFromBackend();
-  }, [])
+  }, []);
 
   useEffect(() => {
     if (questionDone === numberOfProblems) {
@@ -137,7 +139,6 @@ const Playground = () => {
   }, [questionDone]);
 
   useEffect(() => {
-
     let versionWithLanguage;
     axios
       .get("https://emkc.org/api/v2/piston/runtimes")
@@ -160,11 +161,11 @@ const Playground = () => {
       .catch((error) => console.log("error occured", error));
   }, []);
 
-  useEffect(()=>{
-    if(questionDone === numberOfProblems) {
+  useEffect(() => {
+    if (questionDone === numberOfProblems) {
       //NAVIGATE THE USER FROM HERE HE HAS FINISHED THE CONTEST;
     }
-  }, [questionDone])
+  }, [questionDone]);
 
   const handleEditorMount = (editor) => {
     editorRef.current[idx].current = editor;
@@ -181,19 +182,18 @@ const Playground = () => {
     setCode(updatedCodeArray);
   };
 
-
-  console.log(submitOutput.actualOutput)
-
   const HandleRunRequest = async () => {
     console.log("inside the handleRequestMethod");
     console.log(problems[idx].problemTestCases.length);
     setLoading(true);
     let result = [];
     for (let i = 0; i < 2; i++) {
-      const currentTestCase = problems[idx].problemTestCases[i].input.replace(
-        "sample_input_",
-        ""
-      );
+      // const currentTestCase = problems[idx].problemTestCases[i].input.replace(
+      //   "sample_input_",
+      //   ""
+      // );
+
+      const currentTestCase = "()" // JUST FOR THE TESTING PURPOSE
       console.log(currentTestCase);
       const expectedOutcome = problems[idx].problemTestCases[
         i
@@ -213,19 +213,21 @@ const Playground = () => {
         }
       );
 
+      console.log(response);
+
       const actualOutput = response.data.run.output.trim();
       result.push({
         currentTestCase,
         expectedOutcome,
         actualOutput,
         correctness: expectedOutcome === actualOutput,
-        stdErr: response.stderr,
+        stdErr: String(response.data.compile.stderr),
       });
       setCodeOutput((prev) =>
         prev.map((item, index) => (index === idx ? result : item))
       );
     }
-    console.log("runn result", codeOutput);
+    console.log("runn result", codeOutput[idx]);
     setLoading(false);
     setActiveTab("testResult");
     setOutputRunned((prev) =>
@@ -239,10 +241,12 @@ const Playground = () => {
     let isCorrect = true;
     let result = [];
     for (let i = 0; i < problems[idx].problemTestCases.length; i++) {
-      const currentTestCase = problems[idx].problemTestCases[i].input.replace(
-        "sample_input_",
-        ""
-      );
+      // const currentTestCase = problems[idx].problemTestCases[i].input.replace(
+      //   "sample_input_",
+      //   ""
+      // );
+
+      const currentTestCase = "()"
       const expectedOutcome = problems[idx].problemTestCases[
         i
       ].expectedOutput.replace("expected_output_", "");
@@ -273,7 +277,7 @@ const Playground = () => {
         prev.map((item, index) => (index === idx ? result : item))
       );
 
-      if(result[i].correctness === false) {
+      if (result[i].correctness === false) {
         isCorrect = false;
         setSubmitOutput({
           result: "Wrong Answer",
@@ -289,18 +293,20 @@ const Playground = () => {
       }
     }
 
-    if(isCorrect)   {
+    if (isCorrect) {
       setSubmitOutput({
-      result: "Submitted",
-      testCasePassed: problems[idx].problemTestCases.length,
-      totalTestCase: problems[idx].problemTestCases.length,
-    })
-  }
-    console.log(submitOutput)
+        result: "Submitted",
+        testCasePassed: problems[idx].problemTestCases.length,
+        totalTestCase: problems[idx].problemTestCases.length,
+      });
+    }
+    console.log(submitOutput);
     setSubmitLoading(false);
     setActiveTab("submit");
-    console.log(codeSubmitOutput)
-    setCodeSubmitted((prev) => prev.map((elem, index) => index === idx ? true : elem))
+    console.log(codeSubmitOutput);
+    setCodeSubmitted((prev) =>
+      prev.map((elem, index) => (index === idx ? true : elem))
+    );
 
     // Check that is the submitted code is correct for every test case
     let count = 0;
@@ -312,7 +318,9 @@ const Playground = () => {
     count = accumulate(correctTestCases.begin(), correctTestCases.end(), 0);
 
     if (count === numberOfProblems) {
-      setQuestionDone((prev) => prev.map((elem, index) => index === idx ? true : false));
+      setQuestionDone((prev) =>
+        prev.map((elem, index) => (index === idx ? true : false))
+      );
     }
   };
 
@@ -474,7 +482,7 @@ const Playground = () => {
                 className="border-t-3 border-zinc-600 p-2"
               >
                 {" "}
-                <div className="flex border-2 mt-2 bg-zinc-900 px-2 rounded-md pb-2 pt-2 text-sm items-center text-black justify-start gap-4">
+                <div className="flex bg-zinc-900 my-1 px-8 rounded-md pb-2 pt-2 text-sm items-center text-black justify-start gap-4">
                   <div
                     onClick={() => setActiveTab("testResult")}
                     className={`px-4 py-2 font-bold cursor-pointer transition-all duration-100 
@@ -499,92 +507,95 @@ const Playground = () => {
                     Submit
                   </div>
                 </div>
-                <div className="flex flex-col bg-zinc-900 no-scrollbar rounded-md h-full w-full p-6 overflow-auto">
+                <div className="flex flex-col bg-zinc-900 no-scrollbar rounded-md h-full w-full px-6 overflow-auto">
                   <div className="flex items-center gap-4 text-white">
                     {activeTab === "testResult" ? (
-                      <div className="flex items-center justify-center gap-24">
-                        {outputRunned[idx] ? (
-                          <div className="flex items-center text-center justify-center gap-8">
-                            {codeOutput[idx].map((elem, idx) => (
-                              <div key={idx} className="text-sm pb-2">
-                                <div
-                                  className={`py-1 px-2 rounded-md ${
-                                    elem.correctness
-                                      ? "bg-green-500"
-                                      : "bg-red-500"
-                                  } ring-1 ring-zinc-700`}
-                                >
-                                  <Popover>
-                                    <PopoverTrigger>
-                                      TestCase {idx + 1}
-                                    </PopoverTrigger>
-                                    <PopoverContent className="text-sm">
-                                      <div className="">
-                                        <strong>
-                                          input &nbsp; &nbsp;
-                                          {elem.currentTestCase}
-                                        </strong>
-                                      </div>
-                                      <div>
-                                        <strong>
-                                          expected &nbsp; &nbsp;
-                                          {elem.expectedOutcome}
-                                        </strong>
-                                      </div>
-                                      <div>
-                                        <strong>
-                                          outcome &nbsp; &nbsp;
-                                          {elem.actualOutput}
-                                        </strong>
-                                      </div>
-                                      {elem.stdErr ? (
-                                        <div> elem.stdErr </div>
-                                      ) : (
-                                        ""
-                                      )}
-                                    </PopoverContent>
-                                  </Popover>
-                                </div>
+                      <div>
+                        <div className="flex items-center gap-4 pt-4 justify-start">
+                          {problemTestCasses[idx]?.testCases?.map(
+                            (_, index) => (
+                              <h1
+                                key={index}
+                                className={`px-2 text-sm  cursor-pointer rounded-full ${
+                                  testCaseIndex === index ? "bg-cyan-800" : ""
+                                }`}
+                                onClick={() => setTestCaseIndex(index)}
+                              >
+                                Test {index + 1}
+                              </h1>
+                            )
+                          )}
+                        </div>
+
+                        <div className="flex text-sm flex-col mt-2 text-white">
+                          {outputRunned[idx] ? (
+                            codeOutput[idx][testCaseIndex] ? (
+                              <div
+                                className={`p-4 mt-3 w-[40rem] rounded-md ${
+                                  codeOutput[idx][testCaseIndex].correctness
+                                    ? "bg-green-500"
+                                    : "bg-red-500"
+                                }`}
+                              >
+                                <h2 className="font-bold mb-2">
+                                  TestCase {testCaseIndex + 1}
+                                </h2>
+                                <p>
+                                  <strong>Input:</strong>{" "}
+                                  {
+                                    codeOutput[idx][testCaseIndex]
+                                      .currentTestCase
+                                  }
+                                </p>
+                                <p>
+                                  <strong>Expected:</strong>{" "}
+                                  {
+                                    codeOutput[idx][testCaseIndex]
+                                      .expectedOutcome
+                                  }
+                                </p>
+                                <p className="flex items-center gap-2">
+                                  <p>
+                                    {codeOutput[idx][testCaseIndex].stdErr ? (
+                                      <p className="text-white mt-2">
+                                        <strong className="text-white mr-2 font-bold">Error:</strong>{" "}
+                                        {codeOutput[idx][testCaseIndex].stdErr}
+                                      </p>
+                                    ) : (
+                                      <p>
+                                        <strong>Output:</strong>
+                                        {
+                                          codeOutput[idx][testCaseIndex]
+                                            .actualOutput
+                                        }
+                                      </p>
+                                    )}
+                                  </p>
+                                </p>
                               </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="flex items-center justify-flex gap-8">
-                            {problemTestCasses[idx]?.testCases?.map(
-                              (elem, idx) => (
-                                <div key={idx} className="text-sm pb-2">
-                                  <Popover>
-                                    <PopoverTrigger className="px-3 py-2 backdrop-blur-2xl bg-white/10 rounded-md">
-                                      TestCase {idx + 1}
-                                    </PopoverTrigger>
-                                    <PopoverContent className="flex-col items-center justify-center">
-                                      <div>
-                                        <strong>
-                                          input &nbsp; &nbsp;{" "}
-                                          {elem.input.replace(
-                                            "sample_input_",
-                                            ""
-                                          )}
-                                        </strong>
-                                      </div>
-                                      <div>
-                                        <strong>
-                                          expected &nbsp; &nbsp;
-                                          {elem.expectedOutput.replace(
-                                            "expected_output_",
-                                            ""
-                                          )}
-                                        </strong>
-                                      </div>
-                                    </PopoverContent>
-                                  </Popover>
-                                  <div className="mt-6"></div>
-                                  <div></div>
-                                </div>
-                              )
-                            )}
-                          </div>
-                        )}
+                            ) : (
+                              <p>No output for this test case.</p>
+                            )
+                          ) : (
+                            <div className="pt-8 rounded-md">
+                              <p>
+                                <strong>Input:</strong>{" "}
+                                {problemTestCasses[idx]?.testCases?.[
+                                  testCaseIndex
+                                ]?.input.replace("sample_input_", "")}
+                              </p>
+                              <p className="mt-2">
+                                <strong>Expected:</strong>{" "}
+                                {problemTestCasses[idx]?.testCases?.[
+                                  testCaseIndex
+                                ]?.expectedOutput.replace(
+                                  "expected_output_",
+                                  ""
+                                )}
+                              </p>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     ) : (
                       <div>
@@ -617,7 +628,10 @@ const Playground = () => {
                             ) : (
                               <div className="text-sm">
                                 <h1>
-                                  Result: <span className="text-green-500">{submitOutput.result}</span>
+                                  Result:{" "}
+                                  <span className="text-green-500">
+                                    {submitOutput.result}
+                                  </span>
                                 </h1>
                                 <p className="py-2">
                                   Test Cases Passed:{" "}
@@ -628,7 +642,7 @@ const Playground = () => {
                             )}
                           </div>
                         ) : (
-                          <div className="flex w-full font-bold ml-10 items-center justify-center text-center text-sm">
+                          <div className="flex mt-5 w-full font-bold ml-10 items-center justify-center text-center text-sm">
                             no submissions yet
                           </div>
                         )}

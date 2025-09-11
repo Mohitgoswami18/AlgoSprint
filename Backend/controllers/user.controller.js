@@ -10,9 +10,9 @@ import { Room } from "../models/room.model.js";
 
 const dashboardController = async (req, res, next) => {
   try {
-    const { username } = req.params;
+    const { username } = req.query;
     if (!username) {
-      throw new ApiError(404, "User Not Found in the request body");
+      throw new ApiError(404, "User Not Found in the request parameters");
     }
 
     const userData = await User.findOne({ username });
@@ -270,31 +270,50 @@ const mcqQuestionFetcher = async (req, res) => {
       })
     );
   } catch (error) {
-    throw new ApiError(500, "Internal server error ", error);
     console.log(
       "there was an unknown error while fetching the questions from the database"
     );
+    throw new ApiError(500, "Internal server error ", error);
   }
 };
 
-// COMPLETE THIS CONTROLLER TOMMOROW I AM FED UP NOW GOING TO SLEEP
-
 const updateProgress = async (req, res) => {
-  //   if (!req.body) {
-  //     throw new ApiError(404, "Request body not found");
-  //   }
-  //   const {
-  //     xpGained,
-  //     rankingUpdated,
-  //     recentMatch,
-  //     position,
-  //     opposition,
-  //     result,
-  //   } = req.body; // UPDATE THIS AS PER THE NEED LATER ON THIS IS JUST AN TEMPLATE FOR THE WORK FLOW
-  //   if(!xpGained || !rankingUpdated || !result) {
-  //     throw new ApiError (400, "not sufficient data provided to update the user ratings")
-  //   }
-  //   const userPreviousData = s
+  if (!req.body) {
+    throw new ApiError(404, "Request body not found");
+  }
+  const {
+    xpGained,
+    rankingUpdated,
+    recentMatch,
+    position,
+    opposition,
+    username,
+    result,
+  } = req.body;
+
+  if (!xpGained || !rankingUpdated || !result) {
+    throw new ApiError(
+      400,
+      "not sufficient data provided to update the user ratings"
+    );
+  }
+
+
+  const userPreviousData = await User.findOneAndUpdate(
+    { username },
+    {
+      $set: {
+        xp: xp + xpGained,
+        highestRating: Math.max(currentRating, currentRating+rankingUpdated),
+        currentRating: currentRating + rankingUpdated,
+        totalBattles: totalBattles + 1,
+        totalWins: result === "Win" ? totalWins + 1 : totalWins,
+        // level: xp+xpGained >=toalXp ? level + 1 : level,
+        winStreak: result === "Win" ? winStreak + 1 : 0,
+
+      },
+    }
+  );
 };
 
 const CreateRoom = async (req, res) => {
@@ -346,7 +365,6 @@ const CreateRoom = async (req, res) => {
   }
 };
 
-
 const joinRoomHandler = async (req, res) => {
   try {
     const { roomCode, username } = req.body;
@@ -354,16 +372,14 @@ const joinRoomHandler = async (req, res) => {
     if (!roomCode || !username) {
       return res
         .status(200)
-        .json(new ApiResponse(404, "Not Found required data in the request body"));
+        .json(
+          new ApiResponse(404, "Not Found required data in the request body")
+        );
     }
 
     const userData = await User.findOne({ username });
     if (!userData) {
-      return res
-        .status(200)
-        .json(
-          new ApiResponse(404, " User not found")
-        );
+      return res.status(200).json(new ApiResponse(404, " User not found"));
     }
 
     const UpdatingToDatabase = await Room.findOneAndUpdate(
@@ -380,7 +396,9 @@ const joinRoomHandler = async (req, res) => {
     );
 
     if (!UpdatingToDatabase) {
-      return res.status(200).json(new ApiResponse(500, "Internal server error"));
+      return res
+        .status(200)
+        .json(new ApiResponse(500, "Internal server error"));
     }
 
     res.status(200).json({
@@ -393,67 +411,73 @@ const joinRoomHandler = async (req, res) => {
   }
 };
 
-
 const findQuestionFromBackend = async (req, res) => {
   const { roomid } = req.query;
-  
+
   if (!roomid) {
     throw new ApiError(404, "Roomid not found in the request parameters");
   }
-  
-  console.log("got the room id")
-  console.log("Entring the required controller")
 
-const response = await Room.findOne({roomCode: roomid})
-.populate("question").exec();
+  console.log("got the room id");
+  console.log("Entring the required controller");
+
+  const response = await Room.findOne({ roomCode: roomid })
+    .populate("question")
+    .exec();
   if (!response) {
     throw new ApiError(404, "room not found or expired");
   }
 
-  console.log("Found the room with id ROOMCODE")
+  console.log("Found the room with id ROOMCODE");
 
   if (Date.now() > response.endTime) {
     throw new ApiError(200, "The room is expired");
   }
 
-  res.status(200).json( new ApiResponse (200, "Questions fetched successfully", {questions: response.question}))
+  res
+    .status(200)
+    .json(
+      new ApiResponse(200, "Questions fetched successfully", {
+        questions: response.question,
+      })
+    );
 };
 
 const updateRoomDetails = async (req, res) => {
   try {
-    const { roomCode, time, questions} = req.body;
-  
-    if(!roomCode || !questions || !time) {
+    const { roomCode, time, questions } = req.body;
+
+    if (!roomCode || !questions || !time) {
       throw new ApiError(404, "Required data not found in the request body");
     }
 
-    console.log(time, roomCode, questions)
-  
+    console.log(time, roomCode, questions);
+
     const roomDetails = await Room.findOneAndUpdate(
-      {roomCode},
+      { roomCode },
       {
         $set: {
           startTime: Date.now(),
-          endTime: ((Date.now()) + (time*1000)),
-          question: questions
-        }
+          endTime: Date.now() + time * 1000,
+          question: questions,
+        },
       },
-      {new : true}
-    )
-  
-    if(!roomDetails) {
-      throw new ApiError (500, "internal server Error")
+      { new: true }
+    );
+
+    if (!roomDetails) {
+      throw new ApiError(500, "internal server Error");
     }
 
-    console.log("The RoomDetails get Updated", roomDetails)
-  
-    res.status(200).json(
-      new ApiResponse(200, "Successfully updated room Details")
-    );
+    console.log("The RoomDetails get Updated", roomDetails);
+
+    res
+      .status(200)
+      .json(new ApiResponse(200, "Successfully updated room Details"));
   } catch (error) {
     console.log("an unexpected Error occured", error);
   }
-}
+};
 
 export {
   dashboardController,

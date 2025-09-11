@@ -61,7 +61,8 @@ const Dashboard = () => {
       {
         logo: <SiStylelint />,
         discription: "PlayStyle",
-        stats: userDetails.playstyle,
+        stats:
+          userDetails.playstyle.length > 1 ? userDetails.playstyle : "random",
       },
     ];
   }
@@ -90,15 +91,20 @@ const Dashboard = () => {
   useEffect(() => {
     const handleFetchRequest = async () => {
       await axios
-      .get(`https://algosprint-vxi4.onrender.com/api/v1/${username}/dashboard`)
-      .then((res) => {
-        setUserDetails(res.data);
-        setData(true);
-      })
-      .catch((err) => {
-        console.log("An error occurred", err);
-        setErr(true);
-      });
+        .get(`http://localhost:8000/api/v1/user/dashboard`, {
+          params: {
+            username: username,
+          },
+        })
+        .then((res) => {
+          console.log(res)
+          setUserDetails(res.data.data);
+          setData(true);
+        })
+        .catch((err) => {
+          console.log("An error occurred", err);
+          setErr(true);
+        });
     }
 
     handleFetchRequest();
@@ -217,26 +223,18 @@ const Dashboard = () => {
               )}
             </div>
 
-            {
-              data ? (
-                <div className="bg-white shadow-md ring-[0.5px] dark:ring-white/20 dark:bg-white/4 p-4 rounded-md">
-              <h1 className="text-center font-bold text-md">Badges Earned</h1>
-              <p className="gap-2 p-4 py-9 flex flex-wrap items-center justify-center">
-                <Badge variant="outline">Newbie</Badge>
-                <Badge variant="default">Gladiator</Badge>
-                <Badge variant="destructive">SpeedDemon</Badge>
-                <Badge variant="ghost">AlgoMaster</Badge>
-                <Badge variant="ghost">Flash</Badge>
-                <Badge variant="secondary">CodingSage</Badge>
-                <button className="cursor-pointer bg-gray-300 dark:bg-white/10 px-2 py-1 rounded-lg">
-                  see all
-                </button>
-              </p>
-            </div>
-              ) : (
-                <Skeleton className="h-46 w-full rounded-md mb-6" />
-              )
-            }
+            {data ? (
+              <div className="bg-white w-[30rem] h-[13rem] shadow-md ring-[0.5px] dark:ring-white/20 dark:bg-white/4 p-4 rounded-md">
+                <h1 className="text-center font-bold text-md">Badges Earned</h1>
+                <p className="gap-2 p-4 py-9 flex flex-wrap items-center justify-center">
+                  {userDetails.Titles.map((elem, idx) => (
+                    <Badge>{elem}</Badge>
+                  ))}
+                </p>
+              </div>
+            ) : (
+              <Skeleton className="h-46 w-full rounded-md mb-6" />
+            )}
           </div>
           <div className="flex justify-between gap-3 items-center">
             {feature.map((elem, idx) => (
@@ -261,89 +259,87 @@ const Dashboard = () => {
               </div>
             ))}
           </div>
-          {
-            data ? (
-              <div className="my-4 rounded-md bg-white/4">
-            <Table>
-              <TableCaption>Recent Battles</TableCaption>
-              <TableHeader className="font-[Inter]">
-                <TableRow>
-                  <TableHead className="w-[100px] text-md p-4">
-                    Match Type
-                  </TableHead>
-                  <TableHead className="p-4">Result</TableHead>
-                  <TableHead className="p-4">opponent</TableHead>
-                  <TableHead className="text-right p-4">xp Gained</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                <TableRow>
-                  <TableCell className="font-medium p-4">bullet</TableCell>
-                  <TableCell className="p-4">Win</TableCell>
-                  <TableCell className="p-4">user2</TableCell>
-                  <TableCell className="p-4 text-right">*15</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="p-4 font-medium">bullet</TableCell>
-                  <TableCell className="p-4">Win</TableCell>
-                  <TableCell className="p-4">user2</TableCell>
-                  <TableCell className="p-4 text-right">*15</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="p-4 font-medium">bullet</TableCell>
-                  <TableCell className="p-4">Win</TableCell>
-                  <TableCell className="p-4">user2</TableCell>
-                  <TableCell className="p-4 text-right">*15</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="font-medium">bullet</TableCell>
-                  <TableCell>Win</TableCell>
-                  <TableCell>user2</TableCell>
-                  <TableCell className="text-right">*15</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="font-medium">bullet</TableCell>
-                  <TableCell>Win</TableCell>
-                  <TableCell>user2</TableCell>
-                  <TableCell className="text-right">*15</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="font-medium">bullet</TableCell>
-                  <TableCell>Win</TableCell>
-                  <TableCell>user2</TableCell>
-                  <TableCell className="text-right">*15</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="font-medium">bullet</TableCell>
-                  <TableCell>Win</TableCell>
-                  <TableCell>user2</TableCell>
-                  <TableCell className="text-right">*15</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="font-medium">bullet</TableCell>
-                  <TableCell>Win</TableCell>
-                  <TableCell>user2</TableCell>
-                  <TableCell className="text-right">*15</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="font-medium">bullet</TableCell>
-                  <TableCell>Win</TableCell>
-                  <TableCell>user2</TableCell>
-                  <TableCell className="text-right">*15</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="font-medium">bullet</TableCell>
-                  <TableCell>Win</TableCell>
-                  <TableCell>user2</TableCell>
-                  <TableCell className="text-right">*15</TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </div>
-            ) : (
-              <Skeleton className="h-96 w-full"/>
-            )
-          }
+          {data ? (
+            <div className="my-4 rounded-md bg-white/4">
+              <Table>
+                <TableCaption>Recent Battles</TableCaption>
+                <TableHeader className="font-[Inter]">
+                  <TableRow>
+                    <TableHead className="w-[100px] text-md p-4">
+                      Match Type
+                    </TableHead>
+                    <TableHead className="p-4">Result</TableHead>
+                    <TableHead className="p-4">opponent</TableHead>
+                    <TableHead className="text-right p-4">xp Gained</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow>
+                    <TableCell className="font-medium p-4">bullet</TableCell>
+                    <TableCell className="p-4">Win</TableCell>
+                    <TableCell className="p-4">user2</TableCell>
+                    <TableCell className="p-4 text-right">*15</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="p-4 font-medium">bullet</TableCell>
+                    <TableCell className="p-4">Win</TableCell>
+                    <TableCell className="p-4">user2</TableCell>
+                    <TableCell className="p-4 text-right">*15</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="p-4 font-medium">bullet</TableCell>
+                    <TableCell className="p-4">Win</TableCell>
+                    <TableCell className="p-4">user2</TableCell>
+                    <TableCell className="p-4 text-right">*15</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">bullet</TableCell>
+                    <TableCell>Win</TableCell>
+                    <TableCell>user2</TableCell>
+                    <TableCell className="text-right">*15</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">bullet</TableCell>
+                    <TableCell>Win</TableCell>
+                    <TableCell>user2</TableCell>
+                    <TableCell className="text-right">*15</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">bullet</TableCell>
+                    <TableCell>Win</TableCell>
+                    <TableCell>user2</TableCell>
+                    <TableCell className="text-right">*15</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">bullet</TableCell>
+                    <TableCell>Win</TableCell>
+                    <TableCell>user2</TableCell>
+                    <TableCell className="text-right">*15</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">bullet</TableCell>
+                    <TableCell>Win</TableCell>
+                    <TableCell>user2</TableCell>
+                    <TableCell className="text-right">*15</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">bullet</TableCell>
+                    <TableCell>Win</TableCell>
+                    <TableCell>user2</TableCell>
+                    <TableCell className="text-right">*15</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">bullet</TableCell>
+                    <TableCell>Win</TableCell>
+                    <TableCell>user2</TableCell>
+                    <TableCell className="text-right">*15</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </div>
+          ) : (
+            <Skeleton className="h-96 w-full" />
+          )}
         </div>
       )}
     </div>

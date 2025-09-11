@@ -12,7 +12,7 @@ import { updateRoomDetails } from "../controllers/user.controller.js"
 
 const router = Router();
 
-router.route("/:username/dashboard").get(dashboardController);
+router.route("/user/dashboard").get(dashboardController);
 router.route("/user/leaderboard").get(leaderboardStats);
 router.route("/user/discussion").get(discussionDataFetcher);
 router.route("/user/mcqroom/arena/:topic/problems").get(mcqQuestionFetcher);

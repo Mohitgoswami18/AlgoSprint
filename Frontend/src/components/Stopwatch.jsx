@@ -1,47 +1,35 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
-export default function Stopwatch({ initialTime }) {
-  const [timeLeft, setTimeLeft] = useState(Number(initialTime));
-  const intervalRef = useRef(null);
+export default function CountdownTimer({ initialSeconds, onComplete }) {
+  const [secondsLeft, setSecondsLeft] = useState(initialSeconds);
 
   useEffect(() => {
-    // Clear any existing interval before starting a new one
-    if (intervalRef.current) clearInterval(intervalRef.current);
-
-    let savedEnd = localStorage.getItem("countdownEnd");
-    let endTime;
-
-    if (savedEnd && !isNaN(Number(savedEnd))) {
-      endTime = Number(savedEnd);
-    } else {
-      endTime = Date.now() + Number(initialTime) * 1000;
-      localStorage.setItem("countdownEnd", endTime);
+    if (secondsLeft <= 0) {
+      onComplete?.();
+      return;
     }
 
-    const tick = () => {
-      const remaining = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
-      setTimeLeft(remaining);
+    const interval = setInterval(() => {
+      setSecondsLeft((prev) => prev - 1);
+    }, 1000);
 
-      if (remaining === 0) {
-        clearInterval(intervalRef.current);
-        localStorage.removeItem("countdownEnd");
-      }
-    };
+    return () => clearInterval(interval);
+  }, [secondsLeft, onComplete]);
 
-    // Run immediately so UI updates instantly
-    tick();
-
-    intervalRef.current = setInterval(tick, 1000);
-
-    return () => clearInterval(intervalRef.current);
-  }, [initialTime]);
-
-  const formatTime = (seconds) => {
-    const h = String(Math.floor(seconds / 3600)).padStart(2, "0");
-    const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, "0");
-    const s = String(seconds % 60).padStart(2, "0");
-    return `${h}:${m}:${s}`;
+  const formatTime = (secs) => {
+    const hrs = Math.floor(secs / 3600);
+    const mins = Math.floor((secs % 3600) / 60);
+    const s = secs % 60;
+    return `${String(hrs).padStart(2, "0")}:${String(mins).padStart(
+      2,
+      "0"
+    )}:${String(s).padStart(2, "0")}`;
   };
 
-  return <h1>{formatTime(timeLeft)}</h1>;
+  return (
+    <div className="flex flex-col items-center p-6 rounded-2xl bg-gray-800 text-white shadow-lg">
+      <h1 className="text-2xl font-bold mb-2">Countdown Timer</h1>
+      <p className="text-4xl font-mono">{formatTime(secondsLeft)}</p>
+    </div>
+  );
 }
