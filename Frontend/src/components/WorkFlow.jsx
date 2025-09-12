@@ -11,8 +11,8 @@ import settingLight from "../assets/images/settingLight.png"
 import settingDark from "../assets/images/settingDark.png"
 import shareLight from "../assets/images/shareLight.png"
 import shareDark from "../assets/images/shareDark.png"
-import startDark from "../assets/images/startDark.png"
-import startLight from "../assets/images/startLight.png"
+import codePlaygroundDark from "../assets/images/codePlaygroundDark.png";
+import codePlaygroundLight from "../assets/images/codePlaygroundLight.png"
 
 const steps = [
   {
@@ -57,7 +57,7 @@ const steps = [
     description:
       "Once both the user joined the room then a timer of 3 second will start and the battle begins ",
     color: "text-red-500",
-    imgs: [startLight, startDark],
+    imgs: [codePlaygroundDark, codePlaygroundLight],
     imgStyle: "ml-28 rotate-2",
   },
 ];

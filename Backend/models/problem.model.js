@@ -20,11 +20,11 @@ const problemSchema = new Schema(
       {
         input: {
           type: String,
-          required: true,
+          default: "",
         },
         expectedOutput: {
           type: String,
-          required: true,
+          default: "",
         },
       },
     ],

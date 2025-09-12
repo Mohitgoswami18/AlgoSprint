@@ -4,6 +4,7 @@ import { User } from "../models/user.model.js";
 import { Match } from "../models/match.model.js";
 import { Discuss } from "../models/discuss.model.js";
 import { Problem } from "../models/problem.model.js";
+import { Ranking } from "../models/ranking.model.js"
 import { Question } from "../models/mcq.model.js";
 import uploadToCloudinary from "../Utils/cloudinary.js";
 import { Room } from "../models/room.model.js";
@@ -277,44 +278,56 @@ const mcqQuestionFetcher = async (req, res) => {
   }
 };
 
-const updateProgress = async (req, res) => {
-  if (!req.body) {
-    throw new ApiError(404, "Request body not found");
-  }
-  const {
-    xpGained,
-    rankingUpdated,
-    recentMatch,
-    position,
-    opposition,
-    username,
-    result,
-  } = req.body;
+// const updateProgress = async (req, res) => {
+//   if (!req.body) {
+//     throw new ApiError(404, "Request body not found");
+//   }
+//   const {
+//     xpGained,
+//     rankingUpdated,
+//     recentMatch,
+//     position,
+//     opposition,
+//     username,
+//     result,
+//   } = req.body;
 
-  if (!xpGained || !rankingUpdated || !result) {
-    throw new ApiError(
-      400,
-      "not sufficient data provided to update the user ratings"
-    );
-  }
+//   if (!xpGained || !rankingUpdated || !result) {
+//     throw new ApiError(
+//       400,
+//       "not sufficient data provided to update the user ratings"
+//     );
+//   }
 
 
-  const userPreviousData = await User.findOneAndUpdate(
-    { username },
-    {
-      $set: {
-        xp: xp + xpGained,
-        highestRating: Math.max(currentRating, currentRating+rankingUpdated),
-        currentRating: currentRating + rankingUpdated,
-        totalBattles: totalBattles + 1,
-        totalWins: result === "Win" ? totalWins + 1 : totalWins,
-        // level: xp+xpGained >=toalXp ? level + 1 : level,
-        winStreak: result === "Win" ? winStreak + 1 : 0,
+  // const matchUpdatingDetails = await Match.insertOne({
+  //   userId: // Find the user id from the user schema first then update all other 3 schemas,
+  //   Style: Style,
+  //   opponentId: ,
 
-      },
-    }
-  );
-};
+  // })
+
+  // const updatedRatings = await Rating.insertOne({
+  //   userId: ,
+  //   ratings: [{value: , date, } ]
+  // })
+
+  // const userPreviousData = await User.findOneAndUpdate(
+  //   { username },
+  //   {
+  //     $set: {
+  //       xp: xp + xpGained,
+  //       highestRating: Math.max(currentRating, currentRating+rankingUpdated),
+  //       currentRating: currentRating + rankingUpdated,
+  //       totalBattles: totalBattles + 1,
+  //       totalWins: result === "Win" ? totalWins + 1 : totalWins,
+  //       // level: xp+xpGained >=toalXp ? level + 1 : level,
+  //       winStreak: result === "Win" ? winStreak + 1 : 0,
+
+  //     },
+  //   }
+//   );
+// };
 
 const CreateRoom = async (req, res) => {
   try {
@@ -487,7 +500,7 @@ export {
   discussionDataFetcher,
   QuestionFetcher,
   mcqQuestionFetcher,
-  updateProgress,
+  // updateProgress,
   CreateRoom,
   findQuestionFromBackend,
   joinRoomHandler,

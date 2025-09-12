@@ -6,10 +6,14 @@ import { useUser } from "@clerk/clerk-react";
 import { useClerk } from "@clerk/clerk-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
+import { useState } from "react"
+import { CiDark } from "react-icons/ci";
+import { CiLight } from "react-icons/ci";
 
 const Navbar = () => {
 
   const navigate = useNavigate();
+  const [theme, setTheme] = useState(false);
   const { isLoaded, isSignedIn } = useUser();
   const { signOut } = useClerk();
 
@@ -38,11 +42,15 @@ const Navbar = () => {
       </div>
 
       {/* Controls Section */}
-      <div className="gap-4 flex justify-center items-center">
+      <div className="gap-2 flex justify-center items-center">
+        <CiLight
+          className={`text-2xl ${theme === false ? "text-yellow-600 " : " "}`}
+        />
         <Switch
           id="darkThemeToggler"
           onClick={() => {
             document.documentElement.classList.toggle("dark");
+            setTheme((prev) => !prev)
           }}
           className="cursor-pointer"
         />
@@ -50,9 +58,10 @@ const Navbar = () => {
           htmlFor="darkThemeToggler"
           className="text-gray-800 dark:text-gray-200 text-sm font-medium"
         >
-          Dark Mode
+          <CiDark
+            className={`text-2xl ${theme === true ? "text-cyan-600 " : " "}`}
+          />
         </label>
-
         {isLoaded ? (
           <Button
             variant="outline"

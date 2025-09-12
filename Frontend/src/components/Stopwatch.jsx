@@ -27,9 +27,8 @@ export default function CountdownTimer({ initialSeconds, onComplete }) {
   };
 
   return (
-    <div className="flex flex-col items-center p-6 rounded-2xl bg-gray-800 text-white shadow-lg">
-      <h1 className="text-2xl font-bold mb-2">Countdown Timer</h1>
-      <p className="text-4xl font-mono">{formatTime(secondsLeft)}</p>
+    <div className="flex flex-col items-center rounded-2x">
+      <p className="text-lg font-[Inter]">{formatTime(secondsLeft)}</p>
     </div>
   );
 }

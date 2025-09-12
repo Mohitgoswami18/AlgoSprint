@@ -5,7 +5,7 @@ import go from "../assets/images/go.jpg";
 import php from "../assets/images/php.jpg";
 import js from "../assets/images/js.jpg";
 import java from "../assets/images/java.jpg";
-import judge0logo from "../assets/images/judge0logo.png"
+import pistonLogo from "../assets/images/piston.png"
 import { TbArrowBarBoth } from "react-icons/tb";
 import {
   Carousel,
@@ -175,7 +175,11 @@ const LanguagesAvailable = () => {
           <h1 className="text-center font-semibold text-xl text-[#0e1d2e] dark:text-[#F7FAFC] transition-colors duration-500">
             Validate againts Test cases with
           </h1>
-          <img src={judge0logo} alt="" className="rounded-md animate-pulse animation-duration-[6s]"/>
+          <img
+            src={pistonLogo}
+            alt=""
+            className="rounded-md animate-pulse my-3 animation-duration-[6s]"
+          />
         </div>
       </div>
     </div>

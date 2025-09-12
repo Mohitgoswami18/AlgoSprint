@@ -91,7 +91,7 @@ const App = () => {
           <Route path="/codingroom/:roomid/arena" element={<Playground />} />
           <Route path="/mcqrooms/:roomid/arena" element={<McqArena />} />
 
-          <Route path="*" element={<NotFound />} />
+          {/* <Route path="*" element={<NotFound />} /> */}
         </Routes>
       </SignedIn>
     </div>

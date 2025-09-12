@@ -26,6 +26,7 @@ const McqRooms = () => {
   const realUsername = params.username;
   const [roomid, setRoomid] = useState("");
   const [loading, setLoading] = useState(false);
+  const [joinLoading, setJoinLoading] = useState(false);
   const handleUuid = () => {
     const id = uuid();
     return id;
@@ -85,23 +86,19 @@ const McqRooms = () => {
 
   const handleCreateLogic = async (event) => {
 
-    const roomid = handleUuid();
-    if (!username || !roomid) {
-      toast.error("Please enter a username and room ID");
-      return;
-    }
-
-    if (!username || !roomid) {
-      toast.error("Please enter a username and room ID");
-      return;
-    }
-
     setLoading(true);
+    const roomid = handleUuid();
+
+    if (!realUsername || !roomid) {
+      toast.error("Please enter a username and room ID");
+      return;
+    }
+
     const response = await axios.post(
       "http://localhost:8000/api/v1/user/rooms/createNewRoom",
       {
         roomCode: roomid,
-        username: realUserName,
+        username: realUsername,
       }
     );
     
@@ -114,13 +111,13 @@ const McqRooms = () => {
     }
 
     navigate(`/mcq/${roomid}/lobby`, {
-      state: { username, topic: event, time:"20 Mins" },
+      state: { username: realUsername, topic: event, time:"20 Mins" },
     });
   }
 
-  const handleJoinLogic = async () => {
+  const handleJoinLogic = async (event) => {
 
-    setLoading(true);
+    setJoinLoading(true);
 
     if (!realUsername || !roomid) {
       toast.error("Please enter a username and room ID");
@@ -143,9 +140,9 @@ const McqRooms = () => {
       return;
     }
 
-    setLoading(false)
+    setJoinLoading(false);
     navigate(`/mcq/${roomid}/lobby`, {
-      state: { username, topic: event, time: "20 Mins" },
+      state: { realUsername, topic: event, time: "20 Mins" },
     });
   }
 
@@ -194,7 +191,7 @@ const McqRooms = () => {
                   variant="personal"
                   onClick={() => handleCreateLogic(elem.name)}
                 >
-                  create
+                  {loading ? <Loader></Loader> : <p>create</p>}
                 </Button>
 
                 <Dialog>
@@ -212,7 +209,11 @@ const McqRooms = () => {
                       <div className="grid gap-4">
                         <div className="grid gap-3">
                           <Label htmlFor="name-1">roomid</Label>
-                          <Input id="roomid" value={roomid} onChange={(e)=> setRoomid(e.target.value)} />
+                          <Input
+                            id="roomid"
+                            value={roomid}
+                            onChange={(e) => setRoomid(e.target.value)}
+                          />
                         </div>
                       </div>
                       <DialogFooter>

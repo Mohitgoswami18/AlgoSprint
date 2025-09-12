@@ -64,6 +64,8 @@ const Playground = () => {
     Array.from({ length: numberOfProblems }, () => false)
   );
 
+  const [problemFinished, setProblemfinished] = useState(0);
+
   if (editorRef.current.length !== numberOfProblems) {
     editorRef.current = Array(numberOfProblems)
       .fill(0)
@@ -188,12 +190,11 @@ const Playground = () => {
     setLoading(true);
     let result = [];
     for (let i = 0; i < 2; i++) {
-      // const currentTestCase = problems[idx].problemTestCases[i].input.replace(
-      //   "sample_input_",
-      //   ""
-      // );
+      const currentTestCase = problems[idx].problemTestCases[i].input.replace(
+        "sample_input_",
+        ""
+      );
 
-      const currentTestCase = "()" // JUST FOR THE TESTING PURPOSE
       console.log(currentTestCase);
       const expectedOutcome = problems[idx].problemTestCases[
         i
@@ -235,18 +236,21 @@ const Playground = () => {
     );
   };
 
+  const HandleRedirectLogic = () => {
+    navigate(`/codingroom/${roomid}/result`);
+  }
+
   // Check this this required some updation create a new submit window in the output window and conditionally render it
   const HandleSubmitRequest = async () => {
     setSubmitLoading(true);
     let isCorrect = true;
     let result = [];
     for (let i = 0; i < problems[idx].problemTestCases.length; i++) {
-      // const currentTestCase = problems[idx].problemTestCases[i].input.replace(
-      //   "sample_input_",
-      //   ""
-      // );
+      const currentTestCase = problems[idx].problemTestCases[i].input.replace(
+        "sample_input_",
+        ""
+      );
 
-      const currentTestCase = "()"
       const expectedOutcome = problems[idx].problemTestCases[
         i
       ].expectedOutput.replace("expected_output_", "");
@@ -300,35 +304,33 @@ const Playground = () => {
         totalTestCase: problems[idx].problemTestCases.length,
       });
     }
-    console.log(submitOutput);
     setSubmitLoading(false);
     setActiveTab("submit");
-    console.log(codeSubmitOutput);
     setCodeSubmitted((prev) =>
       prev.map((elem, index) => (index === idx ? true : elem))
     );
 
-    // Check that is the submitted code is correct for every test case
-    let count = 0;
-    let correctTestCases = [];
-    correctTestCases = codeSubmitOutput[idx].map((elem, idx) => {
-      elem.correctness ? 1 : 0;
-    });
-
-    count = accumulate(correctTestCases.begin(), correctTestCases.end(), 0);
-
-    if (count === numberOfProblems) {
+    if(isCorrect) {
       setQuestionDone((prev) =>
-        prev.map((elem, index) => (index === idx ? true : false))
+        prev.map((elem, index) => (index === idx ? true : elem))
       );
+
+      setProblemfinished((prev) => prev+1);
+      console.log(problemFinished);
+      console.log(numberOfProblems);
+
+
+    if(problemFinished >= Number(numberOfProblems)) {
+      console.log("Inside the function")
+      HandleRedirectLogic(); // WRITE THE UPDATION FUNCTION HERE
     }
-  };
+
+   }
+
+  }
 
   return (
     <div>
-      {questionDone[idx] && (
-        <div className="text-sm font-bold text-green-500"> DONE </div>
-      )}
       <div className=" rounded-md flex font-[Inter] items-center p-4 pb-0 w-full">
         <div>
           <Select
@@ -379,7 +381,7 @@ const Playground = () => {
         </div>
         <div className="mr-4 flex items-center justify-center gap-6">
           <div>
-            <CountdownTimer initialTime={time} />
+            <CountdownTimer initialSeconds={time} />
           </div>
           <Switch
             id="darkThemeToggler"
@@ -391,7 +393,6 @@ const Playground = () => {
         </div>
       </div>
 
-      {/* Playground Layout */}
       <div className="w-full h-[500px] p-4">
         <ResizablePanelGroup
           direction="horizontal"
@@ -416,7 +417,15 @@ const Playground = () => {
                       )
                     }
                   />
-                  problem No. {problems[idx]?.problemRanking}
+                  <div className="flex-col ">
+                    problem No. {problems[idx]?.problemRanking}
+                    {questionDone[idx] && (
+                      <div className="text-[10px] text-white w-fit mx-auto bg-green-500 px-2 py-1 rounded-full">
+                        {" "}
+                        DONE{" "}
+                      </div>
+                    )}
+                  </div>
                   <GiFastForwardButton
                     className="cursor-pointer"
                     onClick={() =>
@@ -558,7 +567,9 @@ const Playground = () => {
                                   <p>
                                     {codeOutput[idx][testCaseIndex].stdErr ? (
                                       <p className="text-white mt-2">
-                                        <strong className="text-white mr-2 font-bold">Error:</strong>{" "}
+                                        <strong className="text-white mr-2 font-bold">
+                                          Error:
+                                        </strong>{" "}
                                         {codeOutput[idx][testCaseIndex].stdErr}
                                       </p>
                                     ) : (
@@ -605,7 +616,7 @@ const Playground = () => {
                               <div className="text-sm">
                                 <h1>
                                   Result:{" "}
-                                  <span className="text-red-500">
+                                  <span className="text-red-500 font-bold text-xl">
                                     {submitOutput.result}
                                   </span>
                                 </h1>
@@ -620,16 +631,16 @@ const Playground = () => {
                                 <p>Expected: {submitOutput.expectedOutput}</p>
                                 <p>
                                   outcome:{" "}
-                                  <span className="text-red-500">
+                                  <span className="text-red-500 ">
                                     {submitOutput.yourOutput}
                                   </span>
                                 </p>
                               </div>
                             ) : (
                               <div className="text-sm">
-                                <h1>
+                                <h1 className="mt-5">
                                   Result:{" "}
-                                  <span className="text-green-500">
+                                  <span className="text-green-500 font-bold text-xl">
                                     {submitOutput.result}
                                   </span>
                                 </h1>
