@@ -41,6 +41,8 @@ const Playground = () => {
   const setting = location.state?.setting;
   const username = location.state?.username;
   const numberOfProblems = setting.numberOfProblems;
+  const startTime = location.startTime;
+  console.log(startTime);
   const navigate = useNavigate();
   const params = useParams();
   const [language, setLanguage] = useState([]);
@@ -61,10 +63,17 @@ const Playground = () => {
   const [activeTab, setActiveTab] = useState("testResult");
   const editorRef = useRef([]);
   const [questionDone, setQuestionDone] = useState(
-    Array.from({ length: numberOfProblems }, () => false)
+    () => {
+      return (
+        JSON.parse(localStorage.getItem("solvedProblemBooleanArray")) ||
+        Array.from({ length: numberOfProblems }, () => false)
+      );
+    }
   );
 
-  const [problemFinished, setProblemfinished] = useState(0);
+  const [problemFinished, setProblemfinished] = useState(() => {
+    return Number(localStorage.getItem("solvedProblemCount")) || 0;
+  });
 
   if (editorRef.current.length !== numberOfProblems) {
     editorRef.current = Array(numberOfProblems)
@@ -84,15 +93,38 @@ const Playground = () => {
   );
 
   const [submitOutput, setSubmitOutput] = useState({});
-
+  
   let problemTestCasses = [];
   if (data && problems[idx]) {
     problemTestCasses = problems.map((elem, idx) => ({
       testCases: elem.problemTestCases.slice(0, 2),
     }));
-
+    
     console.log(problemTestCasses);
   }
+  
+  const HandleRedirectLogic = () => {
+    console.log(
+      "problem solved",
+      problemFinished,
+      "totalQuestions:",
+      numberOfProblems
+    );
+    navigate(`/codingroom/${roomid}/result`, {
+      state: {
+        username: username,
+        roomid: roomid,
+        timeTake: Date.now() - startTime,
+        problemFinished: problemFinished,
+      },
+    });
+  };
+
+  useEffect(() => {
+    if (problemFinished === Number(numberOfProblems)) {
+      HandleRedirectLogic();
+    }
+  }, [problemFinished]);
 
   useEffect(() => {
     const FetchQuestionsFromBackend = async () => {
@@ -126,19 +158,6 @@ const Playground = () => {
     FetchQuestionsFromBackend();
   }, []);
 
-  useEffect(() => {
-    if (questionDone === numberOfProblems) {
-      // Navigate the user Somewhere in the result page i guess.
-      navigate(`/codingroom/${roomid}/result`, {
-        state: {
-          // Find these things now
-          username: username,
-          timeTake: timeTaken,
-          problemSolved: problemSolved,
-        },
-      });
-    }
-  }, [questionDone]);
 
   useEffect(() => {
     let versionWithLanguage;
@@ -162,12 +181,6 @@ const Playground = () => {
       })
       .catch((error) => console.log("error occured", error));
   }, []);
-
-  useEffect(() => {
-    if (questionDone === numberOfProblems) {
-      //NAVIGATE THE USER FROM HERE HE HAS FINISHED THE CONTEST;
-    }
-  }, [questionDone]);
 
   const handleEditorMount = (editor) => {
     editorRef.current[idx].current = editor;
@@ -236,11 +249,6 @@ const Playground = () => {
     );
   };
 
-  const HandleRedirectLogic = () => {
-    navigate(`/codingroom/${roomid}/result`);
-  }
-
-  // Check this this required some updation create a new submit window in the output window and conditionally render it
   const HandleSubmitRequest = async () => {
     setSubmitLoading(true);
     let isCorrect = true;
@@ -314,20 +322,20 @@ const Playground = () => {
       setQuestionDone((prev) =>
         prev.map((elem, index) => (index === idx ? true : elem))
       );
-
       setProblemfinished((prev) => prev+1);
-      console.log(problemFinished);
-      console.log(numberOfProblems);
-
-
-    if(problemFinished >= Number(numberOfProblems)) {
-      console.log("Inside the function")
-      HandleRedirectLogic(); // WRITE THE UPDATION FUNCTION HERE
-    }
-
    }
-
   }
+
+  useEffect(() => {
+    localStorage.setItem("solvedProblemCount", problemFinished);
+  }, [problemFinished]);
+
+  useEffect(() => {
+    localStorage.setItem(
+      "solvedProblemBooleanArray",
+      JSON.stringify(questionDone)
+    );
+  }, [questionDone]);
 
   return (
     <div>

@@ -15,13 +15,12 @@ const CodingLobby = () => {
   const param = useParams();
   const roomid = param.roomid;
   const username = location.state?.username;
-  const realUsername = location.state?.realUsername;
+  const [mcqQuestions, setMcqQuestions] = useState();
   const navigate = useNavigate();
   const topic = location.state?.topic || " ";
-  const settings = location.state?.settings || " ";
-  const time = settings.time || " ";
+  const time = location.state?.time || " ";
 
-  console.log(settings)
+  console.log(time)
 
   useEffect(() => {
     const ConnectSocket = async () => {
@@ -32,7 +31,7 @@ const CodingLobby = () => {
       const handleError = (err) => {
         console.log("socket error", err);
         toast.error("Socket connection failed, try again later");
-        navigate(`/${realUsername }/mcqroom`, { replace: true });
+        navigate(`/${username }/mcqroom`, { replace: true });
       };
 
       socketRef.current.on("connect_error", handleError);
@@ -92,25 +91,28 @@ const CodingLobby = () => {
   };
 
   useEffect(() => {
-    if (players.length < 2) return;
+    // if (players.length < 2) return;
 
     for (let i = 0; i < players.length; i++) {
       if (!players[i].ready) return;
     }
 
-    let codingQuestions = [];
     const FetchQuestionsFromTheBackend = async () => {
       try {
+
+        console.log(topic)
         const res = await axios.get(
-          `http://localhost:8000/api/v1/user/mcqroom/arena/${topic}/problems`,
+          `http://localhost:8000/api/v1/user/mcqroom/arena/topic/problems`,
           {
             params: {
-              topic: topic
+              topic: topic,
             },
           }
         );
 
-        const mcqQuestions = res.data.data.questions;
+        console.log(res)
+        const mcqQuestions = res.data.data.Questions;
+        console.log(mcqQuestions)
         setData(true);
 
         await updateCurrentRoomSettings(mcqQuestions);
@@ -124,14 +126,13 @@ const CodingLobby = () => {
 
     const updateCurrentRoomSettings = async (mcqQuestions) => {
       console.log("Final data going to backend:", mcqQuestions);
-      await axios.post(
-        "http://localhost:8000/api/v1/user/codingrooms/updateRoomDetails",
-        {
-          roomCode: roomid,
-          questions: codingQuestions,
-          time: time,
-        }
-      );
+      const res = await axios.post("http://localhost:8000/api/v1/user/mcqrooms/updateroomdetails", {
+        roomCode: roomid,
+        questions: mcqQuestions,
+        time: time,
+      });
+
+      console.log(res)
     };
 
     if(data) {
@@ -139,9 +140,8 @@ const CodingLobby = () => {
     }
 
     if(data) {
-      navigate(`/mcqroom/${roomid}/arena`, {
+      navigate(`/mcqrooms/${roomid}/arena`, {
         state: {
-          setting: settings,
           username: username,
           time: time,
           topic: topic,
@@ -211,7 +211,7 @@ const CodingLobby = () => {
           size="sm"
           onClick={() => {
             toast.success("Leaved the room successfully!");
-            navigate(`/${realUsername}/mcqroom`, { replace: true });
+            navigate(`/${username}/mcqroom`, { replace: true });
           }}
         >
           leave

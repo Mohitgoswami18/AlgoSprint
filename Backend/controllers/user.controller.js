@@ -4,7 +4,8 @@ import { User } from "../models/user.model.js";
 import { Match } from "../models/match.model.js";
 import { Discuss } from "../models/discuss.model.js";
 import { Problem } from "../models/problem.model.js";
-import { Ranking } from "../models/ranking.model.js"
+import { Ranking } from "../models/ranking.model.js";
+import { mcqRoom } from "../models/mcqRoom.models.js";
 import { Question } from "../models/mcq.model.js";
 import uploadToCloudinary from "../Utils/cloudinary.js";
 import { Room } from "../models/room.model.js";
@@ -236,98 +237,91 @@ const QuestionFetcher = async (req, res) => {
   }
 };
 
-const mcqQuestionFetcher = async (req, res) => {
-  console.log("INside the mcqFEtcher Controller");
-  if (!req.params) {
-    throw new ApiError(404, "url params not found in the request");
+const updateProgress = async (req, res) => {
+  if (!req.body) {
+    throw new ApiError(404, "Request body not found");
+  }
+  const {
+    xpGained,
+    rankingUpdated,
+    style,
+    participants,
+    recentMatch,
+    position,
+    opposition,
+    username,
+    result,
+  } = req.body;
+
+  if (!xpGained || !participants || !rankingUpdated || !result) {
+    throw new ApiError(400, "not sufficient data found in the request body");
   }
 
-  const topic = req.params.topic;
+  // UPDATING MATCH LOGIC
 
-  if (!topic) {
-    throw new ApiError(404, "The topic not found");
+  const players = await Promise.all(
+    participants.map(async (elem) => {
+      const currentPlayer = await User.findOne({ username: elem.username });
+      if (!currentPlayer)
+        throw new ApiError(404, `User not found: ${elem.username}`);
+      return currentPlayer._id;
+    })
+  );
+
+  const playerResultDetails = participants.map((elem, idx) => ({
+    user: players[idx],
+    score: elem.score,
+    outcome: elem.outcome,
+    ratingChange: elem.ratingChange,
+  }));
+
+  const updatingTheMatchDetails = await Match.create({
+    players: players,
+    style: style,
+    results: playerResultDetails,
+  });
+
+  if (!updatingTheMatchDetails) {
+    throw new ApiError(
+      500,
+      "An error occurred while updating the match details"
+    );
   }
 
-  console.log("Finding questions from database");
+// UPDATING THE RANKING LOGIC
+  for (let player = 0; player < participants.length; player++) {
+    const playerid = participants[player].username;
+    const playerDetails = await User.findOne({ username: playerid });
 
-  try {
-    const response = await Question.aggregate([
-      {
-        $match: { topic: topic.toUpperCase() },
-      },
-      {
-        $sample: { size: 20 },
-      },
-    ]);
+    if (!playerDetails) continue;
 
-    console.log(response);
-    if (!response) {
-      throw new ApiError(404, "Questions not found in the database");
+    let playerRankDetails = await Ranking.findOne({ userId: playerDetails._id });
+
+    const newRatingValue = playerDetails.currentRating + rankingUpdated;
+
+    if (!playerRankDetails) {
+      // Create it ( FIrst match)
+      playerRankDetails = await Ranking.create({
+        userId: playerDetails._id,
+        ratings: [
+          {
+            value: newRatingValue,
+            date: Date.now(),
+          },
+        ],
+      });
+    } else {
+      // Subsequent matches → update existing Ranking
+      playerRankDetails.ratings.push({
+        value: newRatingValue,
+        date: Date.now(),
+      });
+      await playerRankDetails.save();
     }
-
-    res.status(200).json(
-      new ApiResponse(200, "Questions Fetched Successfully form the database", {
-        Questions: response,
-      })
-    );
-  } catch (error) {
-    console.log(
-      "there was an unknown error while fetching the questions from the database"
-    );
-    throw new ApiError(500, "Internal server error ", error);
   }
-};
 
-// const updateProgress = async (req, res) => {
-//   if (!req.body) {
-//     throw new ApiError(404, "Request body not found");
-//   }
-//   const {
-//     xpGained,
-//     rankingUpdated,
-//     recentMatch,
-//     position,
-//     opposition,
-//     username,
-//     result,
-//   } = req.body;
-
-//   if (!xpGained || !rankingUpdated || !result) {
-//     throw new ApiError(
-//       400,
-//       "not sufficient data provided to update the user ratings"
-//     );
-//   }
-
-
-  // const matchUpdatingDetails = await Match.insertOne({
-  //   userId: // Find the user id from the user schema first then update all other 3 schemas,
-  //   Style: Style,
-  //   opponentId: ,
-
-  // })
-
-  // const updatedRatings = await Rating.insertOne({
-  //   userId: ,
-  //   ratings: [{value: , date, } ]
-  // })
-
-  // const userPreviousData = await User.findOneAndUpdate(
-  //   { username },
-  //   {
-  //     $set: {
-  //       xp: xp + xpGained,
-  //       highestRating: Math.max(currentRating, currentRating+rankingUpdated),
-  //       currentRating: currentRating + rankingUpdated,
-  //       totalBattles: totalBattles + 1,
-  //       totalWins: result === "Win" ? totalWins + 1 : totalWins,
-  //       // level: xp+xpGained >=toalXp ? level + 1 : level,
-  //       winStreak: result === "Win" ? winStreak + 1 : 0,
-
-  //     },
-  //   }
-//   );
-// };
+  
+}
 
 const CreateRoom = async (req, res) => {
   try {
@@ -447,13 +441,11 @@ const findQuestionFromBackend = async (req, res) => {
     throw new ApiError(200, "The room is expired");
   }
 
-  res
-    .status(200)
-    .json(
-      new ApiResponse(200, "Questions fetched successfully", {
-        questions: response.question,
-      })
-    );
+  res.status(200).json(
+    new ApiResponse(200, "Questions fetched successfully", {
+      questions: response.question,
+    })
+  );
 };
 
 const updateRoomDetails = async (req, res) => {
@@ -492,6 +484,215 @@ const updateRoomDetails = async (req, res) => {
   }
 };
 
+//     ****************      MCQ ROOMS CONTROLLER        ********************       //
+const createMcqRoom = async (req, res) => {
+  try {
+    const { roomCode, username } = req.body;
+    if (!roomCode || !username) {
+      return res
+        .status(200)
+        .json(
+          new ApiResponse(
+            404,
+            "not sufficient information provided in the req body"
+          )
+        );
+    }
+
+    const userData = await User.findOne({ username });
+    if (!userData) {
+      return res.status(200).json(new ApiResponse(404, "User not found"));
+    }
+
+    const userRoomDetail = {
+      roomCode,
+      participants: {
+        userId: userData,
+        username: username,
+      },
+    };
+
+    const UpdatingToDatabase = await mcqRoom.create(userRoomDetail);
+    if (!UpdatingToDatabase) {
+      return res
+        .status(200)
+        .json(
+          new ApiResponse(
+            500,
+            "There was an error while connecting to the database try again later"
+          )
+        );
+    }
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, "Room Created Successfully"));
+  } catch (error) {
+    console.log("Unexpected error occured ", error);
+    return res.status(500).json(new ApiResponse(500, "Internal Server Error"));
+  }
+};
+
+const mcqRoomJoiningHandler = async (req, res) => {
+  try {
+    const { roomCode, username } = req.body;
+
+    if (!roomCode || !username) {
+      return res
+        .status(200)
+        .json(
+          new ApiResponse(404, "Not Found required data in the request body")
+        );
+    }
+
+    const userData = await User.findOne({ username });
+    if (!userData) {
+      return res.status(200).json(new ApiResponse(404, " User not found"));
+    }
+
+    const UpdatingToDatabase = await mcqRoom.findOneAndUpdate(
+      { roomCode },
+      {
+        $push: {
+          participants: {
+            userId: userData,
+            username: username,
+          },
+        },
+      },
+      { new: true }
+    );
+
+    if (!UpdatingToDatabase) {
+      return res
+        .status(200)
+        .json(new ApiResponse(500, "Internal server error"));
+    }
+
+    res.status(200).json({
+      message: "Room joined successfully",
+      room: UpdatingToDatabase,
+    });
+  } catch (error) {
+    console.error("Unexpected error occurred", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const updateMcqRoomDetails = async (req, res) => {
+  try {
+    if (!req.body) {
+      console.log("no body");
+    }
+    console.log("inside the updateController");
+    const { roomCode, time, questions } = req.body;
+
+    console.log("fdsf");
+    if (!roomCode || !questions || !time) {
+      throw new ApiError(404, "Required data not found in the request body");
+    }
+
+    // console.log(time, roomCode, questions);
+
+    const roomDetails = await mcqRoom.findOneAndUpdate(
+      { roomCode },
+      {
+        $set: {
+          startTime: new Date(),
+          endTime: new Date(Date.now() + time * 1000),
+          question: questions,
+        },
+      },
+      { new: true }
+    );
+
+    if (!roomDetails) {
+      throw new ApiError(500, "internal server Error");
+    }
+
+    res
+      .status(200)
+      .json(new ApiResponse(200, "Successfully updated room Details"));
+  } catch (error) {
+    console.log("an unexpected Error occured", error);
+  }
+};
+
+const mcqQuestionFetcher = async (req, res) => {
+  console.log("INside the mcqFEtcher Controller");
+  if (!req.params) {
+    throw new ApiError(404, "url params not found in the request");
+  }
+
+  const { topic } = req.query;
+
+  if (!topic) {
+    throw new ApiError(404, "The topic not found");
+  }
+
+  console.log("Finding questions from database");
+  console.log(topic);
+
+  try {
+    console.log("finding questions from the backend");
+    const response = await Question.aggregate([
+      {
+        $match: { topic: topic.toUpperCase() },
+      },
+      {
+        $sample: { size: 20 },
+      },
+    ]);
+
+    console.log(response);
+    if (!response) {
+      throw new ApiError(404, "Questions not found in the database");
+    }
+
+    res.status(200).json(
+      new ApiResponse(200, "Questions Fetched Successfully form the database", {
+        Questions: response,
+      })
+    );
+  } catch (error) {
+    console.log(
+      "there was an unknown error while fetching the questions from the database"
+    );
+    throw new ApiError(500, "Internal server error ", error);
+  }
+};
+
+const findMcqQuestionsFromBackend = async (req, res) => {
+  const { roomid } = req.query;
+
+  if (!roomid) {
+    throw new ApiError(404, "Roomid not found in the request parameters");
+  }
+
+  console.log("got the room id");
+  console.log("Entring the required controller");
+
+  const response = await mcqRoom
+    .findOne({ roomCode: roomid })
+    .populate("question")
+    .exec();
+  if (!response) {
+    throw new ApiError(404, "room not found or expired");
+  }
+
+  console.log("Found the room with id ROOMCODE");
+
+  if (Date.now() > response.endTime) {
+    throw new ApiError(200, "The room is expired");
+  }
+
+  res.status(200).json(
+    new ApiResponse(200, "Questions fetched successfully", {
+      questions: response.question,
+    })
+  );
+};
+
 export {
   dashboardController,
   updateUserName,
@@ -502,7 +703,11 @@ export {
   mcqQuestionFetcher,
   // updateProgress,
   CreateRoom,
+  findMcqQuestionsFromBackend,
   findQuestionFromBackend,
   joinRoomHandler,
   updateRoomDetails,
+  createMcqRoom,
+  mcqRoomJoiningHandler,
+  updateMcqRoomDetails,
 };

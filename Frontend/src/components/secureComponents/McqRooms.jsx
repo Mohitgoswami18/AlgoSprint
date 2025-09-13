@@ -95,7 +95,7 @@ const McqRooms = () => {
     }
 
     const response = await axios.post(
-      "http://localhost:8000/api/v1/user/rooms/createNewRoom",
+      "http://localhost:8000/api/v1/user/mcqrooms/createmcqroom",
       {
         roomCode: roomid,
         username: realUsername,
@@ -110,13 +110,15 @@ const McqRooms = () => {
       return;
     }
 
+    setLoading(false)
+
     navigate(`/mcq/${roomid}/lobby`, {
-      state: { username: realUsername, topic: event, time:"20 Mins" },
+      state: { username: realUsername, topic: event, time:1200 },
     });
   }
 
   const handleJoinLogic = async (event) => {
-
+    console.log(realUsername)
     setJoinLoading(true);
 
     if (!realUsername || !roomid) {
@@ -126,7 +128,7 @@ const McqRooms = () => {
     }
     
     const response = await axios.post(
-      "http://localhost:8000/api/v1/user/rooms/joinRoom",
+      "http://localhost:8000/api/v1/user/mcqrooms/joinmcqroom",
       {
         roomCode: roomid,
         username: realUsername,
@@ -142,7 +144,7 @@ const McqRooms = () => {
 
     setJoinLoading(false);
     navigate(`/mcq/${roomid}/lobby`, {
-      state: { realUsername, topic: event, time: "20 Mins" },
+      state: { username:realUsername, topic: event, time: "20 Mins" },
     });
   }
 

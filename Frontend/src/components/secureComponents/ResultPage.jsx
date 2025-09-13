@@ -87,8 +87,8 @@ console.log(userFinished);
       <div className="max-w-[600px] mx-auto rounded-md p-2 m-12">
         <Table>
           <TableCaption>User Finished</TableCaption>
-          <TableHeader >
-            <TableRow >
+          <TableHeader>
+            <TableRow>
               <TableHead className="w-[10%]">Rank</TableHead>
               <TableHead className="w-20%]">User</TableHead>
               <TableHead>Questions Solved</TableHead>
@@ -96,16 +96,14 @@ console.log(userFinished);
             </TableRow>
           </TableHeader>
           <TableBody>
-            {
-                userFinished.map((elem, idx) => (
-                    <TableRow key={idx} className="text-start">
-                        <TableCell>{idx+1}</TableCell>
-                        <TableCell>{elem.username}</TableCell>
-                        <TableCell>{elem.questionSolved}</TableCell>
-                        <TableCell>{elem.timeTaken}</TableCell>
-                    </TableRow>
-                ))
-            }
+            {userFinished.map((elem, idx) => (
+              <TableRow key={idx} className="text-start">
+                <TableCell>{idx + 1}</TableCell>
+                <TableCell>{elem.username}</TableCell>
+                <TableCell>{elem.problemFinished}</TableCell>
+                <TableCell>{elem.timeTaken}</TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
       </div>

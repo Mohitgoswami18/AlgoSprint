@@ -1,21 +1,27 @@
-import { Schema, mongoose } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
-const MatchSchema = new Schema({
-  userId: {
-    type: Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
-  },
+const matchSchema = new Schema({
+  players: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+  ],
   style: {
     type: String,
     required: true,
-    enum: ["Blitz", "rapid", "classical"],
+    enum: ["Blitz", "Rapid", "Classical"],
   },
-  opponentId: {
-    type: Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
-  },
+  results: [
+    {
+      user: { type: Schema.Types.ObjectId, ref: "User", required: true },
+      score: { type: Number, default: 0 },
+      outcome: { type: String, enum: ["win", "loss", "draw"], required: true },
+      ratingChange: { type: Number, default: 0 },
+    },
+  ],
+  date: { type: Date, default: Date.now },
 });
 
-export const Match = mongoose.model("Match", MatchSchema);
+export const Match = mongoose.model("Match", matchSchema);
