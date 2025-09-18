@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { useUser, SignedIn, SignedOut } from "@clerk/clerk-react"
+import { useUser } from "@clerk/clerk-react"
 import { useNavigate } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import Eye from "./Eyepart";
@@ -7,14 +7,14 @@ import Eye from "./Eyepart";
 const HeroSection = () => {
 
   const navigate = useNavigate();
-  const { isLoaded, isSignedIn } = useUser();
+  const { isLoaded, isSignedIn, user } = useUser();
 
   const HandlePrimaryButton = () => {
 
     if(!isLoaded) return;
 
     if(isSignedIn) {
-      navigate("/user/")
+      navigate(`/${user.username}/dashboard`)
     } else {
       navigate("/auth/signup")
     }

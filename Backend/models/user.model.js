@@ -53,6 +53,10 @@ const userSchema = new Schema(
       type: Number,
       default: 0,
     },
+    totalXp: {
+      type: Number, 
+      default: 50,
+    },
     winStreak: {
       type: Number,
       default: 0,

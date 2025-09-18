@@ -10,7 +10,7 @@ const Leaderboard = () => {
   const [err, setErr] = useState(false);
   const [leaderboardData, setLeaderboardData] = useState({ top10: [] });
   let leaderboardTop10 = [];
-  let leaderboardStats = [];zz
+  let leaderboardStats = [];
 
   useEffect(() => {
     const fetchData = async () => {
@@ -48,7 +48,7 @@ const Leaderboard = () => {
     leaderboardTop10 = [
       {
         rank: "#4",
-        name: leaderboardData.top10[3]?.username || "",
+        name: leaderboardData.top10[3]?.username || "No Data",
         title: leaderboardData.top10[3]?.title || "",
         img: leaderboardData.top10[3]?.profilePicture || "",
         points: leaderboardData.top10[3]?.currentRating || 0,
@@ -58,7 +58,7 @@ const Leaderboard = () => {
       {
         rank: "#5",
         img: leaderboardData.top10[4]?.profilePicture || "",
-        name: leaderboardData.top10[4]?.username || "",
+        name: leaderboardData.top10[4]?.username || "No Data",
         title: leaderboardData.top10[4]?.title || "",
         points: leaderboardData.top10[4]?.currentRating || 0,
         level: leaderboardData.top10[4]?.level || 0,
@@ -67,7 +67,7 @@ const Leaderboard = () => {
       {
         rank: "#6",
         img: leaderboardData.top10[5]?.profilePicture || "",
-        name: leaderboardData.top10[5]?.username || "",
+        name: leaderboardData.top10[5]?.username || "No Data",
         title: leaderboardData.top10[5]?.title || "",
         points: leaderboardData.top10[5]?.currentRating || 0,
         level: leaderboardData.top10[5]?.level || 0,
@@ -76,7 +76,7 @@ const Leaderboard = () => {
       {
         rank: "#7",
         img: leaderboardData.top10[6]?.profilePicture || "",
-        name: leaderboardData.top10[6]?.username || "",
+        name: leaderboardData.top10[6]?.username || "No Data",
         title: leaderboardData.top10[6]?.title || "",
         points: leaderboardData.top10[6]?.currentRating || 0,
         level: leaderboardData.top10[6]?.level || 0,
@@ -85,7 +85,7 @@ const Leaderboard = () => {
       {
         rank: "#8",
         img: leaderboardData.top10[7]?.profilePicture || "",
-        name: leaderboardData.top10[7]?.username || "",
+        name: leaderboardData.top10[7]?.username || "No Data",
         title: leaderboardData.top10[7]?.title || "",
         points: leaderboardData.top10[7]?.currentRating || 0,
         level: leaderboardData.top10[7]?.level || 0,
@@ -94,7 +94,7 @@ const Leaderboard = () => {
       {
         rank: "#9",
         img: leaderboardData.top10[8]?.profilePicture || "",
-        name: leaderboardData.top10[8]?.username || "",
+        name: leaderboardData.top10[8]?.username || "No Data",
         title: leaderboardData.top10[8]?.title || "",
         points: leaderboardData.top10[8]?.currentRating || 0,
         level: leaderboardData.top10[8]?.level || 0,
@@ -103,7 +103,7 @@ const Leaderboard = () => {
       {
         rank: "#10",
         img: leaderboardData.top10[9]?.profilePicture || "",
-        name: leaderboardData.top10[9]?.username || "",
+        name: leaderboardData.top10[9]?.username || "No Data",
         title: leaderboardData.top10[9]?.title || "",
         points: leaderboardData.top10[9]?.currentRating || 0,
         level: leaderboardData.top10[9]?.level || 0,
@@ -311,7 +311,7 @@ const Leaderboard = () => {
                       </div>
                       <div className="flex flex-col">
                         <div className="flex items-center gap-2">
-                          <div className="text-white dark:text-white font-semibold text-md p-1 ">
+                          <div className="text-black dark:text-white font-semibold text-md p-1 ">
                             {elem.name}
                           </div>
                           <h1 className="text-[10px] dark:bg-white/4 bg-black/4 rounded-md px-1">

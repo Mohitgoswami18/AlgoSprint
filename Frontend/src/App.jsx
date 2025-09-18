@@ -20,6 +20,7 @@ import McqArena from "./components/secureComponents/McqArena";
 import ResultPage from "./components/secureComponents/ResultPage";
 import McqResultPage from "./components/secureComponents/MCQResult";
 import McqLobby from "./components/secureComponents/McqLobby";
+import SsoCallback from "./components/Ssocallback"
 
 const App = () => {
   const [clickEffects, setClickEffects] = useState([]);
@@ -90,7 +91,8 @@ const App = () => {
           <Route path="/room/:roomid" element={<CollabEditor />} />
           <Route path="/codingroom/:roomid/arena" element={<Playground />} />
           <Route path="/mcqrooms/:roomid/arena" element={<McqArena />} />
-
+          <Route path="/mcqrooms/:roomid/arena" element={<McqArena />} />
+          <Route path="/sso-callback" element={<SsoCallback />} />
           {/* <Route path="*" element={<NotFound />} /> */}
         </Routes>
       </SignedIn>

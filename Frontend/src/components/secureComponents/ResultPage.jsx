@@ -77,6 +77,12 @@ useEffect(() => {
 
 console.log(userFinished);
 
+const userMatchDetails = {
+  
+}
+
+console.log("data Sending to the backend for this current user", userMatchDetails);
+
   return (
     <div className="font-[Inter] py-6">
       <h1 className="text-3xl font-bold text-center p4">Result</h1>

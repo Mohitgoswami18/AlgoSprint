@@ -8,12 +8,19 @@ import { FaLaptopCode } from "react-icons/fa";
 import { GiChoice } from "react-icons/gi";
 import { SiGoogleclassroom } from "react-icons/si";
 import { Button } from "../../components/ui/button";
-import { useClerk } from "@clerk/clerk-react";
+import { useClerk, useUser } from "@clerk/clerk-react";
 
 const ProfileHeroSection = () => {
 
   const { signOut } = useClerk();
   const navigate = useNavigate();
+  const {user} = useUser();
+  const username = user?.username;
+
+  if(!username) {
+    console.log("No username given");
+    // RETURN FROM HERE AFTER TESTING
+  }
 
   const HandleSignOut = () => {
     signOut(() => {
@@ -44,38 +51,38 @@ const ProfileHeroSection = () => {
       {/* Navigation Links */}
       <div className="pr-4 gap-3 justify-between flex flex-col basis-[70%]">
         <NavLink
-          to={"/user"}
+          to={"/user/dashboard"}
           className="list-none transition-all duration-300 flex gap-2 items-center justify-start hover:bg-black/20 dark:hover:bg-white/6 rounded-md px-3 py-[12px] text-sm text-black dark:text-white"
         >
           <TbLayoutDashboardFilled className="text-xl" />
           <p>Dashboard</p>
         </NavLink>
         <NavLink
-          to={"/user/leaderboard"}
+          to={`/${username}/leaderboard`}
           className="list-none transition-all duration-300 flex gap-2 items-center justify-start hover:bg-black/10 dark:hover:bg-white/6 rounded-md px-3 py-[12px] text-sm text-black dark:text-white"
         >
           <PiRankingFill className="text-2xl" /> <p>Leaderboard</p>
         </NavLink>
         <NavLink
-          to={"/user/codingrooms"}
+          to={`/${username}/codingrooms`}
           className="list-none transition-all duration-300 flex gap-2 items-center justify-start hover:bg-black/10 dark:hover:bg-white/6 rounded-md px-3 py-[12px] text-sm text-black dark:text-white"
         >
           <FaLaptopCode className="text-xl" /> <p>Coding Room</p>
         </NavLink>
         <NavLink
-          to={"/user/mcqrooms"}
+          to={`/${username}/mcqrooms`}
           className="list-none transition-all duration-300 flex gap-2 items-center justify-start hover:bg-black/10 dark:hover:bg-white/6 rounded-md px-3 py-[12px] text-sm text-black dark:text-white"
         >
           <GiChoice className="text-xl" /> <p>MCQ verse</p>
         </NavLink>
         <NavLink
-          to={"/user/community"}
+          to={`/${username}/community`}
           className="list-none transition-all duration-300 flex gap-2 items-center justify-start hover:bg-black/10 dark:hover:bg-white/6 rounded-md px-3 py-[12px] text-sm text-black dark:text-white"
         >
           <RiUserCommunityFill className="text-xl" /> <p>Community</p>
         </NavLink>
         <NavLink
-          to={"/user/collaborativerooms"}
+          to={`/${username}/collaborativerooms`}
           className="list-none transition-all duration-300 flex gap-2 items-center justify-start hover:bg-black/10 dark:hover:bg-white/6 rounded-md px-3 py-[12px] text-sm text-black dark:text-white"
         >
           <SiGoogleclassroom className="text-xl" /> <p>Collaborative Space</p>

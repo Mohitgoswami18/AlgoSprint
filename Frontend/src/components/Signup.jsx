@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useSignUp } from "@clerk/clerk-react";
+import { useSignUp, useUser } from "@clerk/clerk-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import Loader from "./Loader";
 import google from "../assets/images/google.png"
@@ -17,6 +17,7 @@ export default function Signup() {
   const [pendingVerification, setPendingVerification] = useState(false);
   const [code, setCode] = useState("");
   const { isLoaded, setActive, signUp } = useSignUp();
+  const { user } = useUser; 
 
   const handleGoogleSignUp = async () => {
     setGoogleLoading(true);
@@ -24,7 +25,7 @@ export default function Signup() {
       {
         strategy:"oauth_google",
         redirectUrl:"/sso-callback",
-        redirectUrlComplete:"/user/"
+        redirectUrlComplete:"/sso-callback"
       }
     )
     setGoogleLoading(false);
@@ -74,7 +75,8 @@ export default function Signup() {
 
       if (signupCompleted.status === "complete") {
         await setActive({ session: signupCompleted.createdSessionId });
-        navigate("/user/dashboard");
+        const username = user?.username || user?.id;
+        navigate(`/${ username }/dashboard`);
       } else {
         toast.error("Verification failed. Please try again.");
         setError("Invalid code. Please try again.");

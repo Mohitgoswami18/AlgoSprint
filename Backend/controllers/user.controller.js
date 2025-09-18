@@ -17,32 +17,55 @@ const dashboardController = async (req, res, next) => {
       throw new ApiError(404, "User Not Found in the request parameters");
     }
 
-    const userData = await User.findOne({ username });
+    const userData = await User.findOne({ username })
+      .populate({
+        path: "ratingHistory",
+        select: "date value -_id",
+        options: { sort: { createdAt: 1 } },
+      })
+      .populate({
+        path: "matches",
+        select: "style results players date",
+        options: { sort: { date: -1 } },
+      });
     if (!userData) {
       throw new ApiError(404, "User Not Found");
     }
 
+    const formattedMatches = userData.matches.map((match) => {
+      const userResult = match.results.find(
+        (r) => r.user.toString() === userData._id.toString()
+      );
+
+      return {
+        style: match.style,
+        participants: match.players.length - 1,
+        outcome: userResult?.outcome || "N/A",
+        xpGained: userResult?.ratingChange || 0,
+        date: match.date,
+      };
+    });
+
     const playstyle = await Match.aggregate([
       {
         $match: {
-          clerkId: userData.clerkId,
+          players: userData._id, 
         },
       },
       {
         $group: {
-          _id: { playstyle: "$style" },
-          countPlayStyle: { $sum: 1 },
+          _id: "$style",
+          countPlayStyle: { $sum: 1 }, 
         },
       },
       {
-        $sort: {
-          countPlayStyle: -1,
-        },
+        $sort: { countPlayStyle: -1 },
       },
       {
         $limit: 1,
       },
     ]);
+
 
     res.status(200).json(
       new ApiResponse(200, "User Fetched !", {
@@ -54,14 +77,13 @@ const dashboardController = async (req, res, next) => {
         ranking: userData.ratingHistory,
         totalBattles: userData.totalBattles,
         totalWin: userData.totalWins,
-        winRatio: userData.totalWin
-          ? userData.totalBattles / userData.totalWin
+        winRatio: userData.totalBattles
+          ? userData.totalWins / userData.totalBattles
           : 0,
-        Titles: userData.title,
         winStreak: userData.winStreak,
         maximumRatings: userData.highestRating,
         playstyle: playstyle,
-        recentMatches: userData.matches,
+        recentMatches: formattedMatches,
       })
     );
   } catch (error) {
@@ -242,18 +264,14 @@ const updateProgress = async (req, res) => {
     throw new ApiError(404, "Request body not found");
   }
   const {
-    xpGained,
-    rankingUpdated,
     style,
     participants,
-    recentMatch,
-    position,
-    opposition,
     username,
     result,
+    position,
   } = req.body;
 
-  if (!xpGained || !participants || !rankingUpdated || !result) {
+  if (!position || !participants || !style || !result) {
     throw new ApiError(400, "not sufficient data found in the request body");
   }
 
@@ -288,16 +306,16 @@ const updateProgress = async (req, res) => {
     );
   }
 
-// UPDATING THE RANKING LOGIC
+  // UPDATING THE RANKING LOGIC
   for (let player = 0; player < participants.length; player++) {
     const playerid = participants[player].username;
     const playerDetails = await User.findOne({ username: playerid });
 
     if (!playerDetails) continue;
 
-    let playerRankDetails = await Ranking.findOne({ userId: playerDetails._id });
-
-    const newRatingValue = playerDetails.currentRating + rankingUpdated;
+    let playerRankDetails = await Ranking.findOne({
+      userId: playerDetails._id,
+    });
 
     if (!playerRankDetails) {
       // Create it ( FIrst match)
@@ -306,7 +324,7 @@ const updateProgress = async (req, res) => {
         ratings: [
           {
             value: newRatingValue,
-            date: Date.now(),
+            date: new Date(),
           },
         ],
       });
@@ -320,8 +338,69 @@ const updateProgress = async (req, res) => {
     }
   }
 
-  
-}
+  const userDetails = await User.findOne({ username: username });
+  if (!userDetails) {
+    throw new ApiError(404, "User not found");
+  }
+
+  userDetails.totalBattles = userDetails.totalBattles + 1;
+
+  const normalizedResult = result.toUpperCase();
+  if (normalizedResult === "WIN") {
+    userDetails.totalWins = userDetails.totalWins + 1;
+    userDetails.winStreak = userDetails.winStreak + 1;
+    userDetails.currentRating += Math.floor(100 / position);
+    if (userDetails.currentRating > userDetails.highestRating) {
+      userDetails.highestRating = userDetails.currentRating;
+    }
+  } else if (normalizedResult === "LOSE") {
+    userDetails.winStreak = 0;
+    userDetails.currentRating -= Math.floor(position * 10)
+    if(userDetails.currentRating < 0 ) {
+      userDetails.currentRating = 0;
+    }
+  } else {
+    throw new ApiError(404, "invalid match result passed to the request body");
+  }
+
+  userDetails.xp += 15;
+  if (userDetails.xp >= userDetails.totalXp) {
+    userDetails.level += 1;
+    userDetails.xp = (userDetails.xp - userDetails.totalXp)
+    userDetails.totalXp += 50;
+  }
+
+  const currentRatingOfUser = userDetails.currentRating;
+  let userRank;
+
+  if (currentRatingOfUser === 0) {
+    userRank = "unRanked";
+  } else if (currentRatingOfUser > 0 && currentRatingOfUser <= 100) {
+    userRank = "Bronze";
+  } else if (currentRatingOfUser > 100 && currentRatingOfUser <= 300) {
+    userRank = "Silver";
+  } else if (currentRatingOfUser > 300 && currentRatingOfUser <= 500) {
+    userRank = "Gold";
+  } else if (currentRatingOfUser > 500 && currentRatingOfUser <= 1000) {
+    userRank = "Platinum";
+  } else if (currentRatingOfUser > 1000 && currentRatingOfUser <= 1500) {
+    userRank = "Diamond";
+  } else if (currentRatingOfUser > 1500 && currentRatingOfUser <= 2000) {
+    userRank = "Ace";
+  } else {
+    userRank = "Legend";
+  }
+
+  userDetails.rank = userRank;
+  await userDetails.save();
+
+  return res.status(200).json({
+    success: true,
+    message: "Progress updated successfully",
+    user: userDetails,
+    match: updatingTheMatchDetails,
+  });
+};
 
 const CreateRoom = async (req, res) => {
   try {
@@ -701,7 +780,7 @@ export {
   discussionDataFetcher,
   QuestionFetcher,
   mcqQuestionFetcher,
-  // updateProgress,
+  updateProgress,
   CreateRoom,
   findMcqQuestionsFromBackend,
   findQuestionFromBackend,

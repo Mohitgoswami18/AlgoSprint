@@ -1,9 +1,10 @@
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
-import { useSignIn} from "@clerk/clerk-react";
+import { useSignIn, useUser} from "@clerk/clerk-react";
 import google from "../assets/images/google.png";
 import { toast } from "sonner";
 import Loader from "./Loader"
+import { useNavigate } from "react-router-dom";
 
 export default function Signin() {
 
@@ -13,18 +14,19 @@ export default function Signin() {
     const [error, setError] = useState("");
     const { signIn, setActive, isLoaded } = useSignIn();
     const [googleLoading, setGoogleLoading] = useState(false);
+    const { user } = useUser();
+    const navigate = useNavigate();
 
   const handleGoogleSignIn = async () => {
     try {
       setGoogleLoading(true);
-    await signIn
-      .authenticateWithRedirect({
-        strategy: "oauth_google",
-        redirectUrl: "/sso-callback",
-        redirectUrlComplete: "/user/",
-      })
+    await signIn.authenticateWithRedirect({
+      strategy: "oauth_google",
+      redirectUrl: "/sso-callback",
+      redirectUrlComplete: "/sso-callback",
+    });
     } catch (error) {
-      console.log("An error Occured");
+      console.log("An error Occured", error);
       toast.error("Login failed");
       setGoogleLoading(false)
     }
@@ -41,9 +43,9 @@ export default function Signin() {
         password: password,
       });
 
-      if(signinResult.status === "complete") {
-        setActive(signinResult.createdSessionId);
-        toast.success("Sign-in successful! Redirecting...");
+      if (signinResult.status === "complete") {
+        await setActive({ session: signinResult.createdSessionId });
+        navigate("/sso-callback");
       } else {
         toast.error("Sign-in incomplete. Please check your credentials.");
         setError("Sign-in failed. Please check your credentials.");

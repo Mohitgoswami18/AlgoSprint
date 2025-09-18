@@ -67,23 +67,29 @@ const Dashboard = () => {
     ];
   }
 
-  const chartData = [
-    { amateur: 186 },
-    { amateur: 305 },
-    { amateur: 237 },
-    { amateur: 732 },
-    { amateur: 109 },
-    { amateur: 314 },
-    { amateur: 405 },
-    { amateur: 637 },
-    { amateur: 83 },
-    { amateur: 609 },
-    { amateur: 14 },
-  ];
+  let chartDataExtractedVersion = []
+  if(userDetails && data) {
+    chartDataExtractedVersion = userDetails.ranking?.map((elem) => ({
+      date: new Date(elem.date).toLocaleDateString("en-US"), // or keep raw date string
+      value: elem.value,
+    }));
+  }
+let recentMatchDataTable = [];
+if (userDetails?.recentMatches && data) {
+  recentMatchDataTable = userDetails.recentMatches.map((elem) => (
+    {
+      style: elem.style,
+      result: elem.outcome,
+      numberOfParticipants: elem.participants,
+      xpChanged: elem.xpGained
+  }))
+}
+
+  const chartData = chartDataExtractedVersion;
 
   const chartConfig = {
     desktop: {
-      label: "amateur",
+      label: "date",
       color: "cyan",
     },
   };
@@ -177,7 +183,16 @@ const Dashboard = () => {
                     <ChartContainer config={chartConfig}>
                       <LineChart
                         className="text-black dark:text-white"
-                        data={chartData}
+                        data={
+                          chartData.length > 0
+                            ? chartData
+                            : [
+                                {
+                                  date: new Date().toLocaleDateString("en-US"),
+                                  value: 0,
+                                },
+                              ]
+                        }
                         margin={{ left: 12, right: 12 }}
                       >
                         <ChartTooltip
@@ -185,7 +200,7 @@ const Dashboard = () => {
                           content={<ChartTooltipContent hideLabel />}
                         />
                         <Line
-                          dataKey="amateur"
+                          dataKey="value"
                           type="linear"
                           stroke="var(--color-desktop)"
                           strokeWidth={2}
@@ -227,7 +242,7 @@ const Dashboard = () => {
               <div className="bg-white w-[30rem] h-[13rem] shadow-md ring-[0.5px] dark:ring-white/20 dark:bg-white/4 p-4 rounded-md">
                 <h1 className="text-center font-bold text-md">Badges Earned</h1>
                 <p className="gap-2 p-4 py-9 flex flex-wrap items-center justify-center">
-                  {userDetails.Titles.map((elem, idx) => (
+                  {userDetails.title.map((elem, idx) => (
                     <Badge>{elem}</Badge>
                   ))}
                 </p>
@@ -269,71 +284,31 @@ const Dashboard = () => {
                       Match Type
                     </TableHead>
                     <TableHead className="p-4">Result</TableHead>
-                    <TableHead className="p-4">opponent</TableHead>
+                    <TableHead className="p-4">
+                      number of participants
+                    </TableHead>
                     <TableHead className="text-right p-4">xp Gained</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  <TableRow>
-                    <TableCell className="font-medium p-4">bullet</TableCell>
-                    <TableCell className="p-4">Win</TableCell>
-                    <TableCell className="p-4">user2</TableCell>
-                    <TableCell className="p-4 text-right">*15</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="p-4 font-medium">bullet</TableCell>
-                    <TableCell className="p-4">Win</TableCell>
-                    <TableCell className="p-4">user2</TableCell>
-                    <TableCell className="p-4 text-right">*15</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="p-4 font-medium">bullet</TableCell>
-                    <TableCell className="p-4">Win</TableCell>
-                    <TableCell className="p-4">user2</TableCell>
-                    <TableCell className="p-4 text-right">*15</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium">bullet</TableCell>
-                    <TableCell>Win</TableCell>
-                    <TableCell>user2</TableCell>
-                    <TableCell className="text-right">*15</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium">bullet</TableCell>
-                    <TableCell>Win</TableCell>
-                    <TableCell>user2</TableCell>
-                    <TableCell className="text-right">*15</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium">bullet</TableCell>
-                    <TableCell>Win</TableCell>
-                    <TableCell>user2</TableCell>
-                    <TableCell className="text-right">*15</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium">bullet</TableCell>
-                    <TableCell>Win</TableCell>
-                    <TableCell>user2</TableCell>
-                    <TableCell className="text-right">*15</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium">bullet</TableCell>
-                    <TableCell>Win</TableCell>
-                    <TableCell>user2</TableCell>
-                    <TableCell className="text-right">*15</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium">bullet</TableCell>
-                    <TableCell>Win</TableCell>
-                    <TableCell>user2</TableCell>
-                    <TableCell className="text-right">*15</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium">bullet</TableCell>
-                    <TableCell>Win</TableCell>
-                    <TableCell>user2</TableCell>
-                    <TableCell className="text-right">*15</TableCell>
-                  </TableRow>
+                  {recentMatchDataTable.length > 0 ? (
+                    recentMatchDataTable.map((elem, idx) => (
+                      <TableRow key={idx}>
+                        <TableCell className="font-medium p-4">
+                          {elem.style}
+                        </TableCell>
+                        <TableCell className="p-4">{elem.result}</TableCell>
+                        <TableCell className="p-4">
+                          {elem.numberOfParticipants}
+                        </TableCell>
+                        <TableCell className="p-4 text-right">
+                          *{elem.xpGained}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <p className="w-full text-xs mx-auto text-center font-bold">No Data To Display</p>
+                  )}
                 </TableBody>
               </Table>
             </div>
