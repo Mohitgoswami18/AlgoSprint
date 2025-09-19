@@ -39,6 +39,7 @@ const Playground = () => {
 
   const location = useLocation();
   const setting = location.state?.setting;
+  const style = setting.playStyle;
   const username = location.state?.username;
   const numberOfProblems = setting.numberOfProblems;
   const startTime = location.startTime;
@@ -114,8 +115,11 @@ const Playground = () => {
       state: {
         username: username,
         roomid: roomid,
+        startTime: startTime,
         timeTake: Date.now() - startTime,
+        style: style,
         problemFinished: problemFinished,
+        totalParticipants: totalParticipants,
       },
     });
   };

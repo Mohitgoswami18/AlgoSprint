@@ -90,7 +90,7 @@ const CodingRooms = () => {
         roomCode: roomid,
         username: realUserName
       }
-    );``
+    );
 
     if (response.data.message !== "Room joined successfully") {
       console.log(response.data.message);
@@ -98,7 +98,7 @@ const CodingRooms = () => {
       return;
     }
       navigate(`/codingroom/${roomid}/lobby`, {
-        state: { username, settings, redirectedFrom: "codingRoom" },
+        state: { username, settings },
       });
   }
 

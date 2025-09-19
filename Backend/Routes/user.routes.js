@@ -4,7 +4,7 @@ import { leaderboardStats } from "../controllers/user.controller.js";
 import { discussionDataFetcher } from "../controllers/user.controller.js";
 import { QuestionFetcher } from "../controllers/user.controller.js";
 import { mcqQuestionFetcher } from "../controllers/user.controller.js";
-// import { updateProgress } from "../controllers/user.controller.js"
+import { updateProgress } from "../controllers/user.controller.js"
 import { CreateRoom } from "../controllers/user.controller.js";
 import { findQuestionFromBackend } from "../controllers/user.controller.js";
 import { joinRoomHandler } from "../controllers/user.controller.js";
@@ -33,6 +33,6 @@ router.route("/user/mcqrooms/updateroomdetails").post(updateMcqRoomDetails);
 router
   .route("/user/mcqrooms/arena/getProblems")
   .get(findMcqQuestionsFromBackend);
-// router.route("/user/updateRatings").post(updateProgress);
+router.route("/user/updateRatings").post(updateProgress);
 
 export default router;

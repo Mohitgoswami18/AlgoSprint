@@ -146,7 +146,8 @@ const CodingLobby = () => {
           time: time,
           topic: topic,
           roomid,
-          startTime: Date.now()
+          startTime: Date.now(),
+          totalParticipants: players.length
         },
       });
     } else {

@@ -263,15 +263,9 @@ const updateProgress = async (req, res) => {
   if (!req.body) {
     throw new ApiError(404, "Request body not found");
   }
-  const {
-    style,
-    participants,
-    username,
-    result,
-    position,
-  } = req.body;
+  const { style, participants, username, result, position, matchIdentifier } = req.body;
 
-  if (!position || !participants || !style || !result) {
+  if (!position || !participants || !style || !result || !matchIdentifier) {
     throw new ApiError(400, "not sufficient data found in the request body");
   }
 
@@ -290,52 +284,31 @@ const updateProgress = async (req, res) => {
     user: players[idx],
     score: elem.score,
     outcome: elem.outcome,
-    ratingChange: elem.ratingChange,
+    ratingChange:
+      result === "WIN"
+        ? Math.floor(100 / position)
+        : -Math.floor(position * 10),
   }));
 
-  const updatingTheMatchDetails = await Match.create({
-    players: players,
-    style: style,
-    results: playerResultDetails,
-  });
+  const existingMatch = await Match.findOne({ matchIdentifier });
+  let updatingTheMatchDetails;
+
+  if (existingMatch) {
+    updatingTheMatchDetails = existingMatch;
+  } else {
+    updatingTheMatchDetails = await Match.create({
+      players,
+      style,
+      results: playerResultDetails,
+      matchIdentifier,
+    });
+  }
 
   if (!updatingTheMatchDetails) {
     throw new ApiError(
       500,
       "An error occurred while updating the match details"
     );
-  }
-
-  // UPDATING THE RANKING LOGIC
-  for (let player = 0; player < participants.length; player++) {
-    const playerid = participants[player].username;
-    const playerDetails = await User.findOne({ username: playerid });
-
-    if (!playerDetails) continue;
-
-    let playerRankDetails = await Ranking.findOne({
-      userId: playerDetails._id,
-    });
-
-    if (!playerRankDetails) {
-      // Create it ( FIrst match)
-      playerRankDetails = await Ranking.create({
-        userId: playerDetails._id,
-        ratings: [
-          {
-            value: newRatingValue,
-            date: new Date(),
-          },
-        ],
-      });
-    } else {
-      // Subsequent matches → update existing Ranking
-      playerRankDetails.ratings.push({
-        value: newRatingValue,
-        date: Date.now(),
-      });
-      await playerRankDetails.save();
-    }
   }
 
   const userDetails = await User.findOne({ username: username });
@@ -347,6 +320,12 @@ const updateProgress = async (req, res) => {
 
   const normalizedResult = result.toUpperCase();
   if (normalizedResult === "WIN") {
+    userDetails.xp += 15;
+    if (userDetails.xp >= userDetails.totalXp) {
+      userDetails.level += 1;
+      userDetails.xp = userDetails.xp - userDetails.totalXp;
+      userDetails.totalXp += 50;
+    }
     userDetails.totalWins = userDetails.totalWins + 1;
     userDetails.winStreak = userDetails.winStreak + 1;
     userDetails.currentRating += Math.floor(100 / position);
@@ -355,20 +334,20 @@ const updateProgress = async (req, res) => {
     }
   } else if (normalizedResult === "LOSE") {
     userDetails.winStreak = 0;
-    userDetails.currentRating -= Math.floor(position * 10)
-    if(userDetails.currentRating < 0 ) {
+    userDetails.xp += 5;
+    if (userDetails.xp >= userDetails.totalXp) {
+      userDetails.level += 1;
+      userDetails.xp = userDetails.xp - userDetails.totalXp;
+      userDetails.totalXp += 50;
+    }
+    userDetails.currentRating -= Math.floor(position * 10);
+    if (userDetails.currentRating < 0) {
       userDetails.currentRating = 0;
     }
   } else {
     throw new ApiError(404, "invalid match result passed to the request body");
   }
-
-  userDetails.xp += 15;
-  if (userDetails.xp >= userDetails.totalXp) {
-    userDetails.level += 1;
-    userDetails.xp = (userDetails.xp - userDetails.totalXp)
-    userDetails.totalXp += 50;
-  }
+  
 
   const currentRatingOfUser = userDetails.currentRating;
   let userRank;
@@ -393,6 +372,22 @@ const updateProgress = async (req, res) => {
 
   userDetails.rank = userRank;
   await userDetails.save();
+
+  // UPDATING THE RANKING LOGIC
+  let playerRankDetails = await Ranking.findOne({ userId: userDetails._id });
+
+  if (!playerRankDetails) {
+    playerRankDetails = await Ranking.create({
+      userId: userDetails._id,
+      ratings: [{ value: userDetails.currentRating, date: new Date() }],
+    });
+  } else {
+    playerRankDetails.ratings.push({
+      value: userDetails.currentRating,
+      date: new Date(),
+    });
+    await playerRankDetails.save();
+  }
 
   return res.status(200).json({
     success: true,
