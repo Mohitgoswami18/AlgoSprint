@@ -20,8 +20,6 @@ const dashboardController = async (req, res, next) => {
     const userData = await User.findOne({ username })
       .populate({
         path: "ratingHistory",
-        select: "date value -_id",
-        options: { sort: { createdAt: 1 } },
       })
       .populate({
         path: "matches",
@@ -32,6 +30,8 @@ const dashboardController = async (req, res, next) => {
       throw new ApiError(404, "User Not Found");
     }
 
+    const formattedRatings = userData.ratingHistory[0]?.ratings;
+    console.log(formattedRatings)
     const formattedMatches = userData.matches.map((match) => {
       const userResult = match.results.find(
         (r) => r.user.toString() === userData._id.toString()
@@ -73,8 +73,10 @@ const dashboardController = async (req, res, next) => {
         title: userData.title,
         level: userData.level,
         xp: userData.xp,
+        totalXp: userData.totalXp,
+        currentRating: userData.currentRating,
         profileImage: userData.profilePicture,
-        ranking: userData.ratingHistory,
+        rank: userData.rank,
         totalBattles: userData.totalBattles,
         totalWin: userData.totalWins,
         winRatio: userData.totalBattles
@@ -84,6 +86,7 @@ const dashboardController = async (req, res, next) => {
         maximumRatings: userData.highestRating,
         playstyle: playstyle,
         recentMatches: formattedMatches,
+        ratingHistory: formattedRatings,
       })
     );
   } catch (error) {
@@ -93,19 +96,28 @@ const dashboardController = async (req, res, next) => {
 
 const updateUserName = async (req, res, next) => {
   try {
-    const { userId } = req.auth;
-    const { newUsername } = req.body;
+    const { newUsername, username } = req.body;
+
+    if (!newUsername || !username) {
+      throw new ApiError(400, "Not sufficient information in the request body");
+    }
+
+    const usernameAlreadyInUse = await User.findOne({ username: newUsername });
+    if (usernameAlreadyInUse) {
+      return res
+        .status(200)
+        .json("Username already in use", { message: "Username already in use" });
+    }
+
     const currentUserDetails = await User.findOneAndUpdate(
-      { clerkId: userId },
-      {
-        $set: {
-          username: newUsername,
-        },
-      },
-      {
-        new: true,
-      }
+      { username: username },
+      { $set: { username: newUsername } },
+      { new: true }
     );
+
+    if (!currentUserDetails) {
+      throw new ApiError(404, "User not found");
+    }
 
     res.status(200).json(
       new ApiResponse(200, "Username Updated", {
@@ -117,9 +129,10 @@ const updateUserName = async (req, res, next) => {
   }
 };
 
+
 const UpdateUserProfilePicture = async (req, res, next) => {
   try {
-    const { username } = req.params;
+    const { username } = req.body;
     if (!username) {
       throw new ApiError(404, "User Not Found");
     }
@@ -260,10 +273,20 @@ const QuestionFetcher = async (req, res) => {
 };
 
 const updateProgress = async (req, res) => {
+  console.log("Inside the updateProgress controller");
   if (!req.body) {
     throw new ApiError(404, "Request body not found");
   }
-  const { style, participants, username, result, position, matchIdentifier } = req.body;
+  const {
+    style,
+    participants,
+    username,
+    result,
+    position,
+    matchIdentifier,
+    startTime,
+    duration,
+  } = req.body;
 
   if (!position || !participants || !style || !result || !matchIdentifier) {
     throw new ApiError(400, "not sufficient data found in the request body");
@@ -274,6 +297,7 @@ const updateProgress = async (req, res) => {
   const players = await Promise.all(
     participants.map(async (elem) => {
       const currentPlayer = await User.findOne({ username: elem.username });
+      console.log("Found the current participants of this room")
       if (!currentPlayer)
         throw new ApiError(404, `User not found: ${elem.username}`);
       return currentPlayer._id;
@@ -294,9 +318,13 @@ const updateProgress = async (req, res) => {
   let updatingTheMatchDetails;
 
   if (existingMatch) {
-    updatingTheMatchDetails = existingMatch;
+    if (existingMatch.matchStatus !== "final") {
+      updatingTheMatchDetails = existingMatch;
+    }
   } else {
     updatingTheMatchDetails = await Match.create({
+      startTime: startTime,
+      duration: duration,
       players,
       style,
       results: playerResultDetails,
@@ -317,6 +345,7 @@ const updateProgress = async (req, res) => {
   }
 
   userDetails.totalBattles = userDetails.totalBattles + 1;
+  userDetails.matches.push(updatingTheMatchDetails._id);
 
   const normalizedResult = result.toUpperCase();
   if (normalizedResult === "WIN") {
@@ -347,7 +376,6 @@ const updateProgress = async (req, res) => {
   } else {
     throw new ApiError(404, "invalid match result passed to the request body");
   }
-  
 
   const currentRatingOfUser = userDetails.currentRating;
   let userRank;
@@ -371,7 +399,6 @@ const updateProgress = async (req, res) => {
   }
 
   userDetails.rank = userRank;
-  await userDetails.save();
 
   // UPDATING THE RANKING LOGIC
   let playerRankDetails = await Ranking.findOne({ userId: userDetails._id });
@@ -388,6 +415,18 @@ const updateProgress = async (req, res) => {
     });
     await playerRankDetails.save();
   }
+
+  userDetails.ratingHistory.push(playerRankDetails._id);
+
+  await userDetails.save();
+  await Match.updateOne(
+    {
+      matchIdentifier,
+      "results.user": userDetails._id,
+      "results.updated": false,
+    },
+    { $set: { "results.$.updated": true } }
+  );
 
   return res.status(200).json({
     success: true,

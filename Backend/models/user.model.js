@@ -1,11 +1,11 @@
-import mongoose, { Schema } from "mongoose" 
+import mongoose, { Schema } from "mongoose";
 
 const userSchema = new Schema(
   {
     clerkId: {
-      type:String,
-      requires:true,
-      unique:true,
+      type: String,
+      requires: true,
+      unique: true,
     },
     username: {
       type: String,
@@ -46,15 +46,13 @@ const userSchema = new Schema(
       ],
       default: "unRanked",
     },
-    title:[
-      {type: String}
-    ],
+    title: [{ type: String }],
     xp: {
       type: Number,
       default: 0,
     },
     totalXp: {
-      type: Number, 
+      type: Number,
       default: 50,
     },
     winStreak: {

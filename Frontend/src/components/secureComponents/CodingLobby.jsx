@@ -22,6 +22,8 @@ const CodingLobby = () => {
   const time = settings.time || " ";
 
   console.log(settings)
+  console.log(
+    'hbkgyugiuyguyg',realUsername)
 
   useEffect(() => {
     const ConnectSocket = async () => {
@@ -92,13 +94,12 @@ const CodingLobby = () => {
   };
 
   useEffect(() => {
-    if (players.length < 2) return;
+    // if (players.length < 2) return;
 
     for (let i = 0; i < players.length; i++) {
       if (!players[i].ready) return;
     }
 
-    let codingQuestions = [];
     const FetchQuestionsFromTheBackend = async () => {
       try {
         const res = await axios.get(
@@ -138,6 +139,8 @@ const CodingLobby = () => {
       updateCurrentRoomSettings();
     }
 
+    console.log("The startTime is", Math.floor(Date.now() / 1000));
+
     if(data) {
       navigate(`/codingroom/${roomid}/arena`, {
         state: {
@@ -146,7 +149,8 @@ const CodingLobby = () => {
           time: time,
           topic: topic,
           roomid,
-          startTime: Date.now(),
+          realUsername,
+          startTime: Math.floor(Date.now()/1000),
           totalParticipants: players.length
         },
       });

@@ -41,8 +41,10 @@ const Playground = () => {
   const setting = location.state?.setting;
   const style = setting.playStyle;
   const username = location.state?.username;
+  const realUsername = location.state?.realUsername;
   const numberOfProblems = setting.numberOfProblems;
-  const startTime = location.startTime;
+  const totalParticipants = location.state.totalParticipants;
+  const startTime = location.state.startTime;
   console.log(startTime);
   const navigate = useNavigate();
   const params = useParams();
@@ -62,29 +64,22 @@ const Playground = () => {
     Array.from({ length: numberOfProblems }, () => false)
   );
   const [activeTab, setActiveTab] = useState("testResult");
-  const editorRef = useRef([]);
-  const [questionDone, setQuestionDone] = useState(
-    () => {
-      return (
-        JSON.parse(localStorage.getItem("solvedProblemBooleanArray")) ||
-        Array.from({ length: numberOfProblems }, () => false)
-      );
-    }
+
+  const [problemFinished, setProblemfinished] = useState();
+
+  const [questionDone, setQuestionDone] = useState();
+  console.log(realUsername)
+
+  const editorRef = useRef(
+    Array.from({ length: numberOfProblems }, () => null)
   );
-
-  const [problemFinished, setProblemfinished] = useState(() => {
-    return Number(localStorage.getItem("solvedProblemCount")) || 0;
-  });
-
-  if (editorRef.current.length !== numberOfProblems) {
-    editorRef.current = Array(numberOfProblems)
-      .fill(0)
-      .map(() => React.createRef());
-  }
   const [code, setCode] = useState(
     Array.from({ length: numberOfProblems }, () => " ")
   );
-  const [time, setTime] = useState(setting.time || 3600);
+  const [time, setTime] = useState(() => {
+    const savedTime = localStorage.getItem(`room_${roomid}_time`);
+    return savedTime ? parseInt(savedTime) : setting.time || 3600;
+  });
   const [problems, setProblems] = useState([]);
   const [codeSubmitOutput, setCodeSubmitOutput] = useState(
     Array.from({ length: numberOfProblems }, () => [])
@@ -94,41 +89,85 @@ const Playground = () => {
   );
 
   const [submitOutput, setSubmitOutput] = useState({});
-  
+
   let problemTestCasses = [];
   if (data && problems[idx]) {
     problemTestCasses = problems.map((elem, idx) => ({
       testCases: elem.problemTestCases.slice(0, 2),
     }));
-    
+
     console.log(problemTestCasses);
   }
-  
-  const HandleRedirectLogic = () => {
+
+  const HandleRedirectLogic = (event) => {
     console.log(
       "problem solved",
       problemFinished,
       "totalQuestions:",
       numberOfProblems
+      ,"Time Taken", startTime-Math.floor(Date.now()/1000)
     );
+
     navigate(`/codingroom/${roomid}/result`, {
       state: {
         username: username,
         roomid: roomid,
         startTime: startTime,
-        timeTake: Date.now() - startTime,
+        timeTake: startTime - Math.floor(Date.now() / 1000) - startTime,
         style: style,
-        problemFinished: problemFinished,
+        time: setting?.time || 3600,
+        problemFinished: event,
         totalParticipants: totalParticipants,
+        realUsername,
       },
     });
   };
 
   useEffect(() => {
-    if (problemFinished === Number(numberOfProblems)) {
-      HandleRedirectLogic();
+    const currentRoomStored = localStorage.getItem("currentRoom");
+
+    if (!currentRoomStored) {
+      localStorage.setItem("currentRoom", roomid);
+      localStorage.setItem(
+        "solvedProblemBooleanArray",
+        JSON.stringify(Array.from({ length: numberOfProblems }, () => false))
+      );
+
+      setQuestionDone(() =>
+        JSON.parse(localStorage.getItem("solvedProblemBooleanArray"))
+      );
+      localStorage.setItem("solvedProblemCount", 0);
+      setProblemfinished(() =>
+        parseInt(localStorage.getItem("solvedProblemCount"))
+      );
+      return;
     }
-  }, [problemFinished]);
+
+    if (JSON.stringify(currentRoomStored) !== roomid) {
+      localStorage.setItem("currentRoom", roomid);
+      localStorage.setItem(
+        "solvedProblemBooleanArray",
+        JSON.stringify(Array.from({ length: numberOfProblems }, () => false))
+      );
+      localStorage.setItem("solvedProblemCount", 0);
+      setQuestionDone(() =>
+        JSON.parse(localStorage.getItem("solvedProblemBooleanArray"))
+      );
+      setProblemfinished(() =>
+        parseInt(localStorage.getItem("solvedProblemCount"))
+      );
+    }
+  }, [roomid]);
+
+  useEffect(() => {
+    let count = 0;
+    questionDone?.map((elem, idx) => (elem === true ? count++ : (count += 0)));
+    setProblemfinished(count);
+    if (count === Number(numberOfProblems)) {
+      console.log("Finised all the problems\n");
+      HandleRedirectLogic(count);
+    }
+  }, [questionDone]);
 
   useEffect(() => {
     const FetchQuestionsFromBackend = async () => {
@@ -162,7 +201,6 @@ const Playground = () => {
     FetchQuestionsFromBackend();
   }, []);
 
-
   useEffect(() => {
     let versionWithLanguage;
     axios
@@ -187,7 +225,7 @@ const Playground = () => {
   }, []);
 
   const handleEditorMount = (editor) => {
-    editorRef.current[idx].current = editor;
+    editorRef.current[idx] = editor;
   };
 
   const handleCodeChange = (newCode) => {
@@ -287,7 +325,7 @@ const Playground = () => {
         expectedOutcome,
         actualOutput,
         correctness: expectedOutcome === actualOutput,
-        stdErr: response.stderr,
+        stdErr: String(response.data.compile.stderr),
       });
       setCodeSubmitOutput((prev) =>
         prev.map((item, index) => (index === idx ? result : item))
@@ -322,13 +360,12 @@ const Playground = () => {
       prev.map((elem, index) => (index === idx ? true : elem))
     );
 
-    if(isCorrect) {
+    if (isCorrect) {
       setQuestionDone((prev) =>
         prev.map((elem, index) => (index === idx ? true : elem))
       );
-      setProblemfinished((prev) => prev+1);
-   }
-  }
+    }
+  };
 
   useEffect(() => {
     localStorage.setItem("solvedProblemCount", problemFinished);
@@ -393,7 +430,13 @@ const Playground = () => {
         </div>
         <div className="mr-4 flex items-center justify-center gap-6">
           <div>
-            <CountdownTimer initialSeconds={time} />
+            <CountdownTimer
+              initialSeconds={time}
+              onTick={(newTime) =>
+                localStorage.setItem(`room_${roomid}_time`, newTime)
+              }
+              onComplete={() => HandleRedirectLogic(problemFinished)}
+            />
           </div>
           <Switch
             id="darkThemeToggler"
@@ -448,7 +491,7 @@ const Playground = () => {
 
                 <div className="">
                   <h1 className="mt-6 text-lg mb-3 font-semibold">
-                    {problems[idx].problemName}
+                    {problems[idx]?.problemName}
                   </h1>
                   <Badge className="text-sm rounded-md bg-cyan-500 py-1 px-2">
                     {problems[idx].problemDifficulty}

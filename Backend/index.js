@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import app from "./app.js";
 import http from "node:http";
 import { Server } from "socket.io";
+import "./jobs/matchUpdate.job.js"
 
 dotenv.config();
 

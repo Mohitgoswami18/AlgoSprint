@@ -42,7 +42,8 @@ const CodingRooms = () => {
     time: timeMapping["rapid"],
   });
   const params = useParams();
-  const realUserName = params.username;
+  const realUsername = params.username;
+  console.log(realUsername)
   const navigate = useNavigate();
 
   const handleUuid = () => {
@@ -61,7 +62,7 @@ const CodingRooms = () => {
       "http://localhost:8000/api/v1/user/rooms/createNewRoom",
       {
         roomCode: roomid,
-        username: realUserName,
+        username: realUsername,
       }
     );
     
@@ -75,7 +76,7 @@ const CodingRooms = () => {
 
 
     navigate(`/codingroom/${roomid}/lobby`, {
-      state: { realUserName, username, settings, redirectedFrom: "codingRoom" },
+      state: { realUsername, username, settings, redirectedFrom: "codingRoom" },
     });
   }
 
@@ -88,7 +89,7 @@ const CodingRooms = () => {
     const response = await axios.post("http://localhost:8000/api/v1/user/rooms/joinRoom",
       {
         roomCode: roomid,
-        username: realUserName
+        username: realUsername
       }
     );
 

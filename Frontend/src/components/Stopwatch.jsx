@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react"
 
-export default function CountdownTimer({ initialSeconds, onComplete }) {
+export default function CountdownTimer({ initialSeconds, onTick, onComplete }) {
   const [secondsLeft, setSecondsLeft] = useState(initialSeconds);
 
   useEffect(() => {
@@ -10,11 +10,15 @@ export default function CountdownTimer({ initialSeconds, onComplete }) {
     }
 
     const interval = setInterval(() => {
-      setSecondsLeft((prev) => prev - 1);
+      setSecondsLeft((prev) => {
+        const newTime = prev - 1;
+        onTick?.(newTime);
+        return newTime;
+      });
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [secondsLeft, onComplete]);
+  }, [secondsLeft, onTick, onComplete]);
 
   const formatTime = (secs) => {
     const hrs = Math.floor(secs / 3600);
