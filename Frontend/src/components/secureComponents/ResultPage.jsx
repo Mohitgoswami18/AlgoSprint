@@ -76,7 +76,7 @@ const ResultPage = () => {
               const score = (elem.questionSolved || 0) * 10;
               const position = prev.length + idx + 1;
               const outcome =
-                position <= Math.ceil(totalParticipants * 0.1) ? "WIN" : "LOSE";
+                position <= Math.ceil(totalParticipants * 0.1 + Math.floor(totalParticipants/2)) ? "WIN" : "LOSE";
               const ratingChange =
                 outcome === "WIN" ? 100 / position : -100 * position;
 

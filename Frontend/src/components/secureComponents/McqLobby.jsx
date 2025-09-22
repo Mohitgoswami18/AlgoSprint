@@ -15,6 +15,7 @@ const CodingLobby = () => {
   const param = useParams();
   const roomid = param.roomid;
   const username = location.state?.username;
+  const realUsername = location.state?.realUsername;
   const [mcqQuestions, setMcqQuestions] = useState();
   const navigate = useNavigate();
   const topic = location.state?.topic || " ";
@@ -112,7 +113,7 @@ const CodingLobby = () => {
 
         console.log(res)
         const mcqQuestions = res.data.data.Questions;
-        console.log(mcqQuestions)
+        console.log("THE MIHFISHDVIJICJNC:IJ:OICNSDIJC \n\n\n\n\n\n\n\n\n\n\n",mcqQuestions)
         setData(true);
 
         await updateCurrentRoomSettings(mcqQuestions);
@@ -126,11 +127,13 @@ const CodingLobby = () => {
 
     const updateCurrentRoomSettings = async (mcqQuestions) => {
       console.log("Final data going to backend:", mcqQuestions);
-      const res = await axios.post("http://localhost:8000/api/v1/user/mcqrooms/updateroomdetails", {
-        roomCode: roomid,
-        questions: mcqQuestions,
-        time: time,
-      });
+      const res = await axios.post(
+        "http://localhost:8000/api/v1/user/mcqrooms/updateroomdetails",
+        {
+          roomCode: roomid,
+          questions: mcqQuestions,
+        }
+      );
 
       console.log(res)
     };
@@ -143,9 +146,12 @@ const CodingLobby = () => {
       navigate(`/mcqrooms/${roomid}/arena`, {
         state: {
           username: username,
-          time: time,
+          startTime: Math.floor(Date.now() / 1000),
           topic: topic,
           roomid,
+          startTime: Math.floor(Date.now()/1000),
+          totalParticipants: players.length,
+          realUsername,
         },
       });
     } else {

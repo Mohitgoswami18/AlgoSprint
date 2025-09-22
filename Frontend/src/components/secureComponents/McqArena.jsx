@@ -9,7 +9,11 @@ const McqArena = () => {
   const location = useLocation();
   const topic = location.state?.topic || "";
   const roomid = location.state?.roomid;
+  const startTime = location.state.startTime
+  const totalParticipants = location.state?.totalParticipants
   const username = location.state?.username;
+  const realUsername = location.state?.realUsername;
+  console.log(realUsername)
   const navigate = useNavigate();
 
   const [data, setData] = useState(false);
@@ -84,6 +88,7 @@ const McqArena = () => {
   };
 
   const handleSubmit = () => {
+    console.log("INside the submit function")
     let score = 20;
     correctOption.forEach((elem, idx) => {
       if (elem !== selectedOptionsRef.current[idx]) {
@@ -91,8 +96,18 @@ const McqArena = () => {
       }
     });
 
+    const timeTaken = Math.floor(Date.now() / 1000) - startTime;
+
     navigate(`/mcqroom/${roomid}/result`, {
-      state: { username, score },
+      state: {
+        username,
+        score,
+        startTime,
+        timeTaken,
+        totalParticipants,
+        time: 1200,
+        realUsername,
+      },
     });
   };
 

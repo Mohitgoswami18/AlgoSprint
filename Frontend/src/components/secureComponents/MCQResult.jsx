@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useParams, useNavigate } from "react-router-dom";
 import { initialiseSocket } from "../../socket.io";
 import axios from "axios";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -11,78 +12,159 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { v4 as uuid } from "uuid";
+import CountdownTimer from "../Stopwatch";
 
 const ResultPage = () => {
   const socketRef = useRef(null);
   const location = useLocation();
   const params = useParams();
-  const roomid = params.roomid;
-  const username = location.state?.username || "bot";
-  const timeTaken = location.state?.timeTaken || 120;
-  const score = location.state?.score || 0;
-  const [userFinished, setUserFinished] = useState([]);
-  const [userProfile, setUserProfile] = useState({});
+  const navigate = useNavigate();
 
+  const roomid = params.roomid;
+  const score = location.state.score;
+  const style = "RapidFire";
+  const timeTake = location.state.timeTake;
+  console.log(timeTake, score)
+  const totalParticipants = location.state.totalParticipants;
+  const startTime = location.state.startTime;
+  console.log('FERGFRG',startTime)
+  const realUsername = location.state?.realUsername;
+  console.log(realUsername)
+  const username = location.state?.username || "bot";
+  const totalTime = location.state?.time || 120;
+
+  const [userProfile, setUserProfile] = useState({});
+  const [userFinished, setUserFinished] = useState([]);
+  console.log(realUsername);
+
+  const timeLeft = startTime + totalTime - Math.floor(Date.now() / 1000);
+
+  // Fetch user profile
   useEffect(() => {
+    console.log("We are fetching the user dashboard");
     const fetchUserProfile = async () => {
       try {
         const res = await axios.get(
-          `https://algosprint-vxi4.onrender.com/api/v1/${username}/dashboard`
+          `http://localhost:8000/api/v1/user/dashboard`,
+          {
+            params: {
+              username: realUsername,
+            },
+          }
         );
-        setUserProfile("user prfile", res.data);
-        console.log(userProfile.data);
+
+        console.log(res);
+        setUserProfile(res.data.data);
       } catch (err) {
-        console.log("An error occurred", err);
+        console.log("An error occurred fetching user profile", err);
       }
     };
-
     fetchUserProfile();
+  }, [realUsername]);
+
+  // Initialize sockets after userProfile is loaded
+  useEffect(() => {
+    if (!userProfile.username) return;
 
     const connectToSockets = async () => {
-      console.log("Connecting to the sockets");
       socketRef.current = await initialiseSocket();
-      console.log("Connected to the sockets", socketRef.current);
-
       socketRef.current.emit("userJoin", { roomid, username });
 
       socketRef.current.on("userJoined", ({ connectedPlayers }) => {
-        setUserFinished(
-          connectedPlayers.map((elem) => ({
-            username: elem.username,
-            timeTaken,
-            score,
-            level: userProfile.level,
-            title: userProfile.title,
-            profilePicture: userProfile.profilePicture,
-            rank: userProfile.rank,
-          }))
-        );
+        setUserFinished((prev) => {
+          const newUsers = connectedPlayers
+            .filter((elem) => !prev.some((p) => p.user === elem._id))
+            .map((elem, idx) => {
+              const position = prev.length + idx + 1;
+              const outcome =
+                position <=
+                Math.ceil(
+                  totalParticipants * 0.1 + Math.floor(totalParticipants / 2)
+                )
+                  ? "WIN"
+                  : "LOSE";
+              const ratingChange =
+                outcome === "WIN" ? 100 / position : -100 * position;
+
+              return {
+                user: elem._id,
+                username: realUsername,
+                timeTaken: timeTake,
+                position,
+                score: score,
+                outcome,
+                ratingChange,
+              };
+            });
+
+          const updatedUsers = [...prev, ...newUsers];
+
+          const currentUserResult = updatedUsers.find(
+            (p) => p.username === realUsername
+          )?.outcome;
+
+          if (newUsers.some((p) => p.username === realUsername)) {
+            sendResultsToBackend(updatedUsers, currentUserResult);
+          }
+
+          return updatedUsers;
+        });
       });
 
-      socketRef.current.on("connect_error", (err) => {
-        console.log("socket error", err);
-      });
-      socketRef.current.on("connect_failed", (err) => {
-        console.log("socket failed", err);
-      });
+      socketRef.current.on("connect_error", (err) =>
+        console.log("Socket error:", err)
+      );
+      socketRef.current.on("connect_failed", (err) =>
+        console.log("Socket failed:", err)
+      );
     };
 
     connectToSockets();
-    console.log(userFinished);
 
-    return () => {
-      socketRef.current?.disconnect();
+    return () => socketRef.current?.disconnect();
+  }, [userProfile, roomid, totalParticipants]);
+
+  // Send results to backend
+  const sendResultsToBackend = async (participants, resultOfTheCurrentUser) => {
+    const dataForBackendRequestBody = {
+      style,
+      username: realUsername,
+      position: score,
+      result: resultOfTheCurrentUser,
+      participants,
+      matchIdentifier: uuid(),
+      startTime,
+      duration: totalTime,
     };
-  }, []);
 
-  console.log(userFinished);
+    console.log(
+      "SEnding this data into the backend \n\n\n\n\n\n",
+      dataForBackendRequestBody,
+      "\n\n\n\n\n\n\n"
+    );
+
+    try {
+      const res = await axios.post(
+        "http://localhost:8000/api/v1/user/updateRatings",
+        dataForBackendRequestBody
+      );
+      console.log("Successfully updated user data:", res.data);
+    } catch (err) {
+      console.log("Error updating result:", err);
+    }
+  };
 
   return (
     <div className="font-[Inter] py-6">
-      <h1 className="text-3xl font-bold text-center p4">Result</h1>
+      <h1 className="text-3xl font-bold text-center p-4">Result</h1>
       <p className="text-lg p-4 text-gray-600 text-center dark:text-white/10">
-        The rankings will take upto 3 working days to reflect into your profile
+        The rankings will take up to 3 working days to reflect in your profile
       </p>
+
+      <div className="mx-auto">
+        <CountdownTimer initialSeconds={timeLeft > 0 ? timeLeft : 0} />
+      </div>
 
       <div className="max-w-[600px] mx-auto rounded-md p-2 m-12">
         <Table>
@@ -90,15 +172,15 @@ const ResultPage = () => {
           <TableHeader>
             <TableRow>
               <TableHead className="w-[10%]">Rank</TableHead>
-              <TableHead className="w-20%]">User</TableHead>
-              <TableHead>Score</TableHead>
-              <TableHead className="">Time Taken</TableHead>
+              <TableHead className="w-[20%]">User</TableHead>
+              <TableHead>Questions Solved</TableHead>
+              <TableHead>Time Taken</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {userFinished.map((elem, idx) => (
               <TableRow key={idx} className="text-start">
-                <TableCell>{idx + 1}</TableCell>
+                <TableCell>{elem.position}</TableCell>
                 <TableCell>{elem.username}</TableCell>
                 <TableCell>{elem.score}</TableCell>
                 <TableCell>{elem.timeTaken}</TableCell>
@@ -106,6 +188,15 @@ const ResultPage = () => {
             ))}
           </TableBody>
         </Table>
+        <div className="w-fit mx-auto my-4">
+          <Button
+            variant="personal"
+            size="sm"
+            onClick={() => navigate(`/${realUsername}/dashboard`)}
+          >
+            Return Home
+          </Button>
+        </div>
       </div>
     </div>
   );

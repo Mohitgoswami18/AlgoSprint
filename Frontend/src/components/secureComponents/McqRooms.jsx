@@ -24,6 +24,7 @@ const McqRooms = () => {
   const params = useParams();
   const navigate = useNavigate();
   const realUsername = params.username;
+  console.log(realUsername)
   const [roomid, setRoomid] = useState("");
   const [loading, setLoading] = useState(false);
   const [joinLoading, setJoinLoading] = useState(false);
@@ -99,6 +100,7 @@ const McqRooms = () => {
       {
         roomCode: roomid,
         username: realUsername,
+        
       }
     );
     
@@ -113,7 +115,7 @@ const McqRooms = () => {
     setLoading(false)
 
     navigate(`/mcq/${roomid}/lobby`, {
-      state: { username: realUsername, topic: event, time:1200 },
+      state: { realUsername: realUsername, topic: event, time:1200 },
     });
   }
 

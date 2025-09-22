@@ -16,12 +16,14 @@ import { upload } from "../Middlewares/multer.middleware.js";
 import { updateMcqRoomDetails } from "../controllers/user.controller.js";
 import { findMcqQuestionsFromBackend } from "../controllers/user.controller.js";
 import {UpdateUserProfilePicture} from "../controllers/user.controller.js"
+import { discussionDataUpation } from "../controllers/user.controller.js";
 
 const router = Router();
 
 router.route("/user/dashboard").get(dashboardController);
 router.route("/user/leaderboard").get(leaderboardStats);
 router.route("/user/discussion").get(discussionDataFetcher);
+router.route("/user/updateDiscussion").post(discussionDataUpation);
 router.route("/user/updatename").post(updateUserName);
 router.route("/user/mcqroom/arena/topic/problems").get(mcqQuestionFetcher);
 router.route("/user/codingrooms/arena/problems").get(QuestionFetcher);

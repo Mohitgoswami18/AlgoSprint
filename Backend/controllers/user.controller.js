@@ -9,6 +9,7 @@ import { mcqRoom } from "../models/mcqRoom.models.js";
 import { Question } from "../models/mcq.model.js";
 import uploadToCloudinary from "../Utils/cloudinary.js";
 import { Room } from "../models/room.model.js";
+import path from "node:path";
 
 const dashboardController = async (req, res, next) => {
   try {
@@ -211,14 +212,13 @@ const leaderboardStats = async (req, res, next) => {
 
 const discussionDataFetcher = async (_, res, next) => {
   try {
-    const discussionData = await Discuss.aggregate([
-      {
-        $sort: {
-          createdAt: -1,
-        },
-      },
-      { $limit: 20 },
-    ]);
+    const discussionData = await Discuss.find({})
+      .populate({
+        path: "user",
+        select: "username profilePicture level",
+      })
+      .sort({ createdAt: -1 })
+      .limit(20);
 
     res.status(200).json(
       new ApiResponse(200, "Data Fetched Successfully", {
@@ -229,6 +229,36 @@ const discussionDataFetcher = async (_, res, next) => {
     next(error);
   }
 };
+
+const discussionDataUpation = async (req, res) => {
+  const { post, username } = req.body;
+  
+  if(!post || !username) {
+    throw new ApiError (404, "Post details not found in the request body");
+  }
+
+  const authorOfThePost = await User.findOne({username: username});
+
+  if(!authorOfThePost) {
+    throw new ApiError(404, "user not found");
+  }
+
+  const postDetails = {
+    user: authorOfThePost._id,
+    message: post,
+    reply: {
+
+    }
+  };
+  const createNewPost = await Discuss.create(postDetails)
+  if(!createNewPost) {
+    throw new ApiError (500, "internal server error while creating the post");
+  }
+
+  res.status(200).json(
+    new ApiResponse(200, "Added the post successfully")
+  )
+}
 
 const QuestionFetcher = async (req, res) => {
   console.log("We are in the questionFetcher Controller");
@@ -698,22 +728,22 @@ const updateMcqRoomDetails = async (req, res) => {
       console.log("no body");
     }
     console.log("inside the updateController");
-    const { roomCode, time, questions } = req.body;
+    const { roomCode, questions, startTime, endTime } = req.body;
 
     console.log("fdsf");
-    if (!roomCode || !questions || !time) {
+    if (!roomCode || !questions) {
       throw new ApiError(404, "Required data not found in the request body");
     }
 
-    // console.log(time, roomCode, questions);
+    console.log(startTime, endTime)
 
     const roomDetails = await mcqRoom.findOneAndUpdate(
       { roomCode },
       {
         $set: {
-          startTime: new Date(),
-          endTime: new Date(Date.now() + time * 1000),
           question: questions,
+          startTime: Date.now(),
+          endTime: Date.now() + 1200000, 
         },
       },
       { new: true }
@@ -782,6 +812,7 @@ const findMcqQuestionsFromBackend = async (req, res) => {
     throw new ApiError(404, "Roomid not found in the request parameters");
   }
 
+  console.log(roomid)
   console.log("got the room id");
   console.log("Entring the required controller");
 
@@ -823,4 +854,5 @@ export {
   createMcqRoom,
   mcqRoomJoiningHandler,
   updateMcqRoomDetails,
+  discussionDataUpation,
 };

@@ -24,7 +24,7 @@ const matchSchema = new Schema({
   style: {
     type: String,
     required: true,
-    enum: ["blitz", "rapid", "classical"],
+    enum: ["blitz", "rapid", "classical", "RapidFire"],
   },
   results: [
     {
