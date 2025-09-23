@@ -19,9 +19,7 @@ const McqArena = () => {
   const [data, setData] = useState(false);
   const [index, setIndex] = useState(0);
 
-  const selectedOptionsRef = useRef(
-    JSON.parse(localStorage.getItem("optionMarkedList")) || Array(20).fill("")
-  );
+  const selectedOptionsRef = useRef(Array(20).fill(""));
 
   const [options, setOptions] = useState(Array.from({ length: 20 }, () => []));
   const [correctOption, setCorrectOption] = useState(
@@ -31,42 +29,83 @@ const McqArena = () => {
     Array.from({ length: 20 }, () => [])
   );
 
-  const [selected, setSelected] = useState(() => {
-    const saved = localStorage.getItem("selectedState");
-    return saved
-      ? JSON.parse(saved)
-      : Array.from({ length: 20 }, () => [false, false, false, false]);
-  });
+  const [selected, setSelected] = useState();
 
+  useEffect(() => {
+      const currentRoomStored = localStorage.getItem("currentRoom");
+  
+      if (!currentRoomStored) {
+        localStorage.setItem("currentRoom", roomid);
+        localStorage.setItem(
+          "selectedState",
+          JSON.stringify(Array.from({ length: 20 }, () => [false, false, false, false]))
+        );
+
+        localStorage.setItem("optionMarkedList", JSON.stringify(Array(20).fill("")));
+        selectedOptionsRef.current = JSON.parse(
+          localStorage.getItem("optionMarkedList")
+        );
+        setSelected(() => JSON.parse(localStorage.getItem("selectedState")));
+        return;
+      }
+  
+      if (JSON.stringify(currentRoomStored) !== roomid) {
+        localStorage.setItem("currentRoom", roomid);
+
+        localStorage.setItem(
+          "optionMarkedList",
+          JSON.stringify(Array(20).fill(""))
+        );
+        selectedOptionsRef.current = JSON.parse(
+          localStorage.getItem("optionMarkedList")
+        );
+
+        localStorage.setItem(
+          "selectedState",
+          JSON.stringify(
+            Array.from({ length: 20 }, () => [false, false, false, false])
+          )
+        );
+
+        setSelected(() => JSON.parse(localStorage.getItem("selectedState")));
+      }
+    }, [roomid]);
 
   useEffect(() => {
     const fetchMcqQuestionsFromBackend = async () => {
-      console.log("Fetching questions...");
-      const response = await axios.get(
-        `http://localhost:8000/api/v1/user/mcqrooms/arena/getProblems`,
-        { params: { roomid } }
-      );
+      if (!roomid) return; // <- Guard
+      try {
+        console.log("Fetching questions...");
+        const response = await axios.get(
+          `http://localhost:8000/api/v1/user/mcqrooms/arena/getProblems`,
+          { params: { roomid } }
+        );
 
-      setData(true);
+        setData(true);
 
-      const problems = response.data.data.questions.map(
-        (elem) => elem.question
-      );
-      setQuestions(problems);
+        const problems = response.data.data.questions.map(
+          (elem) => elem.question
+        );
+        setQuestions(problems);
 
-      const mcqOptions = response.data.data.questions.map(
-        (elem) => elem.options
-      );
-      setOptions(mcqOptions);
+        const mcqOptions = response.data.data.questions.map(
+          (elem) => elem.options
+        );
+        setOptions(mcqOptions);
 
-      const correctAnswer = response.data.data.questions.map(
-        (elem) => elem.answer
-      );
-      setCorrectOption(correctAnswer);
+        const correctAnswer = response.data.data.questions.map(
+          (elem) => elem.answer
+        );
+        setCorrectOption(correctAnswer);
+      } catch (err) {
+        console.error("Error fetching MCQ questions:", err);
+        setData(false);
+      }
     };
 
     fetchMcqQuestionsFromBackend();
   }, [roomid]);
+
 
   
   const handleChoosedOptionLogic = (choice) => {
@@ -95,9 +134,10 @@ const McqArena = () => {
         score--;
       }
     });
-
+    
     const timeTaken = Math.floor(Date.now() / 1000) - startTime;
-
+    console.log(timeTaken)
+    
     navigate(`/mcqroom/${roomid}/result`, {
       state: {
         username,
@@ -110,6 +150,7 @@ const McqArena = () => {
       },
     });
   };
+
 
   return (
     <div className="flex w-full mx-2 ">

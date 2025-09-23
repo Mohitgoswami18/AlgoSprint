@@ -1,97 +1,118 @@
 import cron from "node-cron";
-import {Match} from "../models/match.model.js";
-import {User} from "../models/user.model.js";
-import {Ranking} from "../models/ranking.model.js";
+import { Room } from "../models/room.model.js";
+import { User } from "../models/user.model.js";
+import { Ranking } from "../models/ranking.model.js";
 
-cron.schedule("* * * * *", async () => {
-  console.log("⏳ Checking matches to finalize...");
+// Helper function: calculates rating change
+const calculateRatingChange = (outcome, position, totalParticipants) => {
+  if (outcome === "WIN") {
+    return Math.max(10, 100 - (position - 1) * 10);
+  } else {
+    const lossMultiplier = Math.min(
+      10,
+      position - Math.ceil(totalParticipants / 2)
+    );
+    return -Math.max(10, 20 * lossMultiplier);
+  }
+};
+
+// Cron Job: runs every 2 hours
+cron.schedule("0 */2 * * *", async () => {
+  console.log("Cron Job Started: Updating room progress", new Date());
 
   try {
-    const now = new Date();
+    const currentTime = new Date();
 
-    const matchesToFinalize = await Match.find({
-      endTime: { $lte: now },
+    // Find rooms that ended but are still pending
+    const expiredRooms = await Room.find({
+      endTime: { $lt: currentTime },
       matchStatus: "pending",
     });
 
-    for (const match of matchesToFinalize) {
-      console.log(`⚡ Finalizing match ${match.matchIdentifier}`);
+    for (const room of expiredRooms) {
+      console.log("Processing room:", room.roomCode);
 
-      for (const player of match.results) {
-        if (player.updated) continue; // already processed
+      // Get finished participants and sort by score/timeTaken
+      const finishedParticipants = room.participants
+        .filter((p) => p.finished)
+        .sort((a, b) => b.score - a.score || a.timeTaken - b.timeTaken);
 
-        const userDetails = await User.findById(player.user);
-        if (!userDetails) {
-          console.error(`❌ User not found: ${player.user}`);
-          continue;
-        }
+      const totalFinished = finishedParticipants.length;
 
-        userDetails.totalBattles += 1;
+      for (const [index, participant] of finishedParticipants.entries()) {
+        const position = index + 1;
+        const outcome =
+          position <= Math.max(1, Math.ceil(totalFinished / 2))
+            ? "WIN"
+            : "LOSE";
 
-        const normalizedResult = player.outcome.toUpperCase();
+        participant.outcome = outcome;
+        participant.ratingChange = calculateRatingChange(
+          outcome,
+          position,
+          totalFinished
+        );
+        participant.updated = true;
+        participant.position = position;
 
-        if (normalizedResult === "WIN") {
-          userDetails.xp += 15;
-          if (userDetails.xp >= userDetails.totalXp) {
-            userDetails.level += 1;
-            userDetails.xp -= userDetails.totalXp;
-            userDetails.totalXp += 50;
-          }
-          userDetails.totalWins += 1;
-          userDetails.winStreak += 1;
-          userDetails.currentRating += player.ratingChange;
-          if (userDetails.currentRating > userDetails.highestRating) {
-            userDetails.highestRating = userDetails.currentRating;
-          }
-        } else if (normalizedResult === "LOSS") {
-          userDetails.winStreak = 0;
-          userDetails.xp += 5;
-          if (userDetails.xp >= userDetails.totalXp) {
-            userDetails.level += 1;
-            userDetails.xp -= userDetails.totalXp;
-            userDetails.totalXp += 50;
-          }
-          userDetails.currentRating += player.ratingChange; // already negative
-          if (userDetails.currentRating < 0) {
-            userDetails.currentRating = 0;
-          }
-        }
+        // Update actual user in DB
+        const user = await User.findOne({ username: participant.username });
+        if (!user) continue;
 
-        const currentRatingOfUser = userDetails.currentRating;
-        if (currentRatingOfUser === 0) userDetails.rank = "unRanked";
-        else if (currentRatingOfUser <= 100) userDetails.rank = "Bronze";
-        else if (currentRatingOfUser <= 300) userDetails.rank = "Silver";
-        else if (currentRatingOfUser <= 500) userDetails.rank = "Gold";
-        else if (currentRatingOfUser <= 1000) userDetails.rank = "Platinum";
-        else if (currentRatingOfUser <= 1500) userDetails.rank = "Diamond";
-        else if (currentRatingOfUser <= 2000) userDetails.rank = "Ace";
-        else userDetails.rank = "Legend";
+        user.totalBattles += 1;
 
-        await userDetails.save();
-
-        let playerRankDetails = await Ranking.findOne({
-          userId: userDetails._id,
-        });
-        if (!playerRankDetails) {
-          playerRankDetails = await Ranking.create({
-            userId: userDetails._id,
-            ratings: [{ value: userDetails.currentRating, date: new Date() }],
-          });
+        if (outcome === "WIN") {
+          user.totalWins += 1;
+          user.winStreak += 1;
+          user.xp += 15;
+          user.currentRating += Math.floor(100 / position);
         } else {
-          playerRankDetails.ratings.push({
-            value: userDetails.currentRating,
+          user.winStreak = 0;
+          user.xp += 5;
+          user.currentRating -= Math.floor(position * 10);
+          if (user.currentRating < 0) user.currentRating = 0;
+        }
+
+        // Handle leveling
+        if (user.xp >= user.totalXp) {
+          user.level += 1;
+          user.xp -= user.totalXp;
+          user.totalXp += 50;
+        }
+
+        // Update highest rating
+        if (user.currentRating > user.highestRating) {
+          user.highestRating = user.currentRating;
+        }
+
+        // Update ranking history
+        let rankHistory = await Ranking.findOne({ userId: user._id });
+        if (!rankHistory) {
+          rankHistory = await Ranking.create({
+            userId: user._id,
+            ratings: [{ value: user.currentRating, date: new Date() }],
+          })
+          
+          user.ratingHistory = rankHistory._id;
+        } else {
+          rankHistory.ratings.push({
+            value: user.currentRating,
             date: new Date(),
           });
-          await playerRankDetails.save();
+          await rankHistory.save();
         }
 
-        player.updated = true;
+        user.matches.push(room._id);
+        await user.save();
       }
 
-      match.matchStatus = "final";
-      await match.save();
+      room.matchStatus = "final";
+      await room.save();
+      console.log(`Room ${room.roomCode} updated successfully.`);
     }
+
+    console.log("Cron Job Completed Successfully");
   } catch (err) {
-    console.error("❌ Error finalizing matches:", err);
+    console.error("Error running cron job:", err);
   }
 });

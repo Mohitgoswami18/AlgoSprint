@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import app from "./app.js";
 import http from "node:http";
 import { Server } from "socket.io";
-import "./jobs/matchUpdate.job.js"
+import "./jobs/matchUpdate.job.js";
 
 dotenv.config();
 
@@ -18,25 +18,26 @@ const server = http.createServer(app);
 const io = new Server(server, config);
 const user = {};
 const roomUsers = {};
+const MatchResultWaitingArea = {};
 
 io.on("connection", (socket) => {
-
   // Events for Collaborative Rooms
 
   socket.on("join", ({ username, roomid }) => {
-
     user[socket.id] = username;
     socket.join(roomid);
 
     const getAllConnectedUsers = (roomid) => {
-      return Array.from( io.sockets.adapter.rooms.get(roomid) || []).map((socketId) => {
-        return { username: user[socketId], socketId };
-      });
-    }
+      return Array.from(io.sockets.adapter.rooms.get(roomid) || []).map(
+        (socketId) => {
+          return { username: user[socketId], socketId };
+        }
+      );
+    };
 
     const connectedUsers = getAllConnectedUsers(roomid);
-    console.log(connectedUsers)
-    connectedUsers.forEach(({socketId}) => {
+    console.log(connectedUsers);
+    connectedUsers.forEach(({ socketId }) => {
       io.to(socketId).emit("connected", {
         connectedUsers,
         user: username,
@@ -46,29 +47,36 @@ io.on("connection", (socket) => {
 
     socket.on("change", ({ roomid, code }) => {
       console.log(
-        "📩 Server got change from",
+        "Server got change from",
         socket.id,
         ":",
         code.slice(0, 20),
         roomid
       );
-      socket.to(roomid).emit("code-change", ({code}));
+      socket.to(roomid).emit("code-change", { code });
     });
 
-    socket.on("langChange", ({roomid, lang, ver}) => {
-      console.log("language changed from", socket.id, "new langauge anf value ", roomid, lang, ver)
-      socket.to(roomid).emit("langChanged", ({ lang, ver }));
+    socket.on("langChange", ({ roomid, lang, ver }) => {
+      console.log(
+        "language changed from",
+        socket.id,
+        "new langauge anf value ",
+        roomid,
+        lang,
+        ver
+      );
+      socket.to(roomid).emit("langChanged", { lang, ver });
     });
 
-    socket.on("codeOutput", ({roomid, output, err}) => {
-      socket.to(roomid).emit("codeOutput", ({ output, err }));
+    socket.on("codeOutput", ({ roomid, output, err }) => {
+      socket.to(roomid).emit("codeOutput", { output, err });
     });
 
     socket.on("leave", ({ username, roomid }) => {
       socket.leave(roomid);
       delete user[socket.id];
       const connectedUsers = getAllConnectedUsers(roomid);
-      connectedUsers.forEach(({socketId}) => {
+      connectedUsers.forEach(({ socketId }) => {
         io.to(socketId).emit("user-disconnected", {
           username,
           socketId: socket.id,
@@ -77,19 +85,20 @@ io.on("connection", (socket) => {
     });
   });
 
-  
-  // Events for Creating or joining rooms 
+  // Events for Creating or joining rooms
 
-  socket.on("userJoin", ({roomid, username}) => {
+  socket.on("userJoin", ({ roomid, username }) => {
     console.log(username, "joined the room", roomid);
     roomUsers[socket.id] = username;
 
     socket.join(roomid);
-    const connectedPlayers = Array.from( io.sockets.adapter.rooms.get(roomid) || []).map((socketId) => {
+    const connectedPlayers = Array.from(
+      io.sockets.adapter.rooms.get(roomid) || []
+    ).map((socketId) => {
       return { socketId, username: roomUsers[socketId] };
     });
 
-    console.log(connectedPlayers)
+    console.log(connectedPlayers);
     console.log("Sending the userList to the frontend");
 
     connectedPlayers.forEach(({ socketId }) => {
@@ -101,17 +110,61 @@ io.on("connection", (socket) => {
     });
   });
 
-  socket.on("ready", ({roomid, username}) => {
-    socket.to(roomid).emit("ready", {username});
+  socket.on("ready", ({ roomid, username }) => {
+    socket.to(roomid).emit("ready", { username });
   });
 
+  // EVENT FOR MATCH DATA UPDATION
+
+  socket.on("userFinished", ({ username, roomid, score, timeTaken }) => {
+    console.log(username, "joined the room", roomid);
+
+    MatchResultWaitingArea[socket.id] = {
+      username,
+      score,
+      timeTaken,
+      joinedAt: Date.now(),
+    };
+    socket.join(roomid);
+
+    const getAllWaitingPLayers = Array.from(
+      socket.adapter.rooms.get(roomid) || []
+    ).map((socketId) => {
+      const playerData = MatchResultWaitingArea[socketId];
+      return {
+        socketId: socketId,
+        username: playerData?.username || "Unknown",
+        score: playerData?.score || 0,
+        timeTaken: playerData?.timeTaken || 0,
+      };
+    });
+
+    const newPlayerData = {
+      username: username,
+      score,
+      timeTaken,
+    };
+
+    getAllWaitingPLayers.forEach(({ socketId }) => {
+      io.to(socketId).emit("playerConnectedToTheWaitingArea", {
+        newPlayerData,
+        allWaitingPlayers: getAllWaitingPLayers,
+        socketId,
+      });
+    });
+  });
+
+  socket.on("leaveTheWaitingArea", ({ username, roomid }) => {
+    socket.leave(roomid);
+    delete MatchResultWaitingArea[socket.id];
+  });
 });
 
 const port = process.env.PORT || 3000;
 
 server.listen(port, () => {
   console.log("The server is running on the port", port);
-})
+});
 
 const connectingDatabase = async () => {
   await ConnectToDatabase();

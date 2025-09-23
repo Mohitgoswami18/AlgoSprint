@@ -42,6 +42,7 @@ const Playground = () => {
   const style = setting.playStyle;
   const username = location.state?.username;
   const realUsername = location.state?.realUsername;
+  console.log("the real username is", realUsername);
   const numberOfProblems = setting.numberOfProblems;
   const totalParticipants = location.state.totalParticipants;
   const startTime = location.state.startTime;
@@ -51,7 +52,7 @@ const Playground = () => {
   const [language, setLanguage] = useState([]);
   const [data, setData] = useState(false);
   const [versions, setVersions] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [err, setErr] = useState(false);
   const [idx, setIdx] = useState(0);
@@ -68,7 +69,7 @@ const Playground = () => {
   const [problemFinished, setProblemfinished] = useState();
 
   const [questionDone, setQuestionDone] = useState();
-  console.log(realUsername)
+  console.log(realUsername);
 
   const editorRef = useRef(
     Array.from({ length: numberOfProblems }, () => null)
@@ -99,24 +100,59 @@ const Playground = () => {
     console.log(problemTestCasses);
   }
 
+  useEffect(() => {
+    const FetchQuestionsFromBackend = async () => {
+      try {
+        setLoading(true);
+        if (!roomid) return;
+
+        const response = await axios.get(
+          "http://localhost:8000/api/v1/user/codingrooms/arena/getProblems",
+          {
+            params: { roomid },
+          }
+        );
+
+        if (response.data?.data?.questions) {
+          setProblems(response.data.data.questions);
+          setData(true);
+          setErr(false);
+        } else {
+          throw new Error("No questions data received");
+        }
+      } catch (error) {
+        console.error("Error fetching questions:", error);
+        setErr(true);
+        setData(false);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    FetchQuestionsFromBackend();
+  }, [roomid]);
+
   const HandleRedirectLogic = (event) => {
     console.log(
       "problem solved",
       problemFinished,
       "totalQuestions:",
-      numberOfProblems
-      ,"Time Taken", startTime-Math.floor(Date.now()/1000)
+      numberOfProblems,
+      "Time Taken",
+      startTime - Math.floor(Date.now() / 1000)
     );
+
+    const timeTaken = Math.floor(Date.now() / 1000) - startTime;
 
     navigate(`/codingroom/${roomid}/result`, {
       state: {
         username: username,
         roomid: roomid,
         startTime: startTime,
-        timeTake: startTime - Math.floor(Date.now() / 1000) - startTime,
+        timeTaken,
         style: style,
         time: setting?.time || 3600,
-        problemFinished: event,
+        score: event * 10,
         totalParticipants: totalParticipants,
         realUsername,
       },
@@ -169,37 +205,7 @@ const Playground = () => {
     }
   }, [questionDone]);
 
-  useEffect(() => {
-    const FetchQuestionsFromBackend = async () => {
-      console.log("FEtching questions from backend");
-      await axios
-        .get(
-          "http://localhost:8000/api/v1/user/codingrooms/arena/getProblems",
-          {
-            params: {
-              roomid,
-            },
-          }
-        )
-        .then((res) => {
-          console.log("response of the questions");
-          console.log(res.data.data.questions);
-          setProblems(res.data.data.questions);
-          setData(true);
-          setErr(false);
-        })
-        .catch((err) => {
-          console.log(
-            "Error occured while fetching the question from the backend",
-            err
-          );
-          setData(false);
-          setErr(true);
-        });
-    };
-
-    FetchQuestionsFromBackend();
-  }, []);
+  
 
   useEffect(() => {
     let versionWithLanguage;
@@ -446,6 +452,16 @@ const Playground = () => {
             className="cursor-pointer"
           />
         </div>
+
+        <div>
+          <Button
+            onClick={() => HandleRedirectLogic(problemFinished)}
+            variant="destructive"
+            size="sm"
+          >
+            giveUp
+          </Button>
+        </div>
       </div>
 
       <div className="w-full h-[500px] p-4">
@@ -457,10 +473,10 @@ const Playground = () => {
             defaultSize={40}
             className=" border-r-3 overflow-auto border-zinc-600 dark:bg-white/4"
           >
-            {err ? (
-              <p className="text-red-500 text-xl h-[80%] flex items-center justify-center text-center font-bold font-[Inter]">
-                There was an error while fetching the questions please try again
-              </p>
+            {loading ? (
+              <Skeleton className="h-full w-full" />
+            ) : err ? (
+              <p>Some Error Occur</p>
             ) : data ? (
               <div className="p-6">
                 <div className="w-full text-black dark:text-white font-bold font-[Inter] flex items-center justify-between px-2 text-2xl">
@@ -494,10 +510,10 @@ const Playground = () => {
                     {problems[idx]?.problemName}
                   </h1>
                   <Badge className="text-sm rounded-md bg-cyan-500 py-1 px-2">
-                    {problems[idx].problemDifficulty}
+                    {problems[idx]?.problemDifficulty}
                   </Badge>
                   <p className="mt-6 tracking-normal">
-                    {problems[idx].problemDescription}
+                    {problems[idx]?.problemDescription}
                   </p>
                   <div className="mt-2">
                     {problemTestCasses[idx]?.testCases?.map((elem, idx) => (

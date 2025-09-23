@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 const CodingLobby = () => {
   const [players, setPlayers] = useState([]);
   const [data, setData] = useState([]);
+  const [copied, setCopied] = useState(false)
   const socketRef = useRef();
   const location = useLocation();
   const param = useParams();
@@ -24,6 +25,16 @@ const CodingLobby = () => {
   console.log(settings)
   console.log(
     'hbkgyugiuyguyg',realUsername)
+
+    const handleCopyTask = async () => {
+      if(!copied) {
+        await navigator.clipboard.writeText(roomid)
+      }
+      toast.success("Copied room id")
+      setCopied(true);
+
+      setInterval(()=> setCopied(false), 2000);
+    }
 
   useEffect(() => {
     const ConnectSocket = async () => {
@@ -94,50 +105,65 @@ const CodingLobby = () => {
   };
 
   useEffect(() => {
-    // if (players.length < 2) return;
+    if (players.length < 2) return;
 
     for (let i = 0; i < players.length; i++) {
       if (!players[i].ready) return;
     }
 
-    const FetchQuestionsFromTheBackend = async () => {
-      try {
-        const res = await axios.get(
-          "http://localhost:8000/api/v1/user/codingrooms/arena/problems",
+    const startLobbyGameFlow = async () => {
+      const updateCurrentRoomTimings = async () => {
+        await axios.post(
+          "http://localhost:8000/api/v1/user/codingrooms/updateRoomDetails",
           {
-            params: {
-              questions: settings?.numberOfProblems,
-            },
+            roomCode: roomid,
+            time: time,
+          }
+        ).then((res) => {
+          console.log("Updated the timings of the room successfully");
+        })
+        .catch((err) => {
+          console.log("an error occur", err);
+        });
+      };
+      updateCurrentRoomTimings();
+
+      const FetchQuestionsFromTheBackend = async () => {
+        try {
+          const res = await axios.get(
+            "http://localhost:8000/api/v1/user/codingrooms/arena/problems",
+            {
+              params: {
+                questions: settings?.numberOfProblems,
+              },
+            }
+          );
+
+          const codingQuestions = res.data.data.questions;
+          setData(true);
+
+          await updateCurrentRoomSettings(codingQuestions);
+        } catch (err) {
+          console.log("some error occurred", err);
+          setData(false);
+        }
+      };
+
+      FetchQuestionsFromTheBackend();
+
+      const updateCurrentRoomSettings = async (codingQuestions) => {
+        console.log("Final data going to backend:", codingQuestions);
+        await axios.post(
+          "http://localhost:8000/api/v1/user/codingrooms/updateRoomDetails",
+          {
+            roomCode: roomid,
+            questions: codingQuestions,
           }
         );
-
-        const codingQuestions = res.data.data.questions;
-        setData(true);
-
-        await updateCurrentRoomSettings(codingQuestions);
-      } catch (err) {
-        console.log("some error occurred", err);
-        setData(false);
-      }
-    };
-
-    FetchQuestionsFromTheBackend();
-
-    const updateCurrentRoomSettings = async (codingQuestions) => {
-      console.log("Final data going to backend:", codingQuestions);
-      await axios.post(
-        "http://localhost:8000/api/v1/user/codingrooms/updateRoomDetails",
-        {
-          roomCode: roomid,
-          questions: codingQuestions,
-          time: time,
-        }
-      );
-    };
-
-    if(data) {
-      updateCurrentRoomSettings();
+      };
     }
+
+    startLobbyGameFlow();
 
     console.log("The startTime is", Math.floor(Date.now() / 1000));
 
@@ -221,6 +247,10 @@ const CodingLobby = () => {
           }}
         >
           leave
+        </Button>
+        <Button className="border-3 shadow-md" size="sm"
+        onClick={()=> handleCopyTask()}>
+          Copy Id
         </Button>
       </div>
     </div>

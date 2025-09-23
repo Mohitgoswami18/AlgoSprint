@@ -15,6 +15,7 @@ const CommunityRooms = () => {
   const [postData, setPostData] = useState("");
   const [loading, setLoading] = useState(false);
   const params = useParams();
+  const [postCount, setPostCount] = useState(0);
   const username = params.username;
 
   let discussionData = [];
@@ -38,6 +39,7 @@ const CommunityRooms = () => {
         )
         .then((res) => {
           console.log("data is sent to the backend successfully", res);
+          setPostCount((prev) => prev+1)
         })
         .catch((err) => {
           console.log("there was an error while adding the post", err);
@@ -57,6 +59,7 @@ const CommunityRooms = () => {
           console.log(res.data.data.discussionData)
           setData(true);
           setError(false);
+          setPostCount(res.data.data.discussionData.length);
           setDiscussionList(res.data.data.discussionData);
         })
         .catch((err) => {
@@ -68,7 +71,7 @@ const CommunityRooms = () => {
 
     handleDataFetching();
     
-  }, [])
+  }, [postCount])
 
   return (
     <div>

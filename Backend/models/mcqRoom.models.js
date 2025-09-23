@@ -25,12 +25,7 @@ const mcqRoomSchema = new mongoose.Schema({
       userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
       username: String,
       score: { type: Number, default: 0 },
-      answers: [
-        {
-          option: String,
-          submittedAt: { type: Date, default: Date.now },
-        },
-      ],
+      timeTaken: { type: String },
     },
   ],
 });

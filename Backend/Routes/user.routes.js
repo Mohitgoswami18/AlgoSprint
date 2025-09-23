@@ -4,7 +4,6 @@ import { leaderboardStats } from "../controllers/user.controller.js";
 import { discussionDataFetcher } from "../controllers/user.controller.js";
 import { QuestionFetcher } from "../controllers/user.controller.js";
 import { mcqQuestionFetcher } from "../controllers/user.controller.js";
-import { updateProgress } from "../controllers/user.controller.js";
 import { CreateRoom } from "../controllers/user.controller.js";
 import { findQuestionFromBackend } from "../controllers/user.controller.js";
 import { updateUserName } from "../controllers/user.controller.js";
@@ -17,6 +16,10 @@ import { updateMcqRoomDetails } from "../controllers/user.controller.js";
 import { findMcqQuestionsFromBackend } from "../controllers/user.controller.js";
 import {UpdateUserProfilePicture} from "../controllers/user.controller.js"
 import { discussionDataUpation } from "../controllers/user.controller.js";
+import { updateRoomParticipantsDetails } from "../controllers/user.controller.js"
+import {fetchParticipants} from "../controllers/user.controller.js"
+import { updateMcqRoomParticipantDetails } from "../controllers/user.controller.js";
+import { fetchmcqParticipants } from "../controllers/user.controller.js";
 
 const router = Router();
 
@@ -31,17 +34,24 @@ router.route("/user/rooms/createNewRoom").post(CreateRoom);
 router.route("/user/rooms/joinRoom").post(joinRoomHandler);
 router.route("/user/codingrooms/updateRoomDetails").post(updateRoomDetails);
 router
+  .route("/user/codingrooms/updateparticipantsdetails")
+  .post(updateRoomParticipantsDetails);
+router
   .route("/user/updateuserprofilepicture")
   .post(upload.single("profilePic"), UpdateUserProfilePicture);
 router
   .route("/user/codingrooms/arena/getProblems")
   .get(findQuestionFromBackend);
+router.route("/user/rooms/participants").get(fetchParticipants);
 router.route("/user/mcqrooms/createmcqroom").post(createMcqRoom);
 router.route("/user/mcqrooms/joinmcqroom").post(mcqRoomJoiningHandler);
 router.route("/user/mcqrooms/updateroomdetails").post(updateMcqRoomDetails);
 router
+  .route("/user/mcqrooms/updateroomparticipantsdetails")
+  .post(updateMcqRoomParticipantDetails);
+router
   .route("/user/mcqrooms/arena/getProblems")
   .get(findMcqQuestionsFromBackend);
-router.route("/user/updateRatings").post(updateProgress);
+router.route("/user/mcqrooms/getmcqparticipants").get(fetchmcqParticipants);
 
 export default router;

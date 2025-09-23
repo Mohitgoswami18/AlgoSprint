@@ -4,12 +4,10 @@ import { User } from "../models/user.model.js";
 import { Match } from "../models/match.model.js";
 import { Discuss } from "../models/discuss.model.js";
 import { Problem } from "../models/problem.model.js";
-import { Ranking } from "../models/ranking.model.js";
 import { mcqRoom } from "../models/mcqRoom.models.js";
 import { Question } from "../models/mcq.model.js";
 import uploadToCloudinary from "../Utils/cloudinary.js";
 import { Room } from "../models/room.model.js";
-import path from "node:path";
 
 const dashboardController = async (req, res, next) => {
   try {
@@ -18,58 +16,55 @@ const dashboardController = async (req, res, next) => {
       throw new ApiError(404, "User Not Found in the request parameters");
     }
 
-    const userData = await User.findOne({ username })
-      .populate({
-        path: "ratingHistory",
-      })
-      .populate({
-        path: "matches",
-        select: "style results players date",
-        options: { sort: { date: -1 } },
-      });
+    const userData = await User.findOne({ username }).populate("ratingHistory");
     if (!userData) {
       throw new ApiError(404, "User Not Found");
     }
 
-    const formattedRatings = userData.ratingHistory[0]?.ratings;
-    console.log(formattedRatings)
-    const formattedMatches = userData.matches.map((match) => {
-      const userResult = match.results.find(
-        (r) => r.user.toString() === userData._id.toString()
+    console.log(userData)
+
+    const recentMatches = await Room.find({
+      "participants.userId": userData._id,
+    })
+      .sort({ date: -1 })
+      .limit(10); 
+
+
+    const formattedRatings = userData.ratingHistory?.ratings || [];
+
+    const formattedMatches = recentMatches.map((match) => {
+      const userResult = match.participants.find(
+        (r) => r.userId.toString() === userData._id.toString()
       );
 
       return {
         style: match.style,
-        participants: match.players.length - 1,
+        participants: match.participants.length,
         outcome: userResult?.outcome || "N/A",
         xpGained: userResult?.ratingChange || 0,
         date: match.date,
       };
     });
 
-    const playstyle = await Match.aggregate([
+    const playstyle = await Room.aggregate([
       {
         $match: {
-          players: userData._id, 
+          "participants.userId": userData._id,
         },
       },
       {
         $group: {
           _id: "$style",
-          countPlayStyle: { $sum: 1 }, 
+          countPlayStyle: { $sum: 1 },
         },
       },
-      {
-        $sort: { countPlayStyle: -1 },
-      },
-      {
-        $limit: 1,
-      },
+      { $sort: { countPlayStyle: -1 } },
+      { $limit: 1 },
     ]);
-
 
     res.status(200).json(
       new ApiResponse(200, "User Fetched !", {
+        userid: userData._id,
         username: userData.username,
         title: userData.title,
         level: userData.level,
@@ -85,7 +80,7 @@ const dashboardController = async (req, res, next) => {
           : 0,
         winStreak: userData.winStreak,
         maximumRatings: userData.highestRating,
-        playstyle: playstyle,
+        playstyle: playstyle[0]?._id || "N/A", // most played style
         recentMatches: formattedMatches,
         ratingHistory: formattedRatings,
       })
@@ -132,6 +127,8 @@ const updateUserName = async (req, res, next) => {
 
 
 const UpdateUserProfilePicture = async (req, res, next) => {
+
+  console.log("insidde the unage updation conteoller")
   try {
     const { username } = req.body;
     if (!username) {
@@ -302,176 +299,12 @@ const QuestionFetcher = async (req, res) => {
   }
 };
 
-const updateProgress = async (req, res) => {
-  console.log("Inside the updateProgress controller");
-  if (!req.body) {
-    throw new ApiError(404, "Request body not found");
-  }
-  const {
-    style,
-    participants,
-    username,
-    result,
-    position,
-    matchIdentifier,
-    startTime,
-    duration,
-  } = req.body;
-
-  if (!position || !participants || !style || !result || !matchIdentifier) {
-    throw new ApiError(400, "not sufficient data found in the request body");
-  }
-
-  // UPDATING MATCH LOGIC
-
-  const players = await Promise.all(
-    participants.map(async (elem) => {
-      const currentPlayer = await User.findOne({ username: elem.username });
-      console.log("Found the current participants of this room")
-      if (!currentPlayer)
-        throw new ApiError(404, `User not found: ${elem.username}`);
-      return currentPlayer._id;
-    })
-  );
-
-  const playerResultDetails = participants.map((elem, idx) => ({
-    user: players[idx],
-    score: elem.score,
-    outcome: elem.outcome,
-    ratingChange:
-      result === "WIN"
-        ? Math.floor(100 / position)
-        : -Math.floor(position * 10),
-  }));
-
-  const existingMatch = await Match.findOne({ matchIdentifier });
-  let updatingTheMatchDetails;
-
-  if (existingMatch) {
-    if (existingMatch.matchStatus !== "final") {
-      updatingTheMatchDetails = existingMatch;
-    }
-  } else {
-    updatingTheMatchDetails = await Match.create({
-      startTime: startTime,
-      duration: duration,
-      players,
-      style,
-      results: playerResultDetails,
-      matchIdentifier,
-    });
-  }
-
-  if (!updatingTheMatchDetails) {
-    throw new ApiError(
-      500,
-      "An error occurred while updating the match details"
-    );
-  }
-
-  const userDetails = await User.findOne({ username: username });
-  if (!userDetails) {
-    throw new ApiError(404, "User not found");
-  }
-
-  userDetails.totalBattles = userDetails.totalBattles + 1;
-  userDetails.matches.push(updatingTheMatchDetails._id);
-
-  const normalizedResult = result.toUpperCase();
-  if (normalizedResult === "WIN") {
-    userDetails.xp += 15;
-    if (userDetails.xp >= userDetails.totalXp) {
-      userDetails.level += 1;
-      userDetails.xp = userDetails.xp - userDetails.totalXp;
-      userDetails.totalXp += 50;
-    }
-    userDetails.totalWins = userDetails.totalWins + 1;
-    userDetails.winStreak = userDetails.winStreak + 1;
-    userDetails.currentRating += Math.floor(100 / position);
-    if (userDetails.currentRating > userDetails.highestRating) {
-      userDetails.highestRating = userDetails.currentRating;
-    }
-  } else if (normalizedResult === "LOSE") {
-    userDetails.winStreak = 0;
-    userDetails.xp += 5;
-    if (userDetails.xp >= userDetails.totalXp) {
-      userDetails.level += 1;
-      userDetails.xp = userDetails.xp - userDetails.totalXp;
-      userDetails.totalXp += 50;
-    }
-    userDetails.currentRating -= Math.floor(position * 10);
-    if (userDetails.currentRating < 0) {
-      userDetails.currentRating = 0;
-    }
-  } else {
-    throw new ApiError(404, "invalid match result passed to the request body");
-  }
-
-  const currentRatingOfUser = userDetails.currentRating;
-  let userRank;
-
-  if (currentRatingOfUser === 0) {
-    userRank = "unRanked";
-  } else if (currentRatingOfUser > 0 && currentRatingOfUser <= 100) {
-    userRank = "Bronze";
-  } else if (currentRatingOfUser > 100 && currentRatingOfUser <= 300) {
-    userRank = "Silver";
-  } else if (currentRatingOfUser > 300 && currentRatingOfUser <= 500) {
-    userRank = "Gold";
-  } else if (currentRatingOfUser > 500 && currentRatingOfUser <= 1000) {
-    userRank = "Platinum";
-  } else if (currentRatingOfUser > 1000 && currentRatingOfUser <= 1500) {
-    userRank = "Diamond";
-  } else if (currentRatingOfUser > 1500 && currentRatingOfUser <= 2000) {
-    userRank = "Ace";
-  } else {
-    userRank = "Legend";
-  }
-
-  userDetails.rank = userRank;
-
-  // UPDATING THE RANKING LOGIC
-  let playerRankDetails = await Ranking.findOne({ userId: userDetails._id });
-
-  if (!playerRankDetails) {
-    playerRankDetails = await Ranking.create({
-      userId: userDetails._id,
-      ratings: [{ value: userDetails.currentRating, date: new Date() }],
-    });
-  } else {
-    playerRankDetails.ratings.push({
-      value: userDetails.currentRating,
-      date: new Date(),
-    });
-    await playerRankDetails.save();
-  }
-
-  userDetails.ratingHistory.push(playerRankDetails._id);
-
-  await userDetails.save();
-  await Match.updateOne(
-    {
-      matchIdentifier,
-      "results.user": userDetails._id,
-      "results.updated": false,
-    },
-    { $set: { "results.$.updated": true } }
-  );
-
-  return res.status(200).json({
-    success: true,
-    message: "Progress updated successfully",
-    user: userDetails,
-    match: updatingTheMatchDetails,
-  });
-};
-
 const CreateRoom = async (req, res) => {
   try {
-    const { roomCode, username } = req.body;
+    const { roomCode, username, style } = req.body;
 
-    if (!roomCode || !username) {
-      return res
+    if (!roomCode || !username || !style) {
+      return style
         .status(200)
         .json(
           new ApiResponse(
@@ -492,6 +325,7 @@ const CreateRoom = async (req, res) => {
         userId: userData,
         username: username,
       },
+      style,
     };
 
     const UpdatingToDatabase = await Room.create(userRoomDetail);
@@ -593,22 +427,26 @@ const findQuestionFromBackend = async (req, res) => {
 
 const updateRoomDetails = async (req, res) => {
   try {
-    const { roomCode, time, questions } = req.body;
+    const { roomCode, time, questions} = req.body;
 
-    if (!roomCode || !questions || !time) {
-      throw new ApiError(404, "Required data not found in the request body");
+    if(!roomCode) {
+      throw new ApiError(200, "roomId not found in the request body");
     }
 
-    console.log(time, roomCode, questions);
+    const updatingBody = {};
+    if(time) {
+      updatingBody.startTime  = Date.now();
+      updatingBody.endTime = Date.now() + time * 1000 + 120; // For Safety 
+    }
+
+    if(questions?.length > 0) {
+      updatingBody.question = questions
+    }
 
     const roomDetails = await Room.findOneAndUpdate(
       { roomCode },
       {
-        $set: {
-          startTime: Date.now(),
-          endTime: Date.now() + time * 1000,
-          question: questions,
-        },
+        $set: updatingBody,
       },
       { new: true }
     );
@@ -626,6 +464,84 @@ const updateRoomDetails = async (req, res) => {
     console.log("an unexpected Error occured", error);
   }
 };
+
+const fetchParticipants = async (req, res) => {
+  try {
+
+    console.log("inside fetch Controller")
+    const {roomid} = req.query;
+    console.log("got the room id")
+
+    if(!roomid) {
+      throw new ApiError(404, "roomid not found in the request parameters");
+    }
+
+    console.log("finding the room with room id")
+    const roomParticipantDetails = await Room.findOne({roomCode:roomid});
+
+    if(!roomParticipantDetails) {
+      throw new ApiError(500, "there was an error while fetchig the room details")
+    }
+
+    res.status(200).json(new ApiResponse(200, "participants list fetched successfully", {
+      participants: roomParticipantDetails.participants
+    }))
+  } catch (error) {
+    console.log("There is an unexpected error ", error);
+    throw new ApiError(500, "internal server error");
+  }
+}
+
+const updateRoomParticipantsDetails = async (req, res) => {
+  try {
+    const {
+      participantScore,
+      participantUsername,
+      participantTimeTaken,
+      roomCode,
+    } = req.body;
+
+    const roomDetails = await Room.findOne({ roomCode });
+    if (!roomDetails) {
+      throw new ApiError(404, "Room not found");
+    }
+
+    const participantIndex = roomDetails.participants.findIndex(
+      (p) => p.username === participantUsername
+    );
+
+    if (participantIndex === -1) {
+      throw new ApiError(404, "Participant not found");
+    }
+
+    roomDetails.participants[participantIndex].score = participantScore;
+    roomDetails.participants[participantIndex].timeTaken = participantTimeTaken;
+    roomDetails.participants[participantIndex].finished = true;
+
+    roomDetails.participants.sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      return a.timeTaken - b.timeTaken;
+    });
+
+    await roomDetails.save();
+
+    console.log("Room Details Updated:", roomDetails);
+
+    return res.status(200).json(
+      new ApiResponse(200, "Successfully updated room details", {
+        roomDetails,
+      })
+    );
+  } catch (error) {
+    console.error("An unexpected error occurred:", error);
+    return res.status(500).json(
+      new ApiResponse(500, "Internal server error", {
+        error: error.message,
+      })
+    );
+  }
+};
+
 
 //     ****************      MCQ ROOMS CONTROLLER        ********************       //
 const createMcqRoom = async (req, res) => {
@@ -837,6 +753,110 @@ const findMcqQuestionsFromBackend = async (req, res) => {
   );
 };
 
+const updateMcqRoomParticipantDetails = async (req, res) => {
+  try {
+    const {
+      participantScore,
+      participantUsername,
+      participantTimeTaken,
+      roomCode,
+    } = req.body;
+
+    const userDetails = await User.findOne({ username: participantUsername });
+
+    console.log(
+      participantScore,
+      participantTimeTaken,
+      participantUsername,
+      roomCode
+    );
+
+    // Add roomCode to required fields check
+    // if (
+    //   !participantScore ||
+    //   !participantUsername ||
+    //   !participantTimeTaken ||
+    //   !roomCode
+    // ) {
+    //   throw new ApiError(404, "Required data not found in the request body");
+    // }
+
+    console.log("Findinf the room");
+
+    const roomDetails = await mcqRoom.findOneAndUpdate(
+      { roomCode },
+      {
+        $push: {
+          participants: {
+            userId: userDetails._id,
+            username: participantUsername,
+            score: participantScore,
+            timeTaken: participantTimeTaken,
+          },
+        },
+      },
+      { new: true }
+    );
+
+    console.log("Goind trhe room");
+
+    if (!roomDetails) {
+      throw new ApiError(500, "Room not found or internal server error");
+    }
+
+    console.log("Room Details Updated:", roomDetails);
+
+    roomDetails.participants.sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      return a.timeTaken - b.timeTaken;
+    });
+
+    return res.status(200).json(
+      new ApiResponse(200, "Successfully updated room details", {
+        roomDetails,
+      })
+    );
+  } catch (error) {
+    console.error("An unexpected error occurred:", error);
+    return res.status(500).json(
+      new ApiResponse(500, "Internal server error", {
+        error: error.message,
+      })
+    );
+  }
+};
+
+const fetchmcqParticipants = async (req, res) => {
+  try {
+    console.log("inside fetch Controller");
+    const { roomid } = req.query;
+    console.log("got the room id");
+
+    if (!roomid) {
+      throw new ApiError(404, "roomid not found in the request parameters");
+    }
+
+    console.log("finding the room with room id");
+    const roomParticipantDetails = await mcqRoom.findOne({ roomCode: roomid });
+
+    if (!roomParticipantDetails) {
+      throw new ApiError(
+        500,
+        "there was an error while fetchig the room details"
+      );
+    }
+
+    res.status(200).json(
+      new ApiResponse(200, "participants list fetched successfully", {
+        participants: roomParticipantDetails.participants,
+      })
+    );
+  } catch (error) {
+    console.log("There is an unexpected error ", error);
+    throw new ApiError(500, "internal server error");
+  }
+};
+
 export {
   dashboardController,
   updateUserName,
@@ -845,7 +865,6 @@ export {
   discussionDataFetcher,
   QuestionFetcher,
   mcqQuestionFetcher,
-  updateProgress,
   CreateRoom,
   findMcqQuestionsFromBackend,
   findQuestionFromBackend,
@@ -855,4 +874,8 @@ export {
   mcqRoomJoiningHandler,
   updateMcqRoomDetails,
   discussionDataUpation,
+  updateRoomParticipantsDetails,
+  fetchParticipants,
+  updateMcqRoomParticipantDetails,
+  fetchmcqParticipants,
 };

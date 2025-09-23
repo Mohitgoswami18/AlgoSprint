@@ -12,6 +12,16 @@ const roomSchema = new mongoose.Schema({
       ref: "Problem",
     },
   ],
+  matchStatus: {
+    type: String,
+    enum: ["pending", "final"],
+    default: "pending",
+  },
+  style: {
+    type: String,
+    required: true,
+    enum: ["blitz", "rapid", "classical", "Rapidfire"],
+  },
   startTime: {
     type: Date,
     default: null,
@@ -25,16 +35,14 @@ const roomSchema = new mongoose.Schema({
       userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
       username: String,
       score: { type: Number, default: 0 },
-      submissions: [
-        {
-          code: String,
-          language: String,
-          status: String,
-          submittedAt: { type: Date, default: Date.now },
-        },
-      ],
+      outcome: { type: String, enum: ["WIN", "LOSE"] },
+      timeTaken: { type: String },
+      ratingChange: { type: Number, default: 0 },
+      updated: { type: Boolean, default: false },
+      finished: { type: Boolean, default: false },
     },
   ],
+  date: { type: Date, default: Date.now },
 });
 
-export const Room = mongoose.model("Room", roomSchema)
+export const Room = mongoose.model("Room", roomSchema);

@@ -70,15 +70,14 @@ const userSchema = new Schema(
     matches: [
       {
         type: Schema.Types.ObjectId,
-        ref: "Match",
+        ref: "Room",
       },
     ],
-    ratingHistory: [
+    ratingHistory:
       {
         type: Schema.Types.ObjectId,
         ref: "Ranking",
       },
-    ],
   },
   { timestamps: true }
 );

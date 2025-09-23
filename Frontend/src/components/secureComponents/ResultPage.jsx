@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import { initialiseSocket } from "../../socket.io";
 import axios from "axios";
@@ -12,7 +12,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { v4 as uuid } from "uuid";
 import CountdownTimer from "../Stopwatch";
 
 const ResultPage = () => {
@@ -22,24 +21,42 @@ const ResultPage = () => {
   const navigate = useNavigate();
 
   const roomid = params.roomid;
-  const style = location.state.style;
-  const timeTake = location.state.timeTake
+  const score = location.state.score;
+  const timeTake = location.state.timeTaken;
+  console.log(timeTake, score);
   const totalParticipants = location.state.totalParticipants;
-  const problemFinished = location.state.problemFinished;
   const startTime = location.state.startTime;
+  console.log("FERGFRG", startTime);
   const realUsername = location.state?.realUsername;
+  console.log(realUsername);
   const username = location.state?.username || "bot";
-  const totalTime = location.state?.time || 120; // total match time
+  const totalTime = location.state?.time || 120;
 
   const [userProfile, setUserProfile] = useState({});
   const [userFinished, setUserFinished] = useState([]);
-  console.log(realUsername)
+  const [backendCallMade, setBackendCallMade] = useState(false);
 
-  const timeLeft = startTime + totalTime - Math.floor(Date.now() / 1000); 
+  const timeLeft = startTime + totalTime - Math.floor(Date.now() / 1000);
 
-  // Fetch user profile
+  const determineOutcome = (position, totalParticipants) => {
+    const winnerThreshold = Math.max(1, Math.ceil(totalParticipants / 2));
+    return position <= winnerThreshold ? "WIN" : "LOSE";
+  };
+
+  const calculateRatingChange = (outcome, position, totalParticipants) => {
+    if (outcome === "WIN") {
+      return Math.max(10, 100 - (position - 1) * 10);
+    } else {
+      const lossMultiplier = Math.min(
+        10,
+        position - Math.ceil(totalParticipants / 2)
+      );
+      return -Math.max(10, 20 * lossMultiplier);
+    }
+  };
+  
   useEffect(() => {
-    console.log("We are fetching the user dashboard")
+    console.log("We are fetching the user dashboard", realUsername);
     const fetchUserProfile = async () => {
       try {
         const res = await axios.get(
@@ -51,7 +68,7 @@ const ResultPage = () => {
           }
         );
 
-        console.log(res)
+        console.log(res);
         setUserProfile(res.data.data);
       } catch (err) {
         console.log("An error occurred fetching user profile", err);
@@ -59,52 +76,60 @@ const ResultPage = () => {
     };
     fetchUserProfile();
   }, [realUsername]);
-
-  // Initialize sockets after userProfile is loaded
   useEffect(() => {
     if (!userProfile.username) return;
 
     const connectToSockets = async () => {
       socketRef.current = await initialiseSocket();
-      socketRef.current.emit("userJoin", { roomid, username });
 
-      socketRef.current.on("userJoined", ({ connectedPlayers }) => {
-        setUserFinished((prev) => {
-          const newUsers = connectedPlayers
-            .filter((elem) => !prev.some((p) => p.user === elem._id))
-            .map((elem, idx) => {
-              const score = (elem.questionSolved || 0) * 10;
-              const position = prev.length + idx + 1;
-              const outcome =
-                position <= Math.ceil(totalParticipants * 0.1 + Math.floor(totalParticipants/2)) ? "WIN" : "LOSE";
-              const ratingChange =
-                outcome === "WIN" ? 100 / position : -100 * position;
+      socketRef.current.emit("userFinished", {
+        roomid,
+        username: realUsername,
+        score,
+        timeTaken: timeTake,
+      });
 
-              return {
-                user: elem._id,
-                username: realUsername,
-                timeTaken: timeTake,
-                position,
-                score,
-                outcome,
-                questionSolved: problemFinished,
-                ratingChange,
-              };
-            });
-
-          const updatedUsers = [...prev, ...newUsers];
-
-          const currentUserResult = updatedUsers.find(
-            (p) => p.username === realUsername
-          )?.outcome;
-
-          if (newUsers.some((p) => p.username === realUsername)) {
-            sendResultsToBackend(updatedUsers, currentUserResult);
+      socketRef.current.on(
+        "playerConnectedToTheWaitingArea",
+        async ({ newPlayerData, allWaitingPlayers }) => {
+          try {
+            console.log(typeof userProfile.userid, "fiudshguhodhs");
+            await axios.post(
+              `http://localhost:8000/api/v1/user/codingrooms/updateparticipantsdetails`,
+              {
+                roomCode: String(roomid),
+                participantTimeTaken: String(newPlayerData.timeTaken),
+                participantUsername: newPlayerData.username,
+                participantScore: newPlayerData.score,
+              }
+            )
+          } catch (error) {
+            console.error("Error managing room:", error);
           }
 
-          return updatedUsers;
-        });
-      });
+
+          setUserFinished((prev) => {
+            // Check if participant already exists
+            const exists = prev.find(
+              (p) => p.username === newPlayerData.username
+            );
+            if (exists) return prev; // skip adding again
+
+            const updatedList = [...prev, { ...newPlayerData, finished: true }];
+
+            // Sort by score/time
+            updatedList.sort(
+              (a, b) => b.score - a.score || a.timeTaken - b.timeTaken
+            );
+
+            // Assign positions
+            return updatedList.map((p, index) => ({
+              ...p,
+              position: index + 1,
+            }));
+          });
+        }
+      );
 
       socketRef.current.on("connect_error", (err) =>
         console.log("Socket error:", err)
@@ -116,39 +141,50 @@ const ResultPage = () => {
 
     connectToSockets();
 
-    return () => socketRef.current?.disconnect();
-  }, [userProfile, roomid, totalParticipants]);
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.emit("leaveTheWaitingArea", {
+          username: realUsername,
+          roomid,
+        });
+        socketRef.current.disconnect();
+      }
+    };
+  }, [userProfile, roomid, realUsername, score, timeTake]);
 
-  // Send results to backend
-  const sendResultsToBackend = async (participants, resultOfTheCurrentUser) => {
-    const dataForBackendRequestBody = {
-      style,
-      username: realUsername,
-      position: problemFinished,
-      result: resultOfTheCurrentUser,
-      participants, 
-      matchIdentifier: uuid(),
-      startTime,
-      duration: totalTime,
+  useEffect(() => {
+    // Fetch the current room participants
+    console.log("FEtCHING ksjdhfvliduhvuhzvjnzuvhlzdvn;uvh")
+    const fetchRoomParticipants = async () => {
+      console.log("INSIDE THE FECTHIN USER PARTICIPANT API CALL FUNCTION")
+      try {
+        console.log("fetching paetucipants")
+        const response = await axios.get(
+          `http://localhost:8000/api/v1/user/rooms/participants`,
+          {
+            params: { roomid },
+          }
+        );
+
+        console.log(response);
+        const participants = response.data.data.participants
+          .filter((participant) => participant.finished === true)
+          .map((participant, index) => ({
+            ...participant,
+            position: index + 1,
+          }));
+
+
+        setUserFinished(participants);
+      } catch (error) {
+        console.error("Error fetching room participants:", error);
+      }
     };
 
+    fetchRoomParticipants();
+  }, [roomid]);
 
-    console.log(
-      "SEnding this data into the backend \n\n\n\n\n\n",
-      dataForBackendRequestBody,
-      "\n\n\n\n\n\n\n"
-    );
-
-    try {
-      const res = await axios.post(
-        "http://localhost:8000/api/v1/user/updateRatings",
-        dataForBackendRequestBody
-      );
-      console.log("Successfully updated user data:", res.data);
-    } catch (err) {
-      console.log("Error updating result:", err);
-    }
-  };
+  console.log(userFinished)
 
 
   return (
@@ -169,7 +205,7 @@ const ResultPage = () => {
             <TableRow>
               <TableHead className="w-[10%]">Rank</TableHead>
               <TableHead className="w-[20%]">User</TableHead>
-              <TableHead>Questions Solved</TableHead>
+              <TableHead>Qscore</TableHead>
               <TableHead>Time Taken</TableHead>
             </TableRow>
           </TableHeader>
@@ -177,9 +213,13 @@ const ResultPage = () => {
             {userFinished.map((elem, idx) => (
               <TableRow key={idx} className="text-start">
                 <TableCell>{elem.position}</TableCell>
-                <TableCell>{elem.username}</TableCell>
-                <TableCell>{elem.questionSolved}</TableCell>
-                <TableCell>{elem.timeTaken}</TableCell>
+                <TableCell
+                  className={elem.username === realUsername ? "font-bold" : ""}
+                >
+                  {elem.username}
+                </TableCell>
+                <TableCell>{elem.score}</TableCell>
+                <TableCell>{elem.timeTaken}s</TableCell>
               </TableRow>
             ))}
           </TableBody>

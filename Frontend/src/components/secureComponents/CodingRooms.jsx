@@ -63,6 +63,7 @@ const CodingRooms = () => {
       {
         roomCode: roomid,
         username: realUsername,
+        style: settings.playStyle,
       }
     );
     
@@ -99,7 +100,12 @@ const CodingRooms = () => {
       return;
     }
       navigate(`/codingroom/${roomid}/lobby`, {
-        state: { username, settings },
+        state: {
+          realUsername,
+          username,
+          settings,
+          redirectedFrom: "codingRoom",
+        },
       });
   }
 

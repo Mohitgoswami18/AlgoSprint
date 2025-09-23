@@ -92,7 +92,7 @@ const CodingLobby = () => {
   };
 
   useEffect(() => {
-    // if (players.length < 2) return;
+    if (players.length < 2) return;
 
     for (let i = 0; i < players.length; i++) {
       if (!players[i].ready) return;
