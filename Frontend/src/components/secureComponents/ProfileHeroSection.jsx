@@ -17,9 +17,9 @@ const ProfileHeroSection = () => {
   const {user} = useUser();
   const username = user?.username;
 
-  if(!username) {
+  if (!username) {
     console.log("No username given");
-    // RETURN FROM HERE AFTER TESTING
+    return;
   }
 
   const HandleSignOut = () => {
@@ -51,7 +51,7 @@ const ProfileHeroSection = () => {
       {/* Navigation Links */}
       <div className="pr-4 gap-3 justify-between flex flex-col basis-[70%]">
         <NavLink
-          to={"/user/dashboard"}
+          to={`/${username}/dashboard`}
           className="list-none transition-all duration-300 flex gap-2 items-center justify-start hover:bg-black/20 dark:hover:bg-white/6 rounded-md px-3 py-[12px] text-sm text-black dark:text-white"
         >
           <TbLayoutDashboardFilled className="text-xl" />

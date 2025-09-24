@@ -29,33 +29,15 @@ const ResultPage = () => {
   const totalParticipants = location.state.totalParticipants;
   const startTime = location.state.startTime;
   console.log("FERGFRG", startTime);
-  const realUsername = location.state?.realUsername;
+  const realUsername = location.state?.username;
   console.log(realUsername);
   const username = location.state?.username || "bot";
   const totalTime = location.state?.time || 120;
 
   const [userProfile, setUserProfile] = useState({});
   const [userFinished, setUserFinished] = useState([]);
-  const [backendCallMade, setBackendCallMade] = useState(false);
 
   const timeLeft = startTime + totalTime - Math.floor(Date.now() / 1000);
-
-  const determineOutcome = (position, totalParticipants) => {
-    const winnerThreshold = Math.max(1, Math.ceil(totalParticipants / 2));
-    return position <= winnerThreshold ? "WIN" : "LOSE";
-  };
-
-  const calculateRatingChange = (outcome, position, totalParticipants) => {
-    if (outcome === "WIN") {
-      return Math.max(10, 100 - (position - 1) * 10);
-    } else {
-      const lossMultiplier = Math.min(
-        10,
-        position - Math.ceil(totalParticipants / 2)
-      );
-      return -Math.max(10, 20 * lossMultiplier);
-    }
-  };
 
   useEffect(() => {
     console.log("We are fetching the user dashboard", realUsername);
@@ -107,13 +89,27 @@ const ResultPage = () => {
                 participantScore: newPlayerData.score,
               }
             );
-
-            setUserFinished((prev) => {
-              return [...prev, newPlayerData];
-            });
           } catch (error) {
             console.error("Error managing room:", error);
           }
+
+          setUserFinished((prev) => {
+            const exists = prev.find(
+              (p) => p.username === newPlayerData.username
+            );
+            if (exists) return prev;
+
+            const updatedList = [...prev, { ...newPlayerData, finished: true }];
+
+            updatedList.sort(
+              (a, b) => b.score - a.score || a.timeTaken - b.timeTaken
+            );
+
+            return updatedList.map((p, index) => ({
+              ...p,
+              position: index + 1,
+            }));
+          });
         }
       );
 
@@ -136,7 +132,7 @@ const ResultPage = () => {
         socketRef.current.disconnect();
       }
     };
-  }, []);
+  }, [userProfile, roomid, realUsername, score, timeTake]);
 
   useEffect(() => {
     // Fetch the current room participants
@@ -151,16 +147,12 @@ const ResultPage = () => {
         );
 
         console.log(response);
-        const participants = response.data.data.participants.map(
-          (participant, index) => {
-            const position = index + 1;
-            return {
-              ...participant,
-              position,
-              timeTaken: timeTake
-            };
-          }
-        );
+        const participants = response.data.data.participants
+          .filter((participant) => participant.finished === true)
+          .map((participant, index) => ({
+            ...participant,
+            position: index + 1,
+          }));
 
         setUserFinished(participants);
       } catch (error) {
@@ -169,7 +161,7 @@ const ResultPage = () => {
     };
 
     fetchRoomParticipants();
-  }, []);
+  }, [roomid]);
 
   return (
     <div className="font-[Inter] py-6">
@@ -187,7 +179,7 @@ const ResultPage = () => {
           <TableCaption>User Finished</TableCaption>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[10%]">Rank</TableHead>
+              <TableHead className="w-[10%]">srNo.</TableHead>
               <TableHead className="w-[20%]">User</TableHead>
               <TableHead>Qscore</TableHead>
               <TableHead>Time Taken</TableHead>

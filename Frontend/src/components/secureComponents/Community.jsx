@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/Button";
 import {useParams} from "react-router-dom"
+import { useUser } from "@clerk/clerk-react"
+import {useNavigate} from "react-router-dom"
 import Loader from "../Loader"
 import axios from "axios";
 
@@ -17,6 +19,20 @@ const CommunityRooms = () => {
   const params = useParams();
   const [postCount, setPostCount] = useState(0);
   const username = params.username;
+  const user = useUser();
+  const navigate = useNavigate();
+
+  if(!user) {
+    return
+  }
+
+  // console.log("Your real username is ", user.username)
+  // console.log("you are trying to access the component of ", username)
+
+  if (user.user.username !== username) {
+    console.log("Not your component you are being redirected...");
+    navigate(`/${user.user.username}/codingrooms`);
+  }
 
   let discussionData = [];
   if(discussionsList.length > 0 && data ) {
@@ -53,7 +69,9 @@ const CommunityRooms = () => {
   useEffect(()=>{
     const handleDataFetching = async () => {
       await axios
-        .get("http://localhost:8000/api/v1/user/discussion")
+        .get("http://localhost:8000/api/v1/user/discussion",
+          {params: {username: username}}
+        )
         .then((res) => {
           console.log("data fetched")
           console.log(res.data.data.discussionData)

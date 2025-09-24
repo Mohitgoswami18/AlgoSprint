@@ -18,6 +18,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Loader from "../Loader"
+import {useUser} from "@clerk/clerk-react"
 
 const McqRooms = () => {
 
@@ -27,11 +28,20 @@ const McqRooms = () => {
   console.log(realUsername)
   const [roomid, setRoomid] = useState("");
   const [loading, setLoading] = useState(false);
+  const user = useUser();
   const [joinLoading, setJoinLoading] = useState(false);
   const handleUuid = () => {
     const id = uuid();
     return id;
   };
+
+  if (!user) {
+    return;
+  }
+ if (user.user.username !== realUsername) {
+   console.log("Not your component you are being redirected...");
+   navigate(`/${user.user.username}/codingrooms`);
+ }
 
   
   const quizList = [
@@ -115,7 +125,7 @@ const McqRooms = () => {
     setLoading(false)
 
     navigate(`/mcq/${roomid}/lobby`, {
-      state: { realUsername: realUsername, topic: event, time:1200 },
+      state: { username: realUsername, topic: event, time:1200 },
     });
   }
 

@@ -9,10 +9,13 @@ import App from './App.jsx'
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
 createRoot(document.getElementById("root")).render(
-    <BrowserRouter>
-      <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
-        <Toaster position="top-center" />
-        <App />
-      </ClerkProvider>
-    </BrowserRouter>
+  <BrowserRouter>
+    <ClerkProvider
+      publishableKey={PUBLISHABLE_KEY}
+      navigate={(to) => window.history.pushState(null, "", to)}
+    >
+      <Toaster position="top-center" />
+      <App />
+    </ClerkProvider>
+  </BrowserRouter>
 );

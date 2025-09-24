@@ -1,8 +1,9 @@
 import { RiUserCommunityFill } from "react-icons/ri";
-import { Button } from "@/components/ui/button"
-import { useState } from "react"
-import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { v4 as uuid } from "uuid";
+import { useUser } from "@clerk/clerk-react";
 import {
   Card,
   CardContent,
@@ -15,25 +16,34 @@ import {
 import { Input } from "@/components/ui/input";
 
 const CollaborativeRooms = () => {
+  const params = useParams();
+  const [username, setUsername] = useState("");
+  const [roomid, setRoomid] = useState("");
+  const realUsername = params.username;
+  const user = useUser();
 
-  const [username, setUsername] = useState("")
-  const [roomid, setRoomid] = useState("")
+  if (!user) {
+    return;
+  }
+
+   if (user.user.username !== realUsername) {
+     console.log("Not your component you are being redirected...");
+     navigate(`/${user.user.username}/codingrooms`);
+   }
 
   const handleUuid = () => {
     const id = uuid();
-    setRoomid(id)
-  }
+    setRoomid(id);
+  };
 
   const navigate = useNavigate();
   console.log(roomid);
-  
 
   const HandleJoin = () => {
-    navigate(`/room/${roomid}` , {
-      state: { username},
-    })
-
-  }
+    navigate(`/room/${roomid}`, {
+      state: { username },
+    });
+  };
 
   return (
     <div className="bg-slate-50 transition-all duration-500 dark:bg-black h-screen text-black dark:text-white font-[Inter] p-5">
@@ -77,8 +87,8 @@ const CollaborativeRooms = () => {
                       <Input
                         id="name"
                         type="text"
-                        value = {username} 
-                        onChange = {(e) => setUsername(e.target.value)}
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
                         placeholder="enter space name"
                         required
                       />
@@ -90,8 +100,8 @@ const CollaborativeRooms = () => {
                       <Input
                         id="roomid"
                         type="text"
-                        value = {roomid}
-                        onChange = {(e) => setRoomid(e.target.value)}
+                        value={roomid}
+                        onChange={(e) => setRoomid(e.target.value)}
                         placeholder="enter space id"
                         required
                         className="px-2"
@@ -102,11 +112,19 @@ const CollaborativeRooms = () => {
               </CardContent>
               <CardFooter className="flex-col gap-2 mt-4">
                 <p className="text-[12px]">
-                  Don't have a room id? <span className="text-cyan-500 cursor-pointer underline" 
-                  onClick={handleUuid}>create new id</span>
+                  Don't have a room id?{" "}
+                  <span
+                    className="text-cyan-500 cursor-pointer underline"
+                    onClick={handleUuid}
+                  >
+                    create new id
+                  </span>
                 </p>
-                <Button variant="personal" className="w-full"
-                onClick={HandleJoin}>
+                <Button
+                  variant="personal"
+                  className="w-full"
+                  onClick={HandleJoin}
+                >
                   join
                 </Button>
               </CardFooter>

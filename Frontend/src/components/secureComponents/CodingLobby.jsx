@@ -19,7 +19,8 @@ const CodingLobby = () => {
   const realUsername = location.state?.realUsername;
   const navigate = useNavigate();
   const topic = location.state?.topic || " ";
-  const settings = location.state?.settings || " ";
+  const [roomSettingData, setRoomSettingData] = useState([]);
+  const settings = location.state?.settings
   const time = settings.time || " ";
 
   console.log(settings)
@@ -35,6 +36,19 @@ const CodingLobby = () => {
 
       setInterval(()=> setCopied(false), 2000);
     }
+
+  useEffect(()=>{
+   
+    const findRoomSetting = async () => {
+      const res = await axios.get("http://localhost:8000/api/v1/user/codingroomsettings",
+      {params: {roomid}}
+      )
+      console.log(res.data.data);
+      setRoomSettingData([res.data.data.numberofQuestions, res.data.data.style]);
+    }
+
+    findRoomSetting();
+  }, [])
 
   useEffect(() => {
     const ConnectSocket = async () => {
@@ -134,11 +148,12 @@ const CodingLobby = () => {
             "http://localhost:8000/api/v1/user/codingrooms/arena/problems",
             {
               params: {
-                questions: settings?.numberOfProblems,
+                questions: Number (settings?.numberOfProblems),
               },
             }
           );
 
+          console.log(res)
           const codingQuestions = res.data.data.questions;
           setData(true);
 
@@ -176,6 +191,7 @@ const CodingLobby = () => {
           topic: topic,
           roomid,
           realUsername,
+          totalQuestions: roomSettingData[0],
           startTime: Math.floor(Date.now()/1000),
           totalParticipants: players.length
         },
@@ -203,8 +219,8 @@ const CodingLobby = () => {
 
       <div>
         <div className="text-center flex items-center gap-4 font-bold justify-center mt-4 text-slate-xinc-600">
-          <p>PlayStyle: {settings.playStyle}</p>
-          <p>Number of Problems: {settings.numberOfProblems}</p>
+          <p>PlayStyle: {roomSettingData[1]}</p>
+          <p>Number of Problems: {roomSettingData[0]}</p>
         </div>
       </div>
 
@@ -248,8 +264,11 @@ const CodingLobby = () => {
         >
           leave
         </Button>
-        <Button className="border-3 shadow-md" size="sm"
-        onClick={()=> handleCopyTask()}>
+        <Button
+          className="border-3 shadow-md"
+          size="sm"
+          onClick={() => handleCopyTask()}
+        >
           Copy Id
         </Button>
       </div>

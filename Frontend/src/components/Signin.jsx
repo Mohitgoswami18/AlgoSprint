@@ -1,41 +1,45 @@
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
-import { useSignIn, useUser} from "@clerk/clerk-react";
+import { useSignIn, useUser } from "@clerk/clerk-react";
 import google from "../assets/images/google.png";
 import { toast } from "sonner";
-import Loader from "./Loader"
+import Loader from "./Loader";
 import { useNavigate } from "react-router-dom";
 
 export default function Signin() {
-
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
-    const { signIn, setActive, isLoaded } = useSignIn();
-    const [googleLoading, setGoogleLoading] = useState(false);
-    const { user } = useUser();
-    const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const { signIn, setActive, isLoaded } = useSignIn();
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const { user } = useUser();
+  const navigate = useNavigate();
 
   const handleGoogleSignIn = async () => {
     try {
       setGoogleLoading(true);
-    await signIn.authenticateWithRedirect({
-      strategy: "oauth_google",
-      redirectUrl: "/sso-callback",
-      redirectUrlComplete: "/sso-callback",
-    });
+      await signIn.authenticateWithRedirect({
+        strategy: "oauth_google",
+        redirectUrl: "/sso-callback",
+        redirectUrlComplete: "/sso-callback",
+      });
     } catch (error) {
-      console.log("An error Occured", error);
+      console.log("An error occurred", error);
       toast.error("Login failed");
-      setGoogleLoading(false)
+      setGoogleLoading(false);
     }
-  }
+  };
 
-  const handleSignIn = async(e) => {
+  const handleSignIn = async (e) => {
     e.preventDefault();
     setLoading(true);
-    if(!isLoaded) return;
+    setError(""); // Clear previous errors
+
+    if (!isLoaded) {
+      setLoading(false);
+      return;
+    }
 
     try {
       const signinResult = await signIn.create({
@@ -45,7 +49,8 @@ export default function Signin() {
 
       if (signinResult.status === "complete") {
         await setActive({ session: signinResult.createdSessionId });
-        navigate("/sso-callback");
+        // Navigate to dashboard or home instead of sso-callback for regular sign-in
+        navigate("/dashboard"); // or wherever you want users to go after sign-in
       } else {
         toast.error("Sign-in incomplete. Please check your credentials.");
         setError("Sign-in failed. Please check your credentials.");
@@ -58,10 +63,10 @@ export default function Signin() {
       console.error("Sign-in error:", error);
       setLoading(false);
     }
-  }
+  };
 
   return (
-    <div className="flex font-[Inter] items-center justify-center bg-slate-50 dark:bg-black px-1 ">
+    <div className="flex font-[Inter] items-center justify-center bg-slate-50 dark:bg-black px-1">
       <div className="w-full max-w-sm ring-[0.5px] dark:ring-zinc-600 rounded-md bg-white dark:bg-zinc-900 backdrop-blur-2xl px-8 pt-2 shadow-lg pb-2">
         <h1 className="text-center font-[Inter] mt-2 text-3xl font-bold text-gray-900 dark:text-[#F7FAFC]">
           Welcome to AlgoSprint
@@ -89,7 +94,6 @@ export default function Signin() {
             />
           </div>
 
-          {/* Password Input */}
           <div className="mt-2 my-8 flex items-center justify-center">
             <label
               htmlFor="password"
@@ -108,18 +112,24 @@ export default function Signin() {
             />
           </div>
 
+          {/* Error Display */}
+          {error && (
+            <div className="mb-4 text-red-500 text-sm text-center">{error}</div>
+          )}
+
           <div className="mt-6 flex gap-3">
             <button
-              className="w-full cursor-pointer text-md rounded-lg bg-green-600 px-4 py-2 font-semibold text-white hover:bg-green-700 transition"
-              onClick={() => handleSignIn(e)}
+              type="submit"
+              disabled={loading}
+              className="w-full cursor-pointer text-md rounded-lg bg-green-600 px-4 py-2 font-semibold text-white hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Sign In
+              {loading ? <Loader /> : "Sign In"}
             </button>
           </div>
         </form>
 
         {/* Divider */}
-        <div className=" flex items-center my-4">
+        <div className="flex items-center my-4">
           <hr className="flex-grow border-gray-300 dark:border-gray-700" />
           <span className="px-2 text-sm text-gray-500 dark:text-gray-400">
             OR
@@ -129,23 +139,25 @@ export default function Signin() {
 
         {/* Social Login */}
         <button
-          className="w-full flex items-center h-8 cursor-pointer justify-center gap-2 rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-800 transition"
+          type="button"
+          className="w-full flex items-center h-8 cursor-pointer justify-center gap-2 rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-800 transition disabled:opacity-50"
           onClick={handleGoogleSignIn}
+          disabled={googleLoading}
         >
           {googleLoading ? (
             <Loader />
           ) : (
-            <div className="flex items-center justify-center">
+            <div className="flex items-center justify-center gap-2">
               <img src={google} alt="Google" className="w-5 h-5" />
-              "continue with google"
+              Continue with Google
             </div>
           )}
         </button>
 
         <p className="text-sm text-center mt-5">
-          new to AlgoSprint ?
+          New to AlgoSprint?
           <NavLink to={"/auth/signup"} className="text-indigo-500 pl-2">
-            sign up
+            Sign up
           </NavLink>
         </p>
       </div>

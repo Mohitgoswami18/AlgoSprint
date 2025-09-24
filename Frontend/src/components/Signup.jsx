@@ -17,7 +17,7 @@ export default function Signup() {
   const [pendingVerification, setPendingVerification] = useState(false);
   const [code, setCode] = useState("");
   const { isLoaded, setActive, signUp } = useSignUp();
-  const { user } = useUser; 
+  const { user } = useUser(); 
 
   const handleGoogleSignUp = async () => {
     setGoogleLoading(true);

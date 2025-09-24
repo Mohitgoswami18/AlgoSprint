@@ -41,6 +41,7 @@ const Playground = () => {
   const setting = location.state?.setting;
   const style = setting.playStyle;
   const username = location.state?.username;
+  const totalQuestions = location.state?.totalQuestions;
   const realUsername = location.state?.realUsername;
   console.log("the real username is", realUsername);
   const numberOfProblems = setting.numberOfProblems;
@@ -81,6 +82,8 @@ const Playground = () => {
     const savedTime = localStorage.getItem(`room_${roomid}_time`);
     return savedTime ? parseInt(savedTime) : setting.time || 3600;
   });
+
+  console.log(time)
   const [problems, setProblems] = useState([]);
   const [codeSubmitOutput, setCodeSubmitOutput] = useState(
     Array.from({ length: numberOfProblems }, () => [])
@@ -385,7 +388,7 @@ const Playground = () => {
   }, [questionDone]);
 
   return (
-    <div>
+    <div className="h-screen flex-col">
       <div className=" rounded-md flex font-[Inter] items-center p-4 pb-0 w-full">
         <div>
           <Select
@@ -464,70 +467,80 @@ const Playground = () => {
         </div>
       </div>
 
-      <div className="w-full h-[500px] p-4">
+      <div className="overflow-y-auto p-4 no-scrollbar">
         <ResizablePanelGroup
           direction="horizontal"
-          className="w-full px-4 border-2 rounded"
+          className="w-full h-full border-2 rounded"
         >
           <ResizablePanel
             defaultSize={40}
-            className=" border-r-3 overflow-auto border-zinc-600 dark:bg-white/4"
+            className=" border-r-3 min-h-[85vh] max-h-[85vh] border-zinc-600 dark:bg-white/10"
           >
             {loading ? (
               <Skeleton className="h-full w-full" />
             ) : err ? (
               <p>Some Error Occur</p>
             ) : data ? (
-              <div className="p-6">
-                <div className="w-full text-black dark:text-white font-bold font-[Inter] flex items-center justify-between px-2 text-2xl">
-                  <GiFastBackwardButton
-                    className="cursor-pointer"
-                    onClick={() =>
-                      setIdx(
-                        (prev) => (prev - 1 + problems.length) % problems.length
-                      )
-                    }
-                  />
-                  <div className="flex-col ">
-                    problem No. {problems[idx]?.problemRanking}
-                    {questionDone[idx] && (
-                      <div className="text-[10px] text-white w-fit mx-auto bg-green-500 px-2 py-1 rounded-full">
-                        {" "}
-                        DONE{" "}
-                      </div>
-                    )}
+              <div className="h-full overflow-y-auto no-scrollbar">
+                <div className="p-6">
+                  <div className="w-full text-black dark:text-white font-bold font-[Inter] flex items-center justify-between px-2 text-2xl">
+                    <GiFastBackwardButton
+                      className="cursor-pointer"
+                      onClick={() =>
+                        setIdx(
+                          (prev) =>
+                            (prev - 1 + problems.length) % problems.length
+                        )
+                      }
+                    />
+                    <div className="flex-col ">
+                      <p className="text-center text-sm font-semibold">
+                        {idx + 1}/{totalQuestions}
+                      </p>
+                      problem No. {problems[idx]?.problemRanking}
+                      {questionDone[idx] && (
+                        <div className="text-[10px] text-white w-fit mx-auto bg-green-500 px-2 py-1 rounded-full">
+                          {" "}
+                          DONE{" "}
+                        </div>
+                      )}
+                    </div>
+                    <GiFastForwardButton
+                      className="cursor-pointer"
+                      onClick={() =>
+                        setIdx((prev) => (prev + 1) % problems.length)
+                      }
+                    />
                   </div>
-                  <GiFastForwardButton
-                    className="cursor-pointer"
-                    onClick={() =>
-                      setIdx((prev) => (prev + 1) % problems.length)
-                    }
-                  />
-                </div>
 
-                <div className="">
-                  <h1 className="mt-6 text-lg mb-3 font-semibold">
-                    {problems[idx]?.problemName}
-                  </h1>
-                  <Badge className="text-sm rounded-md bg-cyan-500 py-1 px-2">
-                    {problems[idx]?.problemDifficulty}
-                  </Badge>
-                  <p className="mt-6 tracking-normal">
-                    {problems[idx]?.problemDescription}
-                  </p>
-                  <div className="mt-2">
-                    {problemTestCasses[idx]?.testCases?.map((elem, idx) => (
-                      <div key={idx} className="py-2">
-                        <p className="">
-                          <strong>Sample input 1:</strong> &nbsp;
-                          {elem.input.replace("sample_input_", "")}
-                        </p>
-                        <p className="">
-                          <strong>expected answer: &nbsp;</strong>
-                          {elem.expectedOutput.replace("expected_output_", "")}
-                        </p>
-                      </div>
-                    ))}
+                  <div className="">
+                    <h1 className="mt-6 text-lg mb-3 font-semibold">
+                      {problems[idx]?.problemName}
+                    </h1>
+                    <Badge className="text-sm rounded-md bg-cyan-500 py-1 px-2">
+                      {problems[idx]?.problemDifficulty}
+                    </Badge>
+                    <p className="mt-6 tracking-normal">
+                      {problems[idx]?.problemDescription}
+                      as minus magnam. Eius, error distinctio!
+                    </p>
+                    <div className="mt-2">
+                      {problemTestCasses[idx]?.testCases?.map((elem, idx) => (
+                        <div key={idx} className="py-2">
+                          <p className="">
+                            <strong>Sample input 1:</strong> &nbsp;
+                            {elem.input.replace("sample_input_", "")}
+                          </p>
+                          <p className="">
+                            <strong>expected answer: &nbsp;</strong>
+                            {elem.expectedOutput.replace(
+                              "expected_output_",
+                              ""
+                            )}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -535,14 +548,12 @@ const Playground = () => {
               <Skeleton className="h-full w-full"></Skeleton>
             )}
           </ResizablePanel>
-
           <ResizableHandle />
-
           <ResizablePanel defaultSize={60}>
             <ResizablePanelGroup direction="vertical">
               <ResizablePanel
                 defaultSize={70}
-                className="w-full h-full rounded-md overflow-hidden"
+                className="w-full rounded-md overflow-hidden"
               >
                 <div className="flex py-2 pl-2 h-full items-center justify-center w-full ">
                   <Editor
@@ -562,7 +573,7 @@ const Playground = () => {
                 className="border-t-3 border-zinc-600 p-2"
               >
                 {" "}
-                <div className="flex bg-zinc-900 my-1 px-8 rounded-md pb-2 pt-2 text-sm items-center text-black justify-start gap-4">
+                <div className="flex bg-zinc-900 my-1 px-8 rounded-md pb-2 pt-2 text-sm items-center text-black justify-start gap-4 overflow-y-auto">
                   <div
                     onClick={() => setActiveTab("testResult")}
                     className={`px-4 py-2 font-bold cursor-pointer transition-all duration-100 

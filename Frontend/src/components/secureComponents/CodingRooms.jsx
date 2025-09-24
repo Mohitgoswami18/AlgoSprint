@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { v4 as uuid } from "uuid";
 import { Label } from "@/components/ui/label";
 import Loader from "../Loader"
+import {useUser} from "@clerk/clerk-react"
 import {
   Dialog,
   DialogContent,
@@ -24,6 +25,7 @@ import { useNavigate, useParams }  from "react-router-dom";
 import axios from "axios";
 
 const CodingRooms = () => {
+
   const [activeCard, setActiveCard] = useState("create");
   const [username, setUsername] = useState("");
   const[loading, setLoading] = useState(false);
@@ -41,10 +43,24 @@ const CodingRooms = () => {
     numberOfProblems: 2,
     time: timeMapping["rapid"],
   });
+
+  const user = useUser();
   const params = useParams();
   const realUsername = params.username;
-  console.log(realUsername)
   const navigate = useNavigate();
+  if (!user) {
+    return;
+  }
+
+  // console.log("Your real username is ", user.user.username);
+  // console.log("you are trying to access the component of ", realUsername);
+
+
+  if (user.user.username !== realUsername) {
+    console.log("Not your component you are being redirected...")
+    navigate(`/${user.user.username}/codingrooms`);
+  }
+
 
   const handleUuid = () => {
     const id = uuid();
@@ -52,6 +68,7 @@ const CodingRooms = () => {
   };
 
   const handleCreateLogic = async() => {
+    console.log("creating a room with settings ", settings)
     if (!username || !roomid) {
       toast.error("Please enter a username and room ID");
       return;
@@ -64,6 +81,7 @@ const CodingRooms = () => {
         roomCode: roomid,
         username: realUsername,
         style: settings.playStyle,
+        numberOfQuestions: settings.numberOfProblems,
       }
     );
     
@@ -108,6 +126,8 @@ const CodingRooms = () => {
         },
       });
   }
+
+  const [open, setOpen] = useState(false);
 
   return (
     <div className="bg-slate-50 transition-all duration-500 dark:bg-black font-[Inter] p-5 h-screen relative">
@@ -185,12 +205,12 @@ const CodingRooms = () => {
                     handleUuid();
                   }}
                 >
-                  here
+                  &nbsp;here
                 </span>
               </p>
               <div className="flex items-center justify-between gap-2">
-                <Dialog className="">
-                  <DialogTrigger asChild>
+                <Dialog className="" open={open}>
+                  <DialogTrigger asChild  onClick={() => setOpen(true)}>
                     <p className="bg-zinc-300 dark:bg-white/10 p-2 mt-3 w-full rounded-md">
                       Customize settings
                     </p>
@@ -206,16 +226,16 @@ const CodingRooms = () => {
                       <Label>PlayStyle</Label>
                       <Select
                         onValueChange={(value) =>
-                          setSettings({ ...settings, playStyle: value })
+                          setSettings({ ...settings, playStyle: value, time: timeMapping[value] })
                         }
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Choose PlayStyle" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="Flash">Flash - 30 mins</SelectItem>
-                          <SelectItem value="Rapid">Rapid - 1Hrs</SelectItem>
-                          <SelectItem value="Classical">
+                          <SelectItem value="flash">Flash - 30 mins</SelectItem>
+                          <SelectItem value="rapid">Rapid - 1Hrs</SelectItem>
+                          <SelectItem value="classical">
                             Classical - 2 hrs
                           </SelectItem>
                         </SelectContent>
@@ -240,7 +260,8 @@ const CodingRooms = () => {
                       </Select>
                     </div>
 
-                    <Button className="w-full mt-4 rounded-2xl shadow-md">
+                    <Button className="w-full mt-4 rounded-2xl shadow-md" 
+                    onClick={() => setOpen(false)}>
                       Save Settings
                     </Button>
                   </DialogContent>

@@ -25,7 +25,7 @@ import { SiStylelint } from "react-icons/si";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 import { TbUserEdit } from "react-icons/tb";
-import { useNavigate } from "react-router-dom";
+import { replace, useNavigate } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -46,10 +46,12 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { CiEdit } from "react-icons/ci";
+import {useUser} from "@clerk/clerk-react"
 
 const Dashboard = () => {
   const params = useParams();
   const [username, setUsername] = useState(params.username);
+  const user = useUser();
   const [userDetails, setUserDetails] = useState({});
   const [data, setData] = useState(false);
   const [err, setErr] = useState(false);
@@ -80,7 +82,7 @@ const Dashboard = () => {
         logo: <SiStylelint />,
         discription: "PlayStyle",
         stats:
-          userDetails.playstyle.length > 0 ? userDetails.playstyle[0]._id : "random",
+          userDetails.playstyle,
       },
     ];
   }
@@ -167,32 +169,35 @@ const Dashboard = () => {
       });
   };
 
+  console.log("skduhvlsuhvlzushvi",userDetails.playstyle)
+
   const handleUsernameChangeLogic = async (e) => {
-    // UPDATE THE USERNAME CHANGE LOGIC
     e.preventDefault();
     console.log("Enter the function");
 
-    await axios
-      .post("http://localhost:8000/api/v1/user/updatename", {
-        newUsername: changeUsername,
-        username: username,
-      })
-      .then((res) => {
-        console.log(res.data);
-        if (res.data === "Username already in use") {
-          setError(
-            "This username is already taken!! try with another username"
-          );
-        } else {
-          setError("Username Updated");
-          setUsername(changeUsername);
-          navigate(`/${changeUsername}/dashboard`, { replace: true });
-        }
-      })
-      .catch((err) => {
-        console.log("an error occured", err);
-      });
-  };
+   await axios
+  .post(
+    "http://localhost:8000/api/v1/user/updatename",
+    {
+      newUsername: changeUsername,
+      username,
+    },
+  )
+  .then((res) => {
+    console.log(res.data);
+    if (res.data === "Username already in use") {
+      setError("This username is already taken!! try with another username");
+    } else {
+      setError("Username Updated");
+      setUserId(userId);
+      navigate(`/${userId}/dashboard`, { replace: true });
+    }
+  })
+  .catch((err) => {
+    console.log("An error occurred", err);
+  });
+}
+
 
   return (
     <div>
@@ -209,7 +214,9 @@ const Dashboard = () => {
                   <div className="transition-all duration-500">
                     <h1 className="text-4xl p-1 font-bold flex items-center">
                       Welcome Back, {userDetails.username}{" "}
-                      <Dialog>
+                      {
+                        user.user.username === username ? (
+                          <Dialog>
                         <form onSubmit={(e) => handleUsernameChangeLogic(e)}>
                           <DialogTrigger asChild>
                             <Button variant="outline">
@@ -256,6 +263,10 @@ const Dashboard = () => {
                           </DialogContent>
                         </form>
                       </Dialog>
+                        ) : (
+                          <h1> </h1>
+                        )
+                      }
                     </h1>
                     <p className="text-sm px-3 text-[#4a5568] dark:text-[#A0AEC0]">
                       Ready for some new challenges today
@@ -422,9 +433,13 @@ const Dashboard = () => {
               <div className="bg-white w-[30rem] h-[13rem] shadow-md ring-[0.5px] dark:ring-white/20 dark:bg-white/4 p-4 rounded-md">
                 <h1 className="text-center font-bold text-md">Badges Earned</h1>
                 <p className="gap-2 p-4 py-9 flex flex-wrap items-center justify-center">
-                  {userDetails.title.map((elem, idx) => (
+                  {
+                    userDetails.title.length > 0 ? (
+                      userDetails.title.map((elem, idx) => (
                     <Badge>{elem}</Badge>
-                  ))}
+                  ))
+                    ) : (<p> No Badges to Show </p>) 
+                  }
                 </p>
               </div>
             ) : (

@@ -66,6 +66,7 @@ const App = () => {
       {/* Public Routes */}
       <Routes>
         <Route path="/" element={<WebsiteLayout />} />
+        <Route path="/sso-callback" element={<SsoCallback />} />
         <Route path="/auth/*" element={<AuthenticationLayout />}>
           <Route path="signin" element={<Signin />} />
           <Route path="signup" element={<Signup />} />
@@ -92,7 +93,6 @@ const App = () => {
           <Route path="/codingroom/:roomid/arena" element={<Playground />} />
           <Route path="/mcqrooms/:roomid/arena" element={<McqArena />} />
           <Route path="/mcqrooms/:roomid/arena" element={<McqArena />} />
-          <Route path="/sso-callback" element={<SsoCallback />} />
           {/* <Route path="*" element={<NotFound />} /> */}
         </Routes>
       </SignedIn>

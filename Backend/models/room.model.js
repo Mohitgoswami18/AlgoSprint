@@ -12,6 +12,10 @@ const roomSchema = new mongoose.Schema({
       ref: "Problem",
     },
   ],
+  numberOfQuestions: {
+    type: Number,
+    require: true
+  },
   matchStatus: {
     type: String,
     enum: ["pending", "final"],
@@ -20,7 +24,7 @@ const roomSchema = new mongoose.Schema({
   style: {
     type: String,
     required: true,
-    enum: ["blitz", "rapid", "classical", "Rapidfire"],
+    enum: ["flash", "rapid", "classical"],
   },
   startTime: {
     type: Date,

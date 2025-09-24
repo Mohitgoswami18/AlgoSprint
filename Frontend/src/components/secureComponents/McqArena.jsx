@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import Stopwatch from "../Stopwatch";
 import Loader from "../Loader";
+import {Skeleton} from "@/components/ui/Skeleton"
 import { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import axios from "axios";
@@ -73,7 +74,7 @@ const McqArena = () => {
 
   useEffect(() => {
     const fetchMcqQuestionsFromBackend = async () => {
-      if (!roomid) return; // <- Guard
+      if (!roomid) return;
       try {
         console.log("Fetching questions...");
         const response = await axios.get(
@@ -153,26 +154,28 @@ const McqArena = () => {
 
 
   return (
-    <div className="flex w-full mx-2 ">
-      <div className="w-1/5 mt-[6rem] bg-gray-200 rounded-md p-4 flex flex-wrap gap-2 justify-center">
-        {Array.from({ length: 20 }, (_, i) => (
-          <div
-            key={i}
-            className={`w-10 h-10 flex items-center justify-center rounded-lg border cursor-pointer
+    <div className="flex w-full h-screen">
+      <div className="w-[20%] ">
+        <div className="py-32 h-screen bg-blue-200 rounded-md p-4 flex flex-wrap gap-2 items-center justify-center">
+          {Array.from({ length: 20 }, (_, i) => (
+            <div
+              key={i}
+              className={`w-10 h-10 flex items-center justify-center rounded-lg border cursor-pointer
               ${
                 selectedOptionsRef.current[i] !== ""
                   ? "bg-green-500 text-white"
                   : "bg-white"
               }
               ${index === i ? "ring-2 ring-blue-500" : ""}`}
-            onClick={() => setIndex(i)}
-          >
-            {i + 1}
-          </div>
-        ))}
+              onClick={() => setIndex(i)}
+            >
+              {i + 1}
+            </div>
+          ))}
+        </div>
       </div>
 
-      <div className="flex-1 grid place-items-center">
+      <div className="bg-cyan-50 h-full w-[80%] grid place-items-center">
         <div className="flex-col items-center m-4 p-4">
           <h1 className="font-bold text-2xl">
             Topic: <span className="text-cyan-500">{topic}</span>
@@ -193,7 +196,7 @@ const McqArena = () => {
             {questions[index]}
           </div>
         ) : (
-          <Loader />
+          <Skeleton className="w-full h-[200px]" />
         )}
 
         {data ? (
@@ -211,7 +214,7 @@ const McqArena = () => {
             ))}
           </div>
         ) : (
-          <Loader />
+          <Skeleton className="w-full h-[200px]" />
         )}
 
         <div className="w-[400px] mt-20 mx-auto px-4 flex items-center gap-4 justify-center">

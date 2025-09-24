@@ -17,6 +17,7 @@ const CodingLobby = () => {
   const username = location.state?.username;
   const realUsername = location.state?.realUsername;
   const [mcqQuestions, setMcqQuestions] = useState();
+  const [copied, setCopied] = useState(false);
   const navigate = useNavigate();
   const topic = location.state?.topic || " ";
   const time = location.state?.time || " ";
@@ -160,6 +161,16 @@ const CodingLobby = () => {
     
   }, [players]);
 
+  const handleCopyRoomId = async() => {
+
+    if (!copied) {
+      await navigator.clipboard.writeText(roomid);
+      setCopied(true);
+    }
+    toast.success("Room Id copied")
+    setTimeout(() => setCopied(false), 3000);
+  };
+
   return (
     <div className="h-screen font-[Inter] bg-zinc-800 p-10 pt-5 animate-fadeIn text-white ">
       <h1 className="text-center text-4xl font-bold p-4 text-white">
@@ -177,8 +188,8 @@ const CodingLobby = () => {
 
       <div>
         <div className="text-center flex items-center gap-4 font-bold justify-center mt-4 text-slate-xinc-600">
-            <p>Topic: {topic}</p>
-            <p>Time Limit: {time}</p>
+          <p>Topic: {topic}</p>
+          <p>Time Limit: {time}</p>
         </div>
       </div>
 
@@ -221,6 +232,9 @@ const CodingLobby = () => {
           }}
         >
           leave
+        </Button>
+        <Button className="border-3 shadow-md" onClick={() => handleCopyRoomId()}>
+          Copy Id
         </Button>
       </div>
     </div>
