@@ -22,7 +22,8 @@ import { updateMcqRoomParticipantDetails } from "../controllers/mcqRooms.control
 import { fetchmcqParticipants } from "../controllers/mcqRooms.controller.js";
 import { findRoomSetting } from "../controllers/codingRooms.controller.js";
 import dotenv from "dotenv"
-import { clerkMiddleware, getAuth, clerkClient } from "@clerk/express";
+import { clerkMiddleware} from "@clerk/express";
+import {handlePostReply} from "../controllers/user.controller.js"
 
 dotenv.config();
 
@@ -42,10 +43,11 @@ router
   .route("/user/updateDiscussion")
   .post(discussionDataUpation);
 router
+router
+  .route("/user/addReply").post(handlePostReply)
+  router
   .route("/user/updateuserprofilepicture")
-  .post(upload.single("profilePic"),
-    UpdateUserProfilePicture
-  );
+  .post(upload.single("profilePic"), UpdateUserProfilePicture);
 
 // ******************* CODING ROOM ROUTES ***************************//
 router

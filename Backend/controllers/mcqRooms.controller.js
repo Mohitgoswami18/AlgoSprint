@@ -157,7 +157,7 @@ const mcqQuestionFetcher = async (req, res) => {
     console.log("finding questions from the backend");
     const response = await Question.aggregate([
       {
-        $match: { topic: topic.toUpperCase() },
+        $match: { topic: topic.tpLowerCase() },
       },
       {
         $sample: { size: 20 },

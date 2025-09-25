@@ -26,6 +26,8 @@ const dashboardController = async (req, res, next) => {
       .sort({ date: -1 })
       .limit(10); 
 
+      console.log("recent matches of this user is ", recentMatches)
+
 
     const formattedRatings = userData.ratingHistory?.ratings || [];
 
@@ -213,8 +215,11 @@ const discussionDataFetcher = async (_, res, next) => {
         path: "user",
         select: "username profilePicture level",
       })
+      .populate({path:"reply.user", select:"username profilePicture"})
       .sort({ createdAt: -1 })
       .limit(20);
+
+      console.log(discussionData)
 
     res.status(200).json(
       new ApiResponse(200, "Data Fetched Successfully", {
@@ -256,6 +261,40 @@ const discussionDataUpation = async (req, res) => {
   )
 }
 
+const handlePostReply = async (req, res) => {
+  try {
+    const { postId, message, username } = req.body;
+    if(!postId || !message || !username) {
+      throw new ApiError(404, "Required information not found in the request body");
+    }
+  
+    const userOfReply = await User.findOne({username})
+  
+    if(!userOfReply) {
+      throw new ApiError(404, "user not found who is replying to the post")
+    }
+  
+    const existingPost = await Discuss.findOne({_id: postId});
+    if(!existingPost) {
+      throw new ApiError(404, "Post not found")
+    }
+  
+    const replyData = {
+      user: userOfReply._id,
+      message: message
+    }
+  
+    existingPost.reply.push(replyData);
+  
+    await existingPost.save();
+  
+    res.status(200).json(new ApiResponse(200, "reply added"));
+  } catch (error) {
+    console.log(error)
+    throw new ApiError(500, "an error occured", error)
+  }
+}
+
 export {
   dashboardController,
   updateUserName,
@@ -263,4 +302,5 @@ export {
   leaderboardStats,
   discussionDataFetcher,
   discussionDataUpation,
+  handlePostReply,
 };

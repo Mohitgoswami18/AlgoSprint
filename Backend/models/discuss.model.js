@@ -1,15 +1,24 @@
 import { Schema, mongoose } from "mongoose";
 
-const discussSchema = new Schema ({
+const discussSchema = new Schema(
+  {
     user: {
-        type: Schema.Types.ObjectId,
-        ref: "User",
-        required:true,
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
     message: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
-},{timestamps: true})
+    reply: [
+      {
+        user: { type: Schema.Types.ObjectId, ref: "User"},
+        message: { type: String},
+      },
+    ],
+  },
+  { timestamps: true }
+);
 
 export const Discuss = mongoose.model("Discuss", discussSchema);

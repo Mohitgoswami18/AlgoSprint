@@ -2,161 +2,223 @@ import { RiUserCommunityFill } from "react-icons/ri";
 import { Textarea } from "@/components/ui/textarea";
 import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/Button";
-import {useParams} from "react-router-dom"
-import { useUser } from "@clerk/clerk-react"
-import {useNavigate} from "react-router-dom"
-import Loader from "../Loader"
+import { Button } from "@/components/ui/button";
+import { useParams, useNavigate } from "react-router-dom";
+import { useUser } from "@clerk/clerk-react";
+import Loader from "../Loader";
 import axios from "axios";
-
 
 const CommunityRooms = () => {
   const [discussionsList, setDiscussionList] = useState([]);
-  const [data, setData] = useState(false);
-  const [error, setError] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [hasError, setHasError] = useState(false);
   const [postData, setPostData] = useState("");
   const [loading, setLoading] = useState(false);
-  const params = useParams();
   const [postCount, setPostCount] = useState(0);
-  const username = params.username;
-  const user = useUser();
+  const [viewReplies, setViewReplies] = useState({});
+  const [replyInput, setReplyInput] = useState({});
+
+  const params = useParams();
+  const { user, isLoaded: userLoaded, isSignedIn } = useUser();
   const navigate = useNavigate();
+  const username = params.username;
 
-  if(!user) {
-    return
-  }
+  useEffect(() => {
+    if (userLoaded && isSignedIn) {
+      if (user?.username !== username) {
+        navigate(`/${user.username}/community`);
+      }
+    }
+  }, [userLoaded, isSignedIn, user, username, navigate]);
 
-  // console.log("Your real username is ", user.username)
-  // console.log("you are trying to access the component of ", username)
-
-  if (user.user.username !== username) {
-    console.log("Not your component you are being redirected...");
-    navigate(`/${user.user.username}/codingrooms`);
-  }
-
-  let discussionData = [];
-  if(discussionsList.length > 0 && data ) {
-    discussionData = discussionsList;
-    console.log(discussionData)
-  }
-
-  console.log(username)
-
-  const handleSendData = () => {
+  const handleSendData = async () => {
+    if (!postData.trim()) return;
     setLoading(true);
-    console.log("Inside this fintion ")
-
-    const handlePostUpdation = async () => {
-      await axios
-        .post(
-          "http://localhost:8000/api/v1/user/updateDiscussion",
-
-          { post: postData, username }
-        )
-        .then((res) => {
-          console.log("data is sent to the backend successfully", res);
-          setPostCount((prev) => prev+1)
-        })
-        .catch((err) => {
-          console.log("there was an error while adding the post", err);
-        });
+    try {
+      await axios.post("http://localhost:8000/api/v1/user/updateDiscussion", {
+        post: postData,
+        username,
+      });
+      setPostData("");
+      setPostCount((prev) => prev + 1);
+    } catch (err) {
+      console.error("Error adding the post", err);
+    } finally {
+      setLoading(false);
     }
+  };
 
-    handlePostUpdation();
-    setLoading(false);
-  }
+  const handleSendReply = async (idx) => {
+    const message = replyInput[idx];
+    if (!message.trim()) return;
 
-  useEffect(()=>{
+    try {
+      await axios.post("http://localhost:8000/api/v1/user/addReply", {
+        postId: discussionsList[idx]._id,
+        message,
+        username: user.username,
+      });
+      setReplyInput((prev) => ({ ...prev, [idx]: undefined }));
+      setPostCount((prev) => prev + 1);
+    } catch (err) {
+      console.error("Error sending reply:", err);
+    }
+  };
+
+  useEffect(() => {
     const handleDataFetching = async () => {
-      await axios
-        .get("http://localhost:8000/api/v1/user/discussion",
-          {params: {username: username}}
-        )
-        .then((res) => {
-          console.log("data fetched")
-          console.log(res.data.data.discussionData)
-          setData(true);
-          setError(false);
-          setPostCount(res.data.data.discussionData.length);
-          setDiscussionList(res.data.data.discussionData);
-        })
-        .catch((err) => {
-          setError(true);
-          setData(false);
-          console.log("There was an error while fetching the content", err);
-        });
-    }
-
+      try {
+        const res = await axios.get(
+          "http://localhost:8000/api/v1/user/discussion",
+          { params: { username } }
+        );
+        console.log(res)
+        setDiscussionList(res.data.data.discussionData || []);
+        setPostCount(res.data.data.discussionData.length);
+        setIsLoaded(true);
+        setHasError(false);
+      } catch (err) {
+        console.error("Error fetching discussions", err);
+        setHasError(true);
+        setIsLoaded(false);
+      }
+    };
     handleDataFetching();
-    
-  }, [postCount])
+  }, [postCount, username]);
 
   return (
-    <div>
-      {error ? (
-        <p>There was an error </p>
-      ) : (
-        <div className="bg-slate-50 transition-all duration-500 text-black dark:text-white dark:bg-black/80 shadow-md font-[Inter] p-5">
-          <div className=" backdrop-blur-2xl bg-white/60 transition-all duration-500 dark:bg-[#111] p-5 rounded-md shadow-xl ">
-            {data ? (
-              <div className="flex gap-4 items-center ">
-                <div className="bg-white/4 dark:bg-[#222] transition-all duration-500 backdrop-blur-2xl px-2 py-3 text-4xl rounded-xl">
-                  <RiUserCommunityFill />
-                </div>
-                <div className="">
-                  <h1 className="text-xl text-black dark:text-white font-bold">
-                    Community space
-                  </h1>
-                  <p className=" text-[12px] tracking-tight">
-                    connect with more programmers out there and post whats on
-                    your mind
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <Skeleton className="w-full h-32 rounded-md"></Skeleton>
-            )}
-          </div>
-          <div className=" backdrop-blur-2xl my-8 transition-all duration-500 bg-slate-50 dark:bg-[#111] p-5 rounded-md shadow-xl ">
-            <div className="font-semibold">Recent Discussions</div>
-
-            {data ? (
-              discussionData.length > 0 ? (
-                <div className=" p-4 backdrop:2xl transition-all duration-500 rounded-md m-2 ">
-                  {discussionData.map((elem, idx) => (
-                    <div className="m-4 bg-slate-100 transition-all duration-500 dark:bg-[#222] shadow-md rounded-md p-4">
-                      <h1 className="text-lg pb-4 font-semibold ">{elem.message}</h1>
-                      <div className="flex items-center gap-4 text-[12px] tracking-tight">
-                        <img src={elem.user?.profilePicture} alt="" className="w-6 rounded-full"/>
-                        <p>by {elem.user?.username}</p>
-                        <p>Levl &nbsp;{elem.user?.level}</p>
-                        <p>{elem.createdAt.slice(0,10)}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p> Be the first one to comment here </p>
-              )
-            ) : (
-              <Skeleton className="w-full h-screen" />
-            )}
-          </div>
-          <div className="backdrop-blur-2xl my-8 bg-slate-200 dark:bg-white/10 p-5 rounded-md shadow-xl ">
-            <div className="grid gap-5">
-              <Textarea
-                value={postData}
-                className="p-4"
-                onChange={(e) => setPostData(e.target.value)}
-                placeholder="Post what's in your mind..."
-              />
-              <Button onClick={() => handleSendData()}>
-                {loading ? <Loader /> : <p>Send message</p>}
-              </Button>
-            </div>
-          </div>
+    <div className="min-h-screen px-4 py-6 bg-zinc-900 text-gray-100 transition-colors duration-300">
+      {/* Header */}
+      <div className="max-w-4xl mx-auto mb-6 p-6 bg-zinc-800 rounded-xl shadow-lg flex items-center gap-4">
+        <div className="p-3 bg-gray-700 rounded-full text-3xl">
+          <RiUserCommunityFill />
         </div>
-      )}
+        <div>
+          <h1 className="text-2xl font-semibold">Community Space</h1>
+          <p className="text-sm text-gray-400">
+            Connect with programmers and share your thoughts.
+          </p>
+        </div>
+      </div>
+
+      {/* Discussions */}
+      <div className="max-w-4xl mx-auto mb-6 p-6 bg-white/5 rounded-xl shadow-lg">
+        <h2 className="text-lg font-semibold mb-4">Recent Discussions</h2>
+
+        {hasError && <p className="text-red-500">Error fetching discussions</p>}
+
+        {!isLoaded && <Skeleton className="w-full h-48 rounded-md" />}
+
+        {isLoaded &&
+          (discussionsList.length > 0 ? (
+            discussionsList.map((elem, idx) => (
+              <div
+                key={idx}
+                className="mb-4 p-4 bg-zinc-800 rounded-lg shadow-md"
+              >
+                <h3 className="font-semibold text-gray-100">{elem.message}</h3>
+                <div className="flex items-center gap-3 mt-2 text-sm text-gray-400">
+                  <img
+                    src={elem.user?.profilePicture}
+                    alt=""
+                    className="w-6 h-6 rounded-full"
+                  />
+                  <p>{elem.user?.username}</p>
+                  <p>Lvl {elem.user?.level}</p>
+                  <p>{elem.createdAt?.slice(0, 10)}</p>
+                </div>
+
+                {/* Buttons */}
+                <div className="mt-3 flex gap-4 text-sm">
+                  <button
+                    className="text-blue-400 hover:underline"
+                    onClick={() =>
+                      setViewReplies((prev) => ({ ...prev, [idx]: !prev[idx] }))
+                    }
+                  >
+                    {viewReplies[idx] ? "Hide Replies" : "View Replies"}
+                  </button>
+                  <button
+                    className="text-green-400 hover:underline"
+                    onClick={() =>
+                      setReplyInput((prev) => ({
+                        ...prev,
+                        [idx]: prev[idx] !== undefined ? undefined : "",
+                      }))
+                    }
+                  >
+                    {replyInput[idx] !== undefined ? "Cancel" : "Reply"}
+                  </button>
+                </div>
+
+                {/* Show Replies */}
+                {viewReplies[idx] && (
+                  <div className="mt-2 border-t border-gray-600 pt-2 space-y-1">
+                    {elem.reply && elem.reply.length > 0 ? (
+                      elem.reply.map((r, rIdx) => (
+                        <p key={rIdx} className="text-sm text-gray-200">
+                          {r.user && (
+                            <div className="flex gap-4 m-2 items-center justify-start">
+                              <img className="w-5 rounded-full" src={r.user.profilePicture} alt="" />
+                              <strong>{r.user?.username}&nbsp;:</strong> {r.message}
+                            </div>
+                          )}
+                        </p>
+                      ))
+                    ) : (
+                      <p className="text-sm italic text-gray-400">
+                        No replies yet
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {/* Reply Input */}
+                {replyInput[idx] !== undefined && (
+                  <div className="mt-2 flex gap-2">
+                    <input
+                      type="text"
+                      value={replyInput[idx]}
+                      onChange={(e) =>
+                        setReplyInput((prev) => ({
+                          ...prev,
+                          [idx]: e.target.value,
+                        }))
+                      }
+                      placeholder="Write your reply..."
+                      className="flex-1 p-2 rounded-md border border-gray-600 bg-gray-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    />
+                    <Button
+                      size="sm"
+                      variant="personal"
+                      className="text-xs"
+                      onClick={() => handleSendReply(idx)}
+                    >
+                      Send
+                    </Button>
+                  </div>
+                )}
+              </div>
+            ))
+          ) : (
+            <p className="text-gray-400 italic">
+              Be the first one to comment here
+            </p>
+          ))}
+      </div>
+
+      {/* Post new discussion */}
+      <div className="max-w-4xl mx-auto p-6 bg-zinc-800 rounded-xl shadow-lg">
+        <Textarea
+          value={postData}
+          onChange={(e) => setPostData(e.target.value)}
+          placeholder="Share your thoughts..."
+          className="mb-2 bg-gray-700 text-gray-100 rounded-md p-3 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        />
+        <Button onClick={handleSendData} disabled={loading}>
+          {loading ? <Loader /> : "Post"}
+        </Button>
+      </div>
     </div>
   );
 };

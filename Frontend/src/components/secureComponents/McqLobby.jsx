@@ -150,7 +150,6 @@ const CodingLobby = () => {
           startTime: Math.floor(Date.now() / 1000),
           topic: topic,
           roomid,
-          startTime: Math.floor(Date.now()/1000),
           totalParticipants: players.length,
           realUsername,
         },

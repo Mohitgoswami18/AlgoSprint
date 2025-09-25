@@ -1,5 +1,5 @@
-import ConnectToDatabase from "./Database/database.js";
-import { Discuss } from "./models/mcq.model.js";
+import { Discuss } from "../models/discuss.model.js";
+import ConnectToDatabase from "../Database/database.js";
 
 const discussionSeed = [
   {
