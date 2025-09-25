@@ -16,21 +16,22 @@ const Leaderboard = () => {
     const fetchData = async () => {
       try {
         console.log("Fetching the data");
-        const response = await axios.get(
-          `https://algosprint-vxi4.onrender.com/api/v1/user/leaderboard`
-        ).then((res)=> {setData(true);
-          console.log("data fetched successfully")
-          
-        setLeaderboardData({
-          top10: res.data.data.top10 || [],
-          ...res.data.data,
-        });
-        setErr(false);
-      })
-      .catch((error) => {
-        setErr(true);
-        console.log("Error fetching leaderboard data", error);
-      });
+        const response = await axios
+          .get(`https://algosprint-vxi4.onrender.com/api/v1/user/leaderboard`)
+          .then((res) => {
+            setData(true);
+            console.log("data fetched successfully");
+
+            setLeaderboardData({
+              top10: res.data.data.top10 || [],
+              ...res.data.data,
+            });
+            setErr(false);
+          })
+          .catch((error) => {
+            setErr(true);
+            console.log("Error fetching leaderboard data", error);
+          });
 
       } catch (err) {
         console.log("An error occurred", err);

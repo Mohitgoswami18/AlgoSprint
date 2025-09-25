@@ -106,11 +106,10 @@ const McqRooms = () => {
     }
 
     const response = await axios.post(
-      "http://localhost:8000/api/v1/user/mcqrooms/createmcqroom",
+      "https://algosprint-vxi4.onrender.com/api/v1/user/mcqrooms/createmcqroom",
       {
         roomCode: roomid,
         username: realUsername,
-        
       }
     );
     
@@ -140,7 +139,7 @@ const McqRooms = () => {
     }
     
     const response = await axios.post(
-      "http://localhost:8000/api/v1/user/mcqrooms/joinmcqroom",
+      "https://algosprint-vxi4.onrender.com/api/v1/user/mcqrooms/joinmcqroom",
       {
         roomCode: roomid,
         username: realUsername,

@@ -35,10 +35,13 @@ const CommunityRooms = () => {
     if (!postData.trim()) return;
     setLoading(true);
     try {
-      await axios.post("http://localhost:8000/api/v1/user/updateDiscussion", {
-        post: postData,
-        username,
-      });
+      await axios.post(
+        "https://algosprint-vxi4.onrender.com/api/v1/user/updateDiscussion",
+        {
+          post: postData,
+          username,
+        }
+      );
       setPostData("");
       setPostCount((prev) => prev + 1);
     } catch (err) {
@@ -53,11 +56,14 @@ const CommunityRooms = () => {
     if (!message.trim()) return;
 
     try {
-      await axios.post("http://localhost:8000/api/v1/user/addReply", {
-        postId: discussionsList[idx]._id,
-        message,
-        username: user.username,
-      });
+      await axios.post(
+        "https://algosprint-vxi4.onrender.com/api/v1/user/addReply",
+        {
+          postId: discussionsList[idx]._id,
+          message,
+          username: user.username,
+        }
+      );
       setReplyInput((prev) => ({ ...prev, [idx]: undefined }));
       setPostCount((prev) => prev + 1);
     } catch (err) {
@@ -69,7 +75,7 @@ const CommunityRooms = () => {
     const handleDataFetching = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:8000/api/v1/user/discussion",
+          "https://algosprint-vxi4.onrender.com/api/v1/user/discussion",
           { params: { username } }
         );
         console.log(res)

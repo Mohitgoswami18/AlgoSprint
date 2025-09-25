@@ -76,7 +76,7 @@ const CodingRooms = () => {
 
     setLoading(true);
     const response = await axios.post(
-      "http://localhost:8000/api/v1/user/rooms/createNewRoom",
+      "https://algosprint-vxi4.onrender.com/api/v1/user/rooms/createNewRoom",
       {
         roomCode: roomid,
         username: realUsername,
@@ -105,10 +105,11 @@ const CodingRooms = () => {
       return;
     }
 
-    const response = await axios.post("http://localhost:8000/api/v1/user/rooms/joinRoom",
+    const response = await axios.post(
+      "https://algosprint-vxi4.onrender.com/api/v1/user/rooms/joinRoom",
       {
         roomCode: roomid,
-        username: realUsername
+        username: realUsername,
       }
     );
 

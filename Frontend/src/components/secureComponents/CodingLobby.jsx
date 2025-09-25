@@ -40,9 +40,10 @@ const CodingLobby = () => {
   useEffect(()=>{
    
     const findRoomSetting = async () => {
-      const res = await axios.get("http://localhost:8000/api/v1/user/codingroomsettings",
-      {params: {roomid}}
-      )
+      const res = await axios.get(
+        "https://algosprint-vxi4.onrender.com/api/v1/user/codingroomsettings",
+        { params: { roomid } }
+      );
       console.log(res.data.data);
       setRoomSettingData([res.data.data.numberofQuestions, res.data.data.style]);
     }
@@ -127,28 +128,30 @@ const CodingLobby = () => {
 
     const startLobbyGameFlow = async () => {
       const updateCurrentRoomTimings = async () => {
-        await axios.post(
-          "http://localhost:8000/api/v1/user/codingrooms/updateRoomDetails",
-          {
-            roomCode: roomid,
-            time: time,
-          }
-        ).then((res) => {
-          console.log("Updated the timings of the room successfully");
-        })
-        .catch((err) => {
-          console.log("an error occur", err);
-        });
+        await axios
+          .post(
+            "https://algosprint-vxi4.onrender.com/api/v1/user/codingrooms/updateRoomDetails",
+            {
+              roomCode: roomid,
+              time: time,
+            }
+          )
+          .then((res) => {
+            console.log("Updated the timings of the room successfully");
+          })
+          .catch((err) => {
+            console.log("an error occur", err);
+          });
       };
       updateCurrentRoomTimings();
 
       const FetchQuestionsFromTheBackend = async () => {
         try {
           const res = await axios.get(
-            "http://localhost:8000/api/v1/user/codingrooms/arena/problems",
+            "https://algosprint-vxi4.onrender.com/api/v1/user/codingrooms/arena/problems",
             {
               params: {
-                questions: Number (settings?.numberOfProblems),
+                questions: Number(settings?.numberOfProblems),
               },
             }
           );
@@ -169,7 +172,7 @@ const CodingLobby = () => {
       const updateCurrentRoomSettings = async (codingQuestions) => {
         console.log("Final data going to backend:", codingQuestions);
         await axios.post(
-          "http://localhost:8000/api/v1/user/codingrooms/updateRoomDetails",
+          "https://algosprint-vxi4.onrender.com/api/v1/user/codingrooms/updateRoomDetails",
           {
             roomCode: roomid,
             questions: codingQuestions,

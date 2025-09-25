@@ -104,7 +104,7 @@ const CodingLobby = () => {
 
         console.log(topic)
         const res = await axios.get(
-          `http://localhost:8000/api/v1/user/mcqroom/arena/topic/problems`,
+          `https://algosprint-vxi4.onrender.com/api/v1/user/mcqroom/arena/topic/problems`,
           {
             params: {
               topic: topic,
@@ -129,7 +129,7 @@ const CodingLobby = () => {
     const updateCurrentRoomSettings = async (mcqQuestions) => {
       console.log("Final data going to backend:", mcqQuestions);
       const res = await axios.post(
-        "http://localhost:8000/api/v1/user/mcqrooms/updateroomdetails",
+        "https://algosprint-vxi4.onrender.com/api/v1/user/mcqrooms/updateroomdetails",
         {
           roomCode: roomid,
           questions: mcqQuestions,

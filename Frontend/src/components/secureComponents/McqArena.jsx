@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import Stopwatch from "../Stopwatch";
 import Loader from "../Loader";
-import {Skeleton} from "@/components/ui/Skeleton"
+import {Skeleton} from "@/components/ui/skeleton"
 import { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import axios from "axios";
@@ -78,7 +78,7 @@ const McqArena = () => {
       try {
         console.log("Fetching questions...");
         const response = await axios.get(
-          `http://localhost:8000/api/v1/user/mcqrooms/arena/getProblems`,
+          `https://algosprint-vxi4.onrender.com/api/v1/user/mcqrooms/arena/getProblems`,
           { params: { roomid } }
         );
 

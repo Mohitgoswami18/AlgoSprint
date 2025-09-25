@@ -118,7 +118,7 @@ const Dashboard = () => {
   useEffect(() => {
     const handleFetchRequest = async () => {
       await axios
-        .get(`http://localhost:8000/api/v1/user/dashboard`, {
+        .get(`https://algosprint-vxi4.onrender.com/api/v1/user/dashboard`, {
           params: {
             username: username,
           },
@@ -176,26 +176,23 @@ const Dashboard = () => {
     console.log("Enter the function");
 
    await axios
-  .post(
-    "http://localhost:8000/api/v1/user/updatename",
-    {
-      newUsername: changeUsername,
-      username,
-    },
-  )
-  .then((res) => {
-    console.log(res.data);
-    if (res.data === "Username already in use") {
-      setError("This username is already taken!! try with another username");
-    } else {
-      setError("Username Updated");
-      setUserId(userId);
-      navigate(`/${userId}/dashboard`, { replace: true });
-    }
-  })
-  .catch((err) => {
-    console.log("An error occurred", err);
-  });
+     .post("https://algosprint-vxi4.onrender.com/api/v1/user/updatename", {
+       newUsername: changeUsername,
+       username,
+     })
+     .then((res) => {
+       console.log(res.data);
+       if (res.data === "Username already in use") {
+         setError("This username is already taken!! try with another username");
+       } else {
+         setError("Username Updated");
+         setUserId(userId);
+         navigate(`/${userId}/dashboard`, { replace: true });
+       }
+     })
+     .catch((err) => {
+       console.log("An error occurred", err);
+     });
 }
 
 

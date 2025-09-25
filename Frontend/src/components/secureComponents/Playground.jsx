@@ -110,7 +110,7 @@ const Playground = () => {
         if (!roomid) return;
 
         const response = await axios.get(
-          "http://localhost:8000/api/v1/user/codingrooms/arena/getProblems",
+          "https://algosprint-vxi4.onrender.com/api/v1/user/codingrooms/arena/getProblems",
           {
             params: { roomid },
           }

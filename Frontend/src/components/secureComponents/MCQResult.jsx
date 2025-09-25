@@ -44,7 +44,7 @@ const ResultPage = () => {
     const fetchUserProfile = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:8000/api/v1/user/dashboard`,
+          `https://algosprint-vxi4.onrender.com/api/v1/user/dashboard`,
           {
             params: {
               username: realUsername,
@@ -81,7 +81,7 @@ const ResultPage = () => {
           try {
             console.log(typeof userProfile.userid, "fiudshguhodhs");
             await axios.post(
-              `http://localhost:8000/api/v1/user/mcqrooms/updateroomparticipantsdetails`,
+              `https://algosprint-vxi4.onrender.com/api/v1/user/mcqrooms/updateroomparticipantsdetails`,
               {
                 roomCode: String(roomid),
                 participantTimeTaken: String(newPlayerData.timeTaken),
@@ -140,7 +140,7 @@ const ResultPage = () => {
       try {
         console.log("fetching paetucipants");
         const response = await axios.get(
-          `http://localhost:8000/api/v1/user/mcqrooms/getmcqparticipants`,
+          `https://algosprint-vxi4.onrender.com/api/v1/user/mcqrooms/getmcqparticipants`,
           {
             params: { roomid },
           }
