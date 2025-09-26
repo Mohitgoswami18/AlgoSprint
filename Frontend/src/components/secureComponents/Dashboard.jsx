@@ -296,7 +296,7 @@ const Dashboard = () => {
                 <img
                   src={userDetails.profileImage}
                   alt="profile"
-                  className="w-full relative rounded-full"
+                  className="w-42 h-40 relative rounded-full"
                 />
 
                 {/* Edit Icon & Dialog */}

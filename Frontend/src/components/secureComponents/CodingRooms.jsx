@@ -1,11 +1,12 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FaRestroom } from "react-icons/fa6";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { v4 as uuid } from "uuid";
 import { Label } from "@/components/ui/label";
 import Loader from "../Loader"
-import {useUser} from "@clerk/clerk-react"
+import {useAuth, useUser} from "@clerk/clerk-react"
+import {getAuth} from "@clerk/clerk-react"
 import {
   Dialog,
   DialogContent,
@@ -26,6 +27,7 @@ import axios from "axios";
 
 const CodingRooms = () => {
 
+  const {getToken} = useAuth()
   const [activeCard, setActiveCard] = useState("create");
   const [username, setUsername] = useState("");
   const[loading, setLoading] = useState(false);
@@ -67,41 +69,57 @@ const CodingRooms = () => {
     setRoomid(id);
   };
 
-  const handleCreateLogic = async() => {
-    console.log("creating a room with settings ", settings)
-    if (!username || !roomid) {
-      toast.error("Please enter a username and room ID");
-      return;
-    }
-
-    setLoading(true);
-    const response = await axios.post(
-      "https://algosprint-vxi4.onrender.com/api/v1/user/rooms/createNewRoom",
-      {
-        roomCode: roomid,
-        username: realUsername,
-        style: settings.playStyle,
-        numberOfQuestions: settings.numberOfProblems,
+  const handleCreateLogic = async () => {
+    try {
+      const token = await getToken();
+      if (!token) {
+        toast.error("No auth token found. Please sign in again.");
+        return;
       }
-    );
-    
-    console.log(response)
-    setLoading(false);
 
-    if (response.data.message !== "Room Created Successfully") {
-      toast.error("Ther was some error PLease try again");
-      return;
+      await axios.post(
+        "https://algosprint-vxi4.onrender.com/api/v1/user/rooms/createNewRoom",
+        {
+          roomCode: roomid,
+          username: realUsername,
+          style: settings.playStyle,
+          numberOfQuestions: settings.numberOfProblems,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      navigate(`/codingroom/${roomid}/lobby`, {
+        state: {
+          realUsername,
+          username,
+          settings,
+          redirectedFrom: "codingRoom",
+        },
+      });
+    } catch (err) {
+      console.error("Error creating room:", err);
+      toast.error(
+        err.response?.data?.message || err.message || "Something went wrong"
+      );
+      setLoading(false);
     }
+  };
 
-
-    navigate(`/codingroom/${roomid}/lobby`, {
-      state: { realUsername, username, settings, redirectedFrom: "codingRoom" },
-    });
-  }
 
   const handleJoinLogic = async () => {
     if (!username || !roomid) {
       toast.error("Please enter a username and room ID");
+      return;
+    }
+
+    const token = await getToken();
+    if (!token) {
+      toast.error("No auth token found. Please sign in again.");
       return;
     }
 
@@ -110,6 +128,12 @@ const CodingRooms = () => {
       {
         roomCode: roomid,
         username: realUsername,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       }
     );
 
