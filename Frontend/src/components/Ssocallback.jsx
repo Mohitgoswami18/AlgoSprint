@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useUser, useSignUp } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios"
 
 const SsoCallback = () => {
   const { user, isLoaded, isSignedIn } = useUser();
@@ -21,8 +22,7 @@ const SsoCallback = () => {
         const userUsername =
           user.username ||
           user.firstName?.toLowerCase() ||
-          user.primaryEmailAddress?.emailAddress?.split("@")[0] ||
-          user.id;
+          user.primaryEmailAddress?.emailAddress?.split("@")[0]
 
         console.log(
           "User signed in, redirecting to:",
@@ -49,19 +49,6 @@ const SsoCallback = () => {
       setTimeout(() => navigate("/auth/signin"), 3000);
     }
   }, [isLoaded, isSignedIn, user, signUp, navigate]);
-
-  const handleUsernameUpdation = async (id) => {
-    try {
-      const res = await axios.post(
-        "https://algosprint-vxi4.onrender.com/api/v1/user/updateinitialusername",
-        { username, clerkId: id }
-      );
-      console.log(res);
-    } catch (error) {
-      console.log("an error occured", error);
-    }
-  }
-
   const handleMissingFields = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -71,15 +58,15 @@ const SsoCallback = () => {
       if (!signUp) {
         throw new Error("No signup session found");
       }
-
-      // Complete the signup with missing fields
       const result = await signUp.update({
         username: username,
       });
 
-      handleUsernameUpdation(result.user.id)
-
+      console.log(result)
+      
       if (result.status === "complete") {
+      
+        console.log("THis is the Resut of the current icomleted sign in", result)
         await setActive({ session: result.createdSessionId });
         console.log("Signup completed, redirecting to dashboard");
         navigate(`/${username}/dashboard`);

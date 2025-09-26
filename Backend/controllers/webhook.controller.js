@@ -1,25 +1,26 @@
 import { Webhook } from "svix";
 import { ApiResponse } from "../Utils/ApiResponse.js";
 import { User } from "../models/user.model.js";
-import { set } from "mongoose";
 
 const secret = process.env.WEBHOOK_SECRET;
 
-const genrateRandomUsername = () => {
+const generateRandomUsername = () => {
   return `user-${Math.floor(1000 + Math.random() * 9000)}`;
-}
+};
 
 const webhookHandler = async (req, res) => {
   try {
-    console.log("The webhook is beign prepared")
-    const payload = req.body.toString();
+    console.log("The webhook is being prepared");
+
+    // Get the raw body as string (make sure your middleware provides this correctly)
+    const payload =
+      typeof req.body === "string" ? req.body : JSON.stringify(req.body);
     console.log("Webhook payload:", payload);
-    const header = req.headers;
 
     const headers = {
-      "svix-id": header["svix-id"],
-      "svix-timestamp": header["svix-timestamp"],
-      "svix-signature": header["svix-signature"],
+      "svix-id": req.headers["svix-id"],
+      "svix-timestamp": req.headers["svix-timestamp"],
+      "svix-signature": req.headers["svix-signature"],
     };
 
     const wh = new Webhook(secret);
@@ -29,7 +30,9 @@ const webhookHandler = async (req, res) => {
     console.log("Event type:", type);
 
     if (type === "user.created") {
-      const { email_addresses, id, image_url} = data;
+      const { email_addresses, id, image_url, username } = data;
+      console.log("Username:", username);
+
       const email = email_addresses?.[0]?.email_address;
 
       if (!email || !id) {
@@ -37,7 +40,6 @@ const webhookHandler = async (req, res) => {
           .status(400)
           .json(new ApiResponse("error", "Missing required user information"));
       }
-
 
       const existingUser = await User.findOne({ clerkId: id });
       if (existingUser) {
@@ -50,14 +52,65 @@ const webhookHandler = async (req, res) => {
         clerkId: id,
         email: email,
         profilePicture: image_url || null,
-        username: genrateRandomUsername()
+        username: username || generateRandomUsername(),
       });
 
       return res
         .status(200)
-        .json(new ApiResponse("success", "Webhook processed successfully"));
+        .json(new ApiResponse("success", "User created successfully"));
     }
 
+    if (type === "user.updated") {
+      const {
+        id: clerkId,
+        username,
+        email_addresses,
+        image_url,
+      } = data;
+
+      console.log("Processing user.updated:", { clerkId, username });
+
+      try {
+        const updateFields = {};
+
+        if (username !== undefined) updateFields.username = username;
+        if (email_addresses?.[0]?.email_address)
+          updateFields.email = email_addresses[0].email_address;
+        if (image_url !== undefined) updateFields.profilePicture = image_url;
+
+        updateFields.updatedAt = new Date();
+
+        const updatedUser = await User.findOneAndUpdate(
+          { clerkId },
+          { $set: updateFields },
+          {
+            new: true,
+            upsert: false, // Don't create if doesn't exist - user.created should handle creation
+          }
+        );
+
+        if (!updatedUser) {
+          console.log("⚠️ User not found for update:", clerkId);
+          return res
+            .status(404)
+            .json(new ApiResponse("error", "User not found"));
+        }
+
+        console.log("✅ User updated in database:", {
+          clerkId,
+          username: updatedUser.username,
+        });
+
+        return res
+          .status(200)
+          .json(new ApiResponse("success", "User updated successfully"));
+      } catch (error) {
+        console.error("❌ Error updating user:", error);
+        throw error;
+      }
+    }
+
+    // Handle other event types
     return res
       .status(200)
       .json(new ApiResponse("success", "Event received but not processed"));

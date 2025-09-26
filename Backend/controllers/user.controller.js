@@ -97,6 +97,7 @@ const initialChangeRequest = async (req, res) => {
       throw new ApiError(200, "Required Fileds are not present in the request body")
     }
 
+    console.log(username, clerkId)
     const user = await User.findOne({clerkId});
 
     if(!user) {

@@ -37,7 +37,7 @@ router.route("/user/leaderboard").get(leaderboardStats);
 router
   .route("/user/updatename")
   .post(updateUserName);
-router.route("https://algosprint-vxi4.onrender.com/api/v1/user/updateinitialusername").post(initialChangeRequest);
+router.route("/user/updateinitialusername").post(initialChangeRequest);
 router
   .route("/user/discussion")
   .get(discussionDataFetcher);
