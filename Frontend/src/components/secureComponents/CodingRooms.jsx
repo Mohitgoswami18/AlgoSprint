@@ -6,7 +6,6 @@ import { v4 as uuid } from "uuid";
 import { Label } from "@/components/ui/label";
 import Loader from "../Loader"
 import {useAuth, useUser} from "@clerk/clerk-react"
-import {getAuth} from "@clerk/clerk-react"
 import {
   Dialog,
   DialogContent,

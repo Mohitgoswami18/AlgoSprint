@@ -99,9 +99,8 @@ const SsoCallback = () => {
               {error}
             </div>
           )}
-
-          <form onSubmit={handleMissingFields}>
-            <div className="mb-4">
+          <form onSubmit={handleMissingFields} className="space-y-4">
+            <div>
               <label
                 htmlFor="username"
                 className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
@@ -114,19 +113,31 @@ const SsoCallback = () => {
                 required
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 bg-white dark:bg-zinc-800 dark:border-gray-700 px-4 py-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-lg border border-gray-300 bg-white dark:bg-zinc-800 dark:border-gray-700 px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="Choose a username"
                 minLength={3}
                 maxLength={20}
+                pattern="^[a-zA-Z0-9_-]+$"
+                title="Username can only contain letters, numbers, underscores, and hyphens"
               />
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                4-20 characters, letters, numbers, underscores, and hyphens only
+              </p>
             </div>
 
             <button
               type="submit"
-              disabled={loading}
-              className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition disabled:opacity-50"
+              disabled={loading || !username.trim() || username.length < 3}
+              className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-semibold py-3 px-4 rounded-lg transition-colors disabled:cursor-not-allowed"
             >
-              {loading ? "Completing..." : "Complete Signup"}
+              {loading ? (
+                <div className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Completing Setup...
+                </div>
+              ) : (
+                "Complete Setup"
+              )}
             </button>
           </form>
         </div>
