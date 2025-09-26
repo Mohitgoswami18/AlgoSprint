@@ -47,7 +47,7 @@ const Features = () => {
   ];
 
   return (
-    <div className="font-[Inter] pt-22 bg-slate-50 dark:bg-black transition-colors duration-500">
+    <div className="font-[Inter] pt-12 bg-slate-50 dark:bg-black transition-colors duration-500">
       <h1 className="text-center font-bold text-4xl text-[#1a202c] dark:text-[#F7FAFC]">
         Master your Programming Skills
       </h1>

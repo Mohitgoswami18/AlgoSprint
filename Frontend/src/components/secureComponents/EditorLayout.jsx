@@ -315,9 +315,9 @@ useEffect(() => {
               Participants: {users.length}
             </p>
             <Button
-              size="lg"
+              size="sm"
               variant="personal"
-              className="mx-auto cursor-pointer"
+              className="mx-auto cursor-pointer text-sm font-bold w-24"
               onClick={() => {
                 HandleSubmitRequest();
               }}

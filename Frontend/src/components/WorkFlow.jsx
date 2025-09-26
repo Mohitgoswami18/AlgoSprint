@@ -44,9 +44,9 @@ const steps = [
   },
   {
     icon: <FaShareAlt />,
-    title: "Share Link",
+    title: "Share Room Id",
     description:
-      "Send this random genrated room id with other so that they can join thier room and compete with you in realtime battle",
+      "Send this random genrated room id with other so that they can join your room and compete with you in realtime battle",
     color: "text-yellow-500",
     imgs: [shareDark, shareLight],
     imgStyle: "rotate-3 shadow-md ml-24",
@@ -55,7 +55,7 @@ const steps = [
     icon: <MdOutlineNotStarted />,
     title: "Game Begins",
     description:
-      "Once both the user joined the room then a timer of 3 second will start and the battle begins ",
+      "Once everyone int the lobby is ready the contest begins",
     color: "text-red-500",
     imgs: [codePlaygroundDark, codePlaygroundLight],
     imgStyle: "ml-28 rotate-2",
@@ -64,15 +64,12 @@ const steps = [
 
 const HowItWorks = () => {
   return (
-    <section className="transition-all mt-12 duration-500 ease-in-out bg-slate-50 dark:bg-black font-[Inter] ">
+    <section className="font-[Inter] transition-all mt-12 duration-500 ease-in-out bg-slate-50 dark:bg-black font-[Inter] ">
       <h2 className="text-4xl font-bold text-center mb-12 text-black dark:text-white">
         How to start your journey
       </h2>
-      <div className="border-l-1 mx-24 border-zinc-700 w-1 h-4">
-      
-      </div>
+      <div className="border-l-1 mx-24 border-zinc-700 w-1 h-4"></div>
 
-      
       <div className="flex flex-col px-24 md:flex-row flex-wrap justify-center items-center">
         {steps.map((step, index) => {
           return (

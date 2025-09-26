@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import axios from "axios"
 import { Button } from "@/components/ui/button";
+import lobbybackground from "../../assets/images/lobbyBackground.png";
 
 const CodingLobby = () => {
   const [players, setPlayers] = useState([]);
@@ -21,6 +22,7 @@ const CodingLobby = () => {
   const navigate = useNavigate();
   const topic = location.state?.topic || " ";
   const time = location.state?.time || " ";
+  
 
   console.log(time)
 
@@ -171,28 +173,33 @@ const CodingLobby = () => {
   };
 
   return (
-    <div className="h-screen font-[Inter] bg-zinc-800 p-10 pt-5 animate-fadeIn text-white ">
+    <div className="h-screen font-[Inter] animate-fadeIn text-white ">
+    <div
+      className="min-h-screen relative font-[Inter] text-white"
+      style={{
+        backgroundImage: `url(${lobbybackground})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
+      <div className="absolute inset-0 bg-white/2" />
       <h1 className="text-center text-4xl font-bold p-4 text-white">
         Waiting Lobby
       </h1>
-      <p className="text-center text-slate-xinc-600">
-        Welcome to the waiting lobby! The room is being prepared for the coding
-        challenge. Get ready for the intense battle!
-      </p>
-      <p className="text-center">
-        <mark className="bg-cyan-500 px-2">
+      <p className="text-center font-bold text-sm underline px-2">
           atleast 2 coders are needed to begin the battle
-        </mark>
+
       </p>
 
       <div>
-        <div className="text-center flex items-center gap-4 font-bold justify-center mt-4 text-slate-xinc-600">
+        <div className="text-center mt-16 flex items-center gap-4 font-bold justify-center text-slate-xinc-600">
           <p>Topic: {topic}</p>
           <p>Time Limit: {time}</p>
         </div>
       </div>
 
-      <div className="flex border-4 h-[50%] overflow-y-auto max-w-[600px] mx-auto flex-wrap border-zinc-500 items-center justify-center p-10 m-10 mb-4 rounded-md">
+      <div className="flex border-2 h-[40vh] backdrop-blur-sm overflow-y-auto max-w-[600px] mx-auto flex-wrap border-red-300 items-center justify-center p-10 m-10 mt-4 mb-4 rounded-md">
         {players.map((elem, idx) => (
           <div key={idx} className="basis-[24%] text-center">
             {elem.avatar}
@@ -236,6 +243,7 @@ const CodingLobby = () => {
           Copy Id
         </Button>
       </div>
+    </div>
     </div>
   );
 };

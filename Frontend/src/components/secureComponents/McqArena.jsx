@@ -154,7 +154,7 @@ const McqArena = () => {
 
 
   return (
-    <div className="flex w-full h-screen">
+    <div className="flex w-full h-screen font-[Inter]">
       <div className="w-[20%] ">
         <div className="py-32 h-screen bg-blue-200 rounded-md p-4 flex flex-wrap gap-2 items-center justify-center">
           {Array.from({ length: 20 }, (_, i) => (

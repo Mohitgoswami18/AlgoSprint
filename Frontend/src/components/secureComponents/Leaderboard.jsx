@@ -129,7 +129,7 @@ const Leaderboard = () => {
   }
 
   return (
-    <div>
+    <div className="font-[Inter]">
       {err ? (
         <div className="text-black dark:text-white text-center mt-[30%] font-bold text-3xl">
           Error fetching leaderboard data

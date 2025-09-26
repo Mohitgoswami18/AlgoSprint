@@ -1,23 +1,28 @@
 import { Button } from "@/components/ui/button";
-import { useUser } from "@clerk/clerk-react"
+import { useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import Eye from "./Eyepart";
 
-const HeroSection = () => {
-
+const HeroSection = ({featureRef}) => {
   const navigate = useNavigate();
   const { isLoaded, isSignedIn, user } = useUser();
 
   const HandlePrimaryButton = () => {
+    if (!isLoaded) return;
 
-    if(!isLoaded) return;
-
-    if(isSignedIn) {
-      navigate(`/${user.username}/dashboard`)
+    if (isSignedIn) {
+      navigate(`/${user.username}/dashboard`);
     } else {
-      navigate("/auth/signup")
+      navigate("/auth/signup");
     }
+  };
+
+  const scrollToTheFeatures = (ref) => {
+    ref.current?.scrollIntoView({
+      behavior:"smooth",
+      block: "start"
+    })
   }
 
   return (
@@ -52,6 +57,7 @@ const HeroSection = () => {
             <Button
               variant="outline"
               className="cursor-pointer transition-all duration-500"
+              onClick={() => scrollToTheFeatures(featureRef)}
             >
               Explore ➡️
             </Button>

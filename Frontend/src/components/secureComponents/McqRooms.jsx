@@ -160,7 +160,7 @@ const McqRooms = () => {
   }
 
   return (
-    <div className="bg-slate-50 transition-all duration-500 dark:bg-black/80 text-black dark:text-white font-[Inter] p-5">
+    <div className="bg-slate-50 font-[Inter] transition-all duration-500 dark:bg-black/80 text-black dark:text-white font-[Inter] p-5">
       <div className="dark:bg-[#111] transition-all duration-500 bg-slate-50 shadow-md p-5 rounded-md">
         <div className="flex gap-4 items-center">
           <div className="dark:bg-[#222] transition-all duration-500 bg-slate-100 text-black dark:text-white shadow-md px-2 py-2 text-4xl rounded-xl">

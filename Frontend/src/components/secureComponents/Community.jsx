@@ -93,10 +93,10 @@ const CommunityRooms = () => {
   }, [postCount, username]);
 
   return (
-    <div className="min-h-screen px-4 py-6 bg-zinc-900 text-gray-100 transition-colors duration-300">
+    <div className="min-h-screen font-[Inter] px-4 py-6 dark:bg-white/3 dark:text-gray-100 transition-all duration-500">
       {/* Header */}
-      <div className="max-w-4xl mx-auto mb-6 p-6 bg-zinc-800 rounded-xl shadow-lg flex items-center gap-4">
-        <div className="p-3 bg-gray-700 rounded-full text-3xl">
+      <div className="max-w-4xl mx-auto mb-6 p-6 bg-slate-100 dark:bg-zinc-950 ring-[0.3px] ring-white transition-all duration-500 rounded-xl shadow-lg flex items-center gap-4">
+        <div className="p-3 dark:bg-gray-700 rounded-full text-3xl">
           <RiUserCommunityFill />
         </div>
         <div>
@@ -108,7 +108,7 @@ const CommunityRooms = () => {
       </div>
 
       {/* Discussions */}
-      <div className="max-w-4xl mx-auto mb-6 p-6 bg-white/5 rounded-xl shadow-lg">
+      <div className="max-w-4xl mx-auto mb-6 p-6 bg-slate-100 dark:bg-zinc-900 rounded-xl shadow-lg">
         <h2 className="text-lg font-semibold mb-4">Recent Discussions</h2>
 
         {hasError && <p className="text-red-500">Error fetching discussions</p>}
@@ -120,9 +120,11 @@ const CommunityRooms = () => {
             discussionsList.map((elem, idx) => (
               <div
                 key={idx}
-                className="mb-4 p-4 bg-zinc-800 rounded-lg shadow-md"
+                className="mb-4 p-4 dark:bg-zinc-800 rounded-lg shadow-md"
               >
-                <h3 className="font-semibold text-gray-100">{elem.message}</h3>
+                <h3 className="font-semibold dark:text-gray-100">
+                  {elem.message}
+                </h3>
                 <div className="flex items-center gap-3 mt-2 text-sm text-gray-400">
                   <img
                     src={elem.user?.profilePicture}
@@ -165,8 +167,13 @@ const CommunityRooms = () => {
                         <p key={rIdx} className="text-sm text-gray-200">
                           {r.user && (
                             <div className="flex gap-4 m-2 items-center justify-start">
-                              <img className="w-5 rounded-full" src={r.user.profilePicture} alt="" />
-                              <strong>{r.user?.username}&nbsp;:</strong> {r.message}
+                              <img
+                                className="w-5 rounded-full"
+                                src={r.user.profilePicture}
+                                alt=""
+                              />
+                              <strong>{r.user?.username}&nbsp;:</strong>{" "}
+                              {r.message}
                             </div>
                           )}
                         </p>

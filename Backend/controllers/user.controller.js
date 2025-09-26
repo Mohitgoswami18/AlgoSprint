@@ -89,6 +89,33 @@ const dashboardController = async (req, res, next) => {
   }
 };
 
+const initialChangeRequest = async (req, res) => {
+  try{
+    const {clerkId, username} = req.body;
+
+    if(!clerkId || !username) {
+      throw new ApiError(200, "Required Fileds are not present in the request body")
+    }
+
+    const user = await User.findOne({clerkId});
+
+    if(!user) {
+      throw new ApiError(
+        200,
+        "user not found"
+      );
+    }
+
+    user.username = username;
+    await user.save();
+    
+    res.status(200).json(new ApiResponse(200,"Updated the username successfully"));
+
+  } catch (error) {
+    throw new ApiError(200, error)
+  }
+}
+
 const updateUserName = async (req, res, next) => {
   try {
     const { newUsername, username } = req.body;
@@ -303,4 +330,5 @@ export {
   discussionDataFetcher,
   discussionDataUpation,
   handlePostReply,
+  initialChangeRequest,
 };

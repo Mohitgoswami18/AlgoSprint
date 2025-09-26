@@ -7,7 +7,7 @@ import clerkLogo from "../assets/images/clerklogo.png"
 
 const AuthFeture = () => {
   return (
-    <div className="relative bg-slate-50 pt-4 dark:bg-black rounded-md font-[Inter] overflow-clip w-full border-2">
+    <div className="relative  bg-slate-50 pt-4 dark:bg-black rounded-md font-[Inter] overflow-clip w-full border-2">
       <div className="absolute inset-0 flex items-center justify-center z-0 pointer-events-none">
         <div className="bg-slate-300/50 dark:bg-zinc-950 h-10/11 w-11/12 rotate-45 transform scale-135"></div>
       </div>

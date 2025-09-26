@@ -32,13 +32,13 @@ const Timer = () => {
   return (
     <div
       style={{ fontSize: "1rem", fontFamily: "Inter" }}
-      className="flex items-center justify-center gap-4"
+      className="flex font-[Inter] items-center justify-center gap-4"
     >
       <div>{formatTime(seconds)}</div>
       <div className="gap-2 bg-zinc-200 px-4 py-2 rounded-md dark:bg-white/4 flex items-center justify-center">
         <div
           onClick={() => {
-            setIsRunning((prev)=> !prev);
+            setIsRunning((prev) => !prev);
           }}
         >
           {!isRunning ? (

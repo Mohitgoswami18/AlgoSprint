@@ -7,19 +7,43 @@ import WorkFlow from "./WorkFlow";
 import Footer from "./Footer";
 import CTA from "./FinalCTA";
 import RankLine from "./Rank"
+import { useRef } from "react"
 
 const WebsiteLayout = () => {
+
+  const featureRef = useRef(null);
+  const homeRef = useRef(null);
+  const languageRef = useRef(null);
+  const rankLineRef = useRef(null);
+  const workFlowRef = useRef(null);
+
   return (
-    <div>
+    <div className="font-[Inter]">
       <Navbar />
-      <HeroSection />
-      <Features />
+      <div ref={homeRef}>
+        <HeroSection featureRef={featureRef} />
+      </div>
+      <div ref={featureRef}>
+        <Features />
+      </div>
       <Feature3 />
-      <RankLine />
-      <LanguagesAvailable />
-      <WorkFlow />
+      <div ref={rankLineRef}>
+        <RankLine />
+      </div>
+      <div ref={languageRef}>
+        <LanguagesAvailable />
+      </div>
+      <div ref={workFlowRef}>
+        <WorkFlow />
+      </div>
       <CTA />
-      <Footer />
+      <Footer
+        homeRef={homeRef}
+        featureRef={featureRef}
+        rankLineRef={rankLineRef}
+        languageRef={languageRef}
+        workFlow={workFlowRef}
+      />
     </div>
   );
 };

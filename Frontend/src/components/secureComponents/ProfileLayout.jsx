@@ -4,7 +4,7 @@ import { Outlet } from 'react-router-dom'
 
 const ProfileLayout = () => {
   return (
-    <div className="flex w-full relative dark:bg-black">
+    <div className="flex w-full font-[Inter] relative dark:bg-black">
       <div className="w-full fixed ">
         <ProfileHeroSection />
       </div>

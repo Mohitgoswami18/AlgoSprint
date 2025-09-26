@@ -7,6 +7,21 @@
   display: none;
 }
 
+@keyframes loader-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.loader-spin {
+  animation: loader-spin 0.5s linear infinite;
+  border-color: rgba(255, 255, 255, 0.2);
+  border-top-color: white;
+}
+
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);

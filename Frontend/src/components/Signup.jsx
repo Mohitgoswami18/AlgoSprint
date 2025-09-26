@@ -29,7 +29,6 @@ export default function Signup() {
       }
     )
     setGoogleLoading(false);
-    toast.success("Login Successfully !")
   };
 
   const handleSignUp = async (e) => {
@@ -223,9 +222,9 @@ export default function Signup() {
           {googleLoading ? (
             <Loader />
           ) : (
-            <div className="flex items-center justify-center">
+            <div className="flex items-center font-bold text-sm gap-2 justify-center">
               <img src={google} alt="Google" className="w-5 h-5" />
-              "continue with google"
+              continue with google
             </div>
           )}
         </button>

@@ -17,6 +17,7 @@ const SsoCallback = () => {
 
     try {
       if (isSignedIn && user) {
+
         const userUsername =
           user.username ||
           user.firstName?.toLowerCase() ||
@@ -49,6 +50,18 @@ const SsoCallback = () => {
     }
   }, [isLoaded, isSignedIn, user, signUp, navigate]);
 
+  const handleUsernameUpdation = async (id) => {
+    try {
+      const res = await axios.post(
+        "https://algosprint-vxi4.onrender.com/api/v1/user/updateinitialusername",
+        { username, clerkId: id }
+      );
+      console.log(res);
+    } catch (error) {
+      console.log("an error occured", error);
+    }
+  }
+
   const handleMissingFields = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -63,6 +76,8 @@ const SsoCallback = () => {
       const result = await signUp.update({
         username: username,
       });
+
+      handleUsernameUpdation(result.user.id)
 
       if (result.status === "complete") {
         await setActive({ session: result.createdSessionId });
@@ -83,7 +98,7 @@ const SsoCallback = () => {
   // Show missing fields form
   if (showMissingFields) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-50 dark:bg-black">
+      <div className="flex font-[Inter] items-center justify-center min-h-screen bg-slate-50 dark:bg-black">
         <div className="w-full max-w-sm bg-white dark:bg-zinc-900 p-8 rounded-lg shadow-lg">
           <h2 className="text-2xl font-bold text-center text-gray-900 dark:text-white mb-2">
             Complete Your Profile
@@ -134,7 +149,7 @@ const SsoCallback = () => {
 
   if (!isLoaded) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-50 dark:bg-black">
+      <div className="flex font-[Inter] items-center justify-center min-h-screen bg-slate-50 dark:bg-black">
         <div className="text-center bg-white dark:bg-zinc-900 p-8 rounded-lg shadow-lg max-w-md">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto mb-4"></div>
           <p className="text-gray-600 dark:text-gray-400">
@@ -147,7 +162,7 @@ const SsoCallback = () => {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-50 dark:bg-black">
+      <div className="flex font-[Inter] items-center justify-center min-h-screen bg-slate-50 dark:bg-black">
         <div className="text-center bg-white dark:bg-zinc-900 p-8 rounded-lg shadow-lg max-w-md">
           <div className="text-red-500 text-xl mb-4">⚠️</div>
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
@@ -162,7 +177,7 @@ const SsoCallback = () => {
     );
   }
   return (
-    <div className="flex items-center justify-center min-h-screen bg-slate-50 dark:bg-black">
+    <div className="flex font-[Inter] items-center justify-center min-h-screen bg-slate-50 dark:bg-black">
       <div className="text-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto mb-4"></div>
         <p className="text-gray-600 dark:text-gray-400">

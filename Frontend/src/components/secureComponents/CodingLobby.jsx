@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import axios from "axios"
 import { Button } from "@/components/ui/button";
+import lobbybackground from "../../assets/images/lobbyBackground.png"
 
 const CodingLobby = () => {
   const [players, setPlayers] = useState([]);
@@ -21,7 +22,7 @@ const CodingLobby = () => {
   const topic = location.state?.topic || " ";
   const [roomSettingData, setRoomSettingData] = useState([]);
   const settings = location.state?.settings
-  const time = settings.time || " ";
+  const time = settings?.time || " ";
 
   console.log(settings)
   console.log(
@@ -206,77 +207,92 @@ const CodingLobby = () => {
   }, [players]);
 
   return (
-    <div className="h-screen font-[Inter] bg-zinc-800 p-10 pt-5 animate-fadeIn text-white ">
-      <h1 className="text-center text-4xl font-bold p-4 text-white">
-        Waiting Lobby
-      </h1>
-      <p className="text-center text-slate-xinc-600">
-        Welcome to the waiting lobby! The room is being prepared for the coding
-        challenge. Get ready for the intense battle!
-      </p>
-      <p className="text-center">
-        <mark className="bg-cyan-500 px-2">
-          atleast 2 coders are needed to begin the battle
-        </mark>
-      </p>
+    <div
+      className="min-h-screen relative font-[Inter] text-white"
+      style={{
+        backgroundImage: `url(${lobbybackground})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
+      <div className="absolute inset-0 bg-white/2" />
 
-      <div>
-        <div className="text-center flex items-center gap-4 font-bold justify-center mt-4 text-slate-xinc-600">
-          <p>PlayStyle: {roomSettingData[1]}</p>
-          <p>Number of Problems: {roomSettingData[0]}</p>
-        </div>
-      </div>
+      <div className="relative z-10 p-10 pt-5 animate-fadeIn">
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-center text-4xl font-extrabold p-4">
+            Waiting Lobby
+          </h1>
 
-      <div className="flex border-4 h-[50%] overflow-y-auto max-w-[600px] mx-auto flex-wrap border-zinc-500 items-center justify-center p-10 m-10 mb-4 rounded-md">
-        {players.map((elem, idx) => (
-          <div key={idx} className="basis-[24%] text-center">
-            {elem.avatar}
-            <p
-              className={`${
-                elem.ready ? "text-green-500" : "text-red-500"
-              } text-sm font-bold`}
-            >
-              {elem.name}
-            </p>
+          <p className="text-center mt-4 text-sm font-bold underline">
+            atleast 2 coders are needed to begin the battle
+          </p>
+
+          <div className="mt-16 mb-2">
+            <div className="text-center flex items-center gap-4 font-bold justify-center text-white">
+              <p>PlayStyle: {roomSettingData[1]}</p>
+              <p>Problems: {roomSettingData[0]}</p>
+            </div>
           </div>
-        ))}
-      </div>
 
-      <div className="font-bold test-sm pb-4 text-center">
-        coders Joined : <span>{players.length}</span>
-      </div>
-      <div className="flex items-center gap-4 justify-center">
-        <Button
-          className="border-3 shadow-md"
-          variant="outline"
-          size="sm"
-          onClick={() => handleReadyLogic(username)}
-        >
-          {players.find((player) => player.name === username)?.ready
-            ? "Cancel"
-            : "Ready"}
-        </Button>
-        <Button
-          className="border-3 shadow-md"
-          variant="destructive"
-          size="sm"
-          onClick={() => {
-            toast.success("Leaved the room successfully!");
-            navigate(`/${realUsername}/codingroom`, { replace: true });
-          }}
-        >
-          leave
-        </Button>
-        <Button
-          className="border-3 shadow-md"
-          size="sm"
-          onClick={() => handleCopyTask()}
-        >
-          Copy Id
-        </Button>
+          <div
+            className="flex border-2 h-[40vh] overflow-y-auto max-w-[600px] mx-auto flex-wrap 
+               border-red-300 items-center justify-center p-10 m-10 mt-4 mb-4 rounded-md
+               bg-black/30 backdrop-blur-sm"
+          >
+            {players.map((elem, idx) => (
+              <div key={idx} className="basis-[24%] text-center">
+                {elem.avatar}
+                <p
+                  className={`${
+                    elem.ready ? "text-green-500" : "text-red-500"
+                  } text-sm font-bold`}
+                >
+                  {elem.name}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <div className="font-bold test-sm pb-4 text-center">
+            coders Joined : <span>{players.length}</span>
+          </div>
+
+          <div className="flex items-center gap-4 justify-center">
+            <Button
+              className="border-3 shadow-md hover:bg-white/20"
+              variant="outline"
+              size="sm"
+              onClick={() => handleReadyLogic(username)}
+            >
+              {players.find((player) => player.name === username)?.ready
+                ? "Cancel"
+                : "Ready"}
+            </Button>
+            <Button
+              className="border-3 shadow-md"
+              variant="destructive"
+              size="sm"
+              onClick={() => {
+                toast.success("Leaved the room successfully!");
+                navigate(`/${realUsername}/codingroom`, { replace: true });
+              }}
+            >
+              leave
+            </Button>
+            <Button
+              className="border-3 shadow-md hover:bg-white/20"
+              size="sm"
+              onClick={() => handleCopyTask()}
+            >
+              Copy Id
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );
 };
 
 export default CodingLobby;
+

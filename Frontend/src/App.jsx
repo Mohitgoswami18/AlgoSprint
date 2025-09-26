@@ -92,7 +92,6 @@ const App = () => {
           <Route path="/room/:roomid" element={<CollabEditor />} />
           <Route path="/codingroom/:roomid/arena" element={<Playground />} />
           <Route path="/mcqrooms/:roomid/arena" element={<McqArena />} />
-          <Route path="/mcqrooms/:roomid/arena" element={<McqArena />} />
           {/* <Route path="*" element={<NotFound />} /> */}
         </Routes>
       </SignedIn>

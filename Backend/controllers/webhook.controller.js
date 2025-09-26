@@ -1,8 +1,13 @@
 import { Webhook } from "svix";
 import { ApiResponse } from "../Utils/ApiResponse.js";
 import { User } from "../models/user.model.js";
+import { set } from "mongoose";
 
 const secret = process.env.WEBHOOK_SECRET;
+
+const genrateRandomUsername = () => {
+  return `user-${Math.floor(1000 + Math.random() * 9000)}`;
+}
 
 const webhookHandler = async (req, res) => {
   try {
@@ -24,7 +29,7 @@ const webhookHandler = async (req, res) => {
     console.log("Event type:", type);
 
     if (type === "user.created") {
-      const { email_addresses, id, image_url, first_name, last_name } = data;
+      const { email_addresses, id, image_url} = data;
       const email = email_addresses?.[0]?.email_address;
 
       if (!email || !id) {
@@ -45,10 +50,7 @@ const webhookHandler = async (req, res) => {
         clerkId: id,
         email: email,
         profilePicture: image_url || null,
-        username:
-          first_name && last_name
-            ? `${first_name} ${last_name}`
-            : email.split("@")[0],
+        username: genrateRandomUsername()
       });
 
       return res

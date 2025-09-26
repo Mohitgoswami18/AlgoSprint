@@ -22,7 +22,7 @@ const ranks = [
 const RankLine = () => {
   return (
     <div>
-      <div className="w-full mt-24 flex max-w-[900px] mx-auto transition-all duration-500 flex-col items-center px-4 py-8">
+      <div className="w-full font-[Inter] mt-24 flex max-w-[900px] mx-auto transition-all duration-500 flex-col items-center px-4 py-8">
         <h2 className="text-4xl mb-1 font-bold text-gray-800 dark:text-gray-100">
           Rise the Ranks Climb the Ladder
         </h2>

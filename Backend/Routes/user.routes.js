@@ -24,6 +24,7 @@ import { findRoomSetting } from "../controllers/codingRooms.controller.js";
 import dotenv from "dotenv"
 import { clerkMiddleware} from "@clerk/express";
 import {handlePostReply} from "../controllers/user.controller.js"
+import { initialChangeRequest } from "../controllers/user.controller.js";
 
 dotenv.config();
 
@@ -36,6 +37,7 @@ router.route("/user/leaderboard").get(leaderboardStats);
 router
   .route("/user/updatename")
   .post(updateUserName);
+router.route("https://algosprint-vxi4.onrender.com/api/v1/user/updateinitialusername").post(initialChangeRequest);
 router
   .route("/user/discussion")
   .get(discussionDataFetcher);

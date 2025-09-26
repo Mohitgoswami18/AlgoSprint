@@ -5,6 +5,7 @@ import go from "../assets/images/go.jpg";
 import php from "../assets/images/php.jpg";
 import js from "../assets/images/js.jpg";
 import java from "../assets/images/java.jpg";
+import javaLogo from "../assets/images/javaLogo.png";
 import pistonLogo from "../assets/images/piston.png"
 import { TbArrowBarBoth } from "react-icons/tb";
 import {
@@ -92,7 +93,7 @@ const LanguagesAvailable = () => {
                   </CarouselItem>
                   <CarouselItem>
                     <img
-                      src="https://cdn.simpleicons.org/java/007396"
+                      src={javaLogo}
                       alt="Java logo"
                       width="50"
                       className="rounded-md"
@@ -178,7 +179,7 @@ const LanguagesAvailable = () => {
           <img
             src={pistonLogo}
             alt=""
-            className="rounded-md animate-pulse my-3 animation-duration-[6s]"
+            className="rounded-md animate-pulse my-3 animation-duration-[4s]"
           />
         </div>
       </div>
