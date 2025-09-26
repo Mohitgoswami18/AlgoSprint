@@ -11,8 +11,6 @@ const generateRandomUsername = () => {
 const webhookHandler = async (req, res) => {
   try {
     console.log("The webhook is being prepared");
-
-    // Get the raw body as string (make sure your middleware provides this correctly)
     const payload =
       typeof req.body === "string" ? req.body : JSON.stringify(req.body);
     console.log("Webhook payload:", payload);
@@ -48,7 +46,7 @@ const webhookHandler = async (req, res) => {
           .json(new ApiResponse("success", "User already exists"));
       }
 
-      await User.create({
+      const user = await User.create({
         clerkId: id,
         email: email,
         profilePicture: image_url || null,
@@ -57,7 +55,7 @@ const webhookHandler = async (req, res) => {
 
       return res
         .status(200)
-        .json(new ApiResponse("success", "User created successfully"));
+        .json(new ApiResponse("success", "User created successfully", {user}));
     }
 
     if (type === "user.updated") {
