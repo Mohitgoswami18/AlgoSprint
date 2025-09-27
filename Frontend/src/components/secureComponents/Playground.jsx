@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import {
   ResizableHandle,
   ResizablePanel,
@@ -44,11 +44,9 @@ const Playground = () => {
   const username = location.state?.username;
   const totalQuestions = location.state?.totalQuestions;
   const realUsername = location.state?.realUsername;
-  console.log("the real username is", realUsername);
   const numberOfProblems = setting.numberOfProblems;
   const totalParticipants = location.state.totalParticipants;
   const startTime = location.state.startTime;
-  console.log(startTime);
   const navigate = useNavigate();
   const params = useParams();
   const [language, setLanguage] = useState([]);
@@ -72,7 +70,6 @@ const Playground = () => {
   const [problemFinished, setProblemfinished] = useState();
 
   const [questionDone, setQuestionDone] = useState();
-  console.log(realUsername);
 
   const editorRef = useRef(
     Array.from({ length: numberOfProblems }, () => null)
@@ -85,7 +82,6 @@ const Playground = () => {
     return savedTime ? parseInt(savedTime) : setting.time || 3600;
   });
 
-  console.log(time)
   const [problems, setProblems] = useState([]);
   const [codeSubmitOutput, setCodeSubmitOutput] = useState(
     Array.from({ length: numberOfProblems }, () => [])
@@ -102,7 +98,6 @@ const Playground = () => {
       testCases: elem.problemTestCases.slice(0, 2),
     }));
 
-    console.log(problemTestCasses);
   }
 
   useEffect(() => {
@@ -138,14 +133,6 @@ const Playground = () => {
   }, [roomid]);
 
   const HandleRedirectLogic = (event) => {
-    console.log(
-      "problem solved",
-      problemFinished,
-      "totalQuestions:",
-      numberOfProblems,
-      "Time Taken",
-      startTime - Math.floor(Date.now() / 1000)
-    );
 
     const timeTaken = Math.floor(Date.now() / 1000) - startTime;
 
@@ -205,7 +192,6 @@ const Playground = () => {
     questionDone?.map((elem, idx) => (elem === true ? count++ : (count += 0)));
     setProblemfinished(count);
     if (count === Number(numberOfProblems)) {
-      console.log("Finised all the problems\n");
       HandleRedirectLogic(count);
     }
   }, [questionDone]);
@@ -256,9 +242,6 @@ const Playground = () => {
       toast.error("PLease select a language first")
       return;
     }
-
-    console.log("inside the handleRequestMethod");
-    console.log(problems[idx].problemTestCases.length);
     setLoading(true);
     let result = [];
     for (let i = 0; i < 2; i++) {
@@ -266,8 +249,6 @@ const Playground = () => {
         "sample_input_",
         ""
       );
-
-      console.log(currentTestCase);
       const expectedOutcome = problems[idx].problemTestCases[
         i
       ].expectedOutput.replace("expected_output_", "");
@@ -286,7 +267,6 @@ const Playground = () => {
         }
       );
 
-      console.log(response);
 
       const actualOutput = response.data.run.output.trim();
       result.push({
@@ -300,7 +280,6 @@ const Playground = () => {
         prev.map((item, index) => (index === idx ? result : item))
       );
     }
-    console.log("runn result", codeOutput[idx]);
     setLoading(false);
     setActiveTab("testResult");
     setOutputRunned((prev) =>

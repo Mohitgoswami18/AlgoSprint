@@ -161,7 +161,6 @@ useEffect(() => {
   socketRef.current.on("code-change", handleRemoteCodeChange);
 
   socketRef.current.on("langChanged", ({lang, ver}) => {
-    console.log(lang, ver);
     setLanguage([lang, ver]);
 
   });
@@ -220,8 +219,6 @@ useEffect(() => {
     setLoading(false);
   };
 
-  console.log(err, output);
-
   return (
     <div className="flex items-center gap-2 justify-between px-2 font-[Inter]">
       {/* Left Section of the collaborative screen */}
@@ -275,7 +272,7 @@ useEffect(() => {
             variant="destructive"
             onClick={() => {
               toast.success("Leaved the room successfully!");
-              navigate("/user/collaborativerooms", { replace: true });
+              navigate(`/${username}/collaborativerooms`, { replace: true });
             }}
           >
             Leave
@@ -298,7 +295,6 @@ useEffect(() => {
                   lang === "c++" ? starterCode["cpp"] : starterCode[lang]
                 );
 
-                console.log(lang, ver);
                 socketRef.current.emit("langChange", {
                   roomid: param.roomid,
                   lang,

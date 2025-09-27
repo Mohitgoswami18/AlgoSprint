@@ -10,9 +10,7 @@ const genrateRandomUsername = () => {
 
 const webhookHandler = async (req, res) => {
   try {
-    console.log("The webhook is beign prepared")
     const payload = req.body.toString();
-    console.log("Webhook payload:", payload);
     const header = req.headers;
 
     const headers = {
@@ -25,7 +23,6 @@ const webhookHandler = async (req, res) => {
     const evt = wh.verify(payload, headers);
 
     const { data, type } = evt;
-    console.log("Event type:", type);
 
     if (type === "user.created") {
       const { email_addresses, id, image_url, username} = data;

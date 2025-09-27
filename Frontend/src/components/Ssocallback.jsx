@@ -116,7 +116,6 @@ const SsoCallback = () => {
                 placeholder="Choose a username"
                 minLength={3}
                 maxLength={20}
-                pattern="^[a-zA-Z0-9_-]+$"
                 title="Username can only contain letters, numbers, underscores, and hyphens"
               />
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">

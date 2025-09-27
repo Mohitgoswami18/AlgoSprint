@@ -24,10 +24,6 @@ const CodingLobby = () => {
   const settings = location.state?.settings
   const time = settings?.time || " ";
 
-  console.log(settings)
-  console.log(
-    'hbkgyugiuyguyg',realUsername)
-
     const handleCopyTask = async () => {
       if(!copied) {
         await navigator.clipboard.writeText(roomid)
@@ -45,7 +41,6 @@ const CodingLobby = () => {
         "https://algosprint-vxi4.onrender.com/api/v1/user/codingroomsettings",
         { params: { roomid } }
       );
-      console.log(res.data.data);
       setRoomSettingData([res.data.data.numberofQuestions, res.data.data.style]);
     }
 
@@ -138,7 +133,7 @@ const CodingLobby = () => {
             }
           )
           .then((res) => {
-            console.log("Updated the timings of the room successfully");
+            // console.log("Updated the timings of the room successfully");
           })
           .catch((err) => {
             console.log("an error occur", err);
@@ -156,8 +151,6 @@ const CodingLobby = () => {
               },
             }
           );
-
-          console.log(res)
           const codingQuestions = res.data.data.questions;
           setData(true);
 
@@ -171,7 +164,7 @@ const CodingLobby = () => {
       FetchQuestionsFromTheBackend();
 
       const updateCurrentRoomSettings = async (codingQuestions) => {
-        console.log("Final data going to backend:", codingQuestions);
+        // console.log("Final data going to backend:", codingQuestions);
         await axios.post(
           "https://algosprint-vxi4.onrender.com/api/v1/user/codingrooms/updateRoomDetails",
           {
@@ -185,7 +178,7 @@ const CodingLobby = () => {
 
     startLobbyGameFlow();
 
-    console.log("The startTime is", Math.floor(Date.now() / 1000));
+    // console.log("The startTime is", Math.floor(Date.now() / 1000));
 
     if(data) {
       navigate(`/codingroom/${roomid}/arena`, {

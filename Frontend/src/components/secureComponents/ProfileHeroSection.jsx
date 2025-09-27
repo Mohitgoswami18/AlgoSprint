@@ -18,7 +18,6 @@ const ProfileHeroSection = () => {
   const username = user?.username;
 
   if (!username) {
-    console.log("No username given");
     return;
   }
 

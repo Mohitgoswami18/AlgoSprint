@@ -26,7 +26,6 @@ const McqRooms = () => {
   const params = useParams();
   const navigate = useNavigate();
   const realUsername = params.username;
-  console.log(realUsername)
   const [roomid, setRoomid] = useState("");
   const [loading, setLoading] = useState([
     false,
@@ -140,18 +139,16 @@ const McqRooms = () => {
     }
 
     console.log("topic is", event)
-    // "https://algosprint-vxi4.onrender.com/api/v1/user/mcqrooms/createmcqroom";
 
     const response = await axios.post(
-      "http://localhost:8000/api/v1/user/mcqrooms/createmcqroom",
+      "https://algosprint-vxi4.onrender.com/api/v1/user/mcqrooms/createmcqroom",
       {
         roomCode: roomid,
         username: realUsername,
         topic: event,
       }
     );
-    
-    console.log(response)
+
     setLoading([false, false, false, false, false, false, false, false]);
 
     if (response.data.message !== "Room Created Successfully") {
@@ -167,7 +164,6 @@ const McqRooms = () => {
   }
 
   const handleJoinLogic = async () => {
-    console.log(realUsername)
     setJoinLoading(true);
 
     if (!realUsername || !roomid) {
@@ -185,7 +181,6 @@ const McqRooms = () => {
     );
     
     if (response.data.message !== "Room joined successfully") {
-      console.log(response.data.message);
       toast.error("there was some error while joining the room try again later");
       setLoading(false)
       return;

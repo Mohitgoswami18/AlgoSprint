@@ -23,13 +23,8 @@ const ResultPage = () => {
   const roomid = params.roomid;
   const score = location.state.score;
   const timeTake = location.state.timeTaken;
-  console.log(timeTake, score);
-  const totalParticipants = location.state.totalParticipants;
   const startTime = location.state.startTime;
-  console.log("FERGFRG", startTime);
   const realUsername = location.state?.realUsername;
-  console.log(realUsername);
-  const username = location.state?.username || "bot";
   const totalTime = location.state?.time || 120;
 
   const [userProfile, setUserProfile] = useState({});
@@ -43,7 +38,6 @@ const ResultPage = () => {
   }, [])
 
   useEffect(() => {
-    console.log("We are fetching the user dashboard", realUsername);
     const fetchUserProfile = async () => {
       try {
         const res = await axios.get(
@@ -54,8 +48,6 @@ const ResultPage = () => {
             },
           }
         );
-
-        console.log(res);
         setUserProfile(res.data.data);
       } catch (err) {
         console.log("An error occurred fetching user profile", err);
@@ -80,7 +72,6 @@ const ResultPage = () => {
         "playerConnectedToTheWaitingArea",
         async ({ newPlayerData, allWaitingPlayers }) => {
           try {
-            console.log(typeof userProfile.userid, "fiudshguhodhs");
             await axios.post(
               `https://algosprint-vxi4.onrender.com/api/v1/user/codingrooms/updateparticipantsdetails`,
               {
@@ -154,11 +145,8 @@ const ResultPage = () => {
   }, [userProfile, roomid, realUsername, score, timeTake]);
 
   useEffect(() => {
-  // Fetch the current room participants
-  console.log("Fetching participants...");
   const fetchRoomParticipants = async () => {
     try {
-      console.log("Calling API to fetch participants...");
       const response = await axios.get(
         `https://algosprint-vxi4.onrender.com/api/v1/user/rooms/participants`,
         {
@@ -195,7 +183,6 @@ const ResultPage = () => {
   fetchRoomParticipants();
 }, [roomid]);
 
-  console.log(userFinished);
 
   return (
     <div className="font-[Inter] py-10 bg-gradient-to-br from-cyan-50 to-cyan-100 min-h-screen">

@@ -113,7 +113,6 @@ const CodingLobby = () => {
 
     const fetchQuestionsAndStart = async () => {
       try {
-        console.log("fetching questions for the first time...")
         const res = await axios.get(
           `https://algosprint-vxi4.onrender.com/api/v1/user/mcqroom/arena/topic/problems`,
           { params: { topic } }

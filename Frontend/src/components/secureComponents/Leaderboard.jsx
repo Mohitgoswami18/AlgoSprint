@@ -15,12 +15,10 @@ const Leaderboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        console.log("Fetching the data");
         const response = await axios
           .get(`https://algosprint-vxi4.onrender.com/api/v1/user/leaderboard`)
           .then((res) => {
             setData(true);
-            console.log("data fetched successfully");
 
             setLeaderboardData({
               top10: res.data.data.top10 || [],
@@ -45,7 +43,6 @@ const Leaderboard = () => {
   }, []);
 
   if (data && leaderboardData?.top10?.length > 0) {
-    console.log(leaderboardData.top10, leaderboardData.totalBattleFought, leaderboardData.totalUsers);
     leaderboardTop10 = [
       {
         rank: "#4",

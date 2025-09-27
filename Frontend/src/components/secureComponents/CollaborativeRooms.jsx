@@ -37,8 +37,6 @@ const CollaborativeRooms = () => {
   };
 
   const navigate = useNavigate();
-  console.log(roomid);
-
   const HandleJoin = () => {
     navigate(`/room/${roomid}`, {
       state: { username },

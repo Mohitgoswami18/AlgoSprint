@@ -13,7 +13,7 @@ const CreateRoom = async (req, res) => {
         .status(401)
         .json(new ApiResponse(401, "Authentication token missing"));
     }
-    console.log(req.auth)
+
     const { roomCode, username, style, numberOfQuestions } = req.body;
 
     if (!roomCode || !username || !style || !numberOfQuestions) {
@@ -64,7 +64,6 @@ const CreateRoom = async (req, res) => {
 };
 
 const QuestionFetcher = async (req, res) => {
-  console.log("We are in the questionFetcher Controller");
 
   if (!req.params) {
     throw new ApiError(
@@ -74,25 +73,19 @@ const QuestionFetcher = async (req, res) => {
   }
 
   const { questions } = req.query;
-  console.log("Number of questions are :", questions);
 
   const numberofQuestions = parseInt(questions, 10);
-  console.log(typeof numberofQuestions);
-
   if (!questions) {
     throw new ApiError(400, "Number of Questions are required");
   }
 
   try {
-    console.log("Fetching questions from the database");
     const quesitonsData = await Problem.aggregate([
       { $sample: { size: numberofQuestions } },
     ]);
 
     if (!quesitonsData) {
       throw new ApiError(505, "error while Fetching the questions");
-    } else {
-      console.log("questions fetched successfully");
     }
 
     res.status(200).json(
@@ -158,17 +151,12 @@ const findQuestionFromBackend = async (req, res) => {
     throw new ApiError(404, "Roomid not found in the request parameters");
   }
 
-  console.log("got the room id");
-  console.log("Entring the required controller");
-
   const response = await Room.findOne({ roomCode: roomid })
     .populate("question")
     .exec();
   if (!response) {
     throw new ApiError(404, "room not found or expired");
   }
-
-  console.log("Found the room with id ROOMCODE");
 
   if (Date.now() > response.endTime) {
     throw new ApiError(200, "The room is expired");
@@ -211,8 +199,6 @@ const updateRoomDetails = async (req, res) => {
       throw new ApiError(500, "internal server Error");
     }
 
-    console.log("The RoomDetails get Updated", roomDetails);
-
     res
       .status(200)
       .json(new ApiResponse(200, "Successfully updated room Details"));
@@ -223,15 +209,12 @@ const updateRoomDetails = async (req, res) => {
 
 const fetchParticipants = async (req, res) => {
   try {
-    console.log("inside fetch Controller");
     const { roomid } = req.query;
-    console.log("got the room id");
 
     if (!roomid) {
       throw new ApiError(404, "roomid not found in the request parameters");
     }
 
-    console.log("finding the room with room id");
     const roomParticipantDetails = await Room.findOne({ roomCode: roomid });
 
     if (!roomParticipantDetails) {
@@ -284,8 +267,6 @@ const updateRoomParticipantsDetails = async (req, res) => {
     });
 
     await roomDetails.save();
-
-    console.log("Room Details Updated:", roomDetails);
 
     return res.status(200).json(
       new ApiResponse(200, "Successfully updated room details", {

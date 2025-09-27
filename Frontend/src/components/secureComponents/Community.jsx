@@ -78,7 +78,6 @@ const CommunityRooms = () => {
           "https://algosprint-vxi4.onrender.com/api/v1/user/discussion",
           { params: { username } }
         );
-        console.log(res)
         setDiscussionList(res.data.data.discussionData || []);
         setPostCount(res.data.data.discussionData.length);
         setIsLoaded(true);

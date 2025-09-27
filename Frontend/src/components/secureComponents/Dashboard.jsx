@@ -97,7 +97,6 @@ const Dashboard = () => {
     }));
   }
 
-  console.log(userDetails)
   let recentMatchDataTable = [];
   if (userDetails.recentMatches && data) {
     recentMatchDataTable = userDetails.recentMatches.map((elem) => ({
@@ -107,8 +106,6 @@ const Dashboard = () => {
       xpChanged: elem.xpGained,
     }));
   }
-
-  console.log(recentMatchDataTable)
 
   const chartData = chartDataExtractedVersion;
 
@@ -128,7 +125,6 @@ const Dashboard = () => {
           },
         })
         .then((res) => {
-          console.log(res);
           setUserDetails(res.data.data);
           setData(true);
         })

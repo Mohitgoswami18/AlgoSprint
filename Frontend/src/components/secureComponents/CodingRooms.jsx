@@ -53,9 +53,6 @@ const CodingRooms = () => {
     return;
   }
 
-  // console.log("Your real username is ", user.user.username);
-  // console.log("you are trying to access the component of ", realUsername);
-
 
   if (user.user.username !== realUsername) {
     console.log("Not your component you are being redirected...")
@@ -142,7 +139,6 @@ const CodingRooms = () => {
     );
 
     if (response.data.message !== "Room joined successfully") {
-      console.log(response.data.message);
       toast.error("there was some error while joining the room try again later");
       return;
     }

@@ -26,9 +26,6 @@ const dashboardController = async (req, res, next) => {
       .sort({ date: -1 })
       .limit(10); 
 
-      console.log("recent matches of this user is ", recentMatches)
-
-
     const formattedRatings = userData.ratingHistory?.ratings || [];
 
     const formattedMatches = recentMatches.map((match) => {
@@ -156,8 +153,6 @@ const updateUserName = async (req, res, next) => {
 
 
 const UpdateUserProfilePicture = async (req, res, next) => {
-
-  console.log("insidde the unage updation conteoller")
   try {
     const { username } = req.body;
     if (!username) {
@@ -193,7 +188,6 @@ const UpdateUserProfilePicture = async (req, res, next) => {
       throw new ApiError(404, "User Not Found");
     }
 
-    console.log("Profile photo updated successfully");
 
     res.status(200).json(
       new ApiResponse(200, "Profile photo updated successfully", {
@@ -246,8 +240,6 @@ const discussionDataFetcher = async (_, res, next) => {
       .populate({path:"reply.user", select:"username profilePicture"})
       .sort({ createdAt: -1 })
       .limit(20);
-
-      console.log(discussionData)
 
     res.status(200).json(
       new ApiResponse(200, "Data Fetched Successfully", {
