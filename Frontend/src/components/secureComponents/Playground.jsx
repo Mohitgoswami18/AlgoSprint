@@ -11,6 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { GiFastBackwardButton } from "react-icons/gi";
 import { GiFastForwardButton } from "react-icons/gi";
 import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
 import {
   Select,
   SelectContent,
@@ -53,8 +54,9 @@ const Playground = () => {
   const [language, setLanguage] = useState([]);
   const [data, setData] = useState(false);
   const [versions, setVersions] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
+  const [problemLoading, setProblemLoading] = useState(true);
   const [err, setErr] = useState(false);
   const [idx, setIdx] = useState(0);
   const [testCaseIndex, setTestCaseIndex] = useState(0);
@@ -106,7 +108,7 @@ const Playground = () => {
   useEffect(() => {
     const FetchQuestionsFromBackend = async () => {
       try {
-        setLoading(true);
+        setProblemLoading(true);
         if (!roomid) return;
 
         const response = await axios.get(
@@ -128,7 +130,7 @@ const Playground = () => {
         setErr(true);
         setData(false);
       } finally {
-        setLoading(false);
+        setProblemLoading(false);
       }
     };
 
@@ -249,6 +251,12 @@ const Playground = () => {
   };
 
   const HandleRunRequest = async () => {
+
+    if(language.length <= 0) {
+      toast.error("PLease select a language first")
+      return;
+    }
+
     console.log("inside the handleRequestMethod");
     console.log(problems[idx].problemTestCases.length);
     setLoading(true);
@@ -423,7 +431,7 @@ const Playground = () => {
           <Button
             size="sm"
             variant="outline"
-            className="mx-auto cursor-pointer"
+            className="mx-auto cursor-pointer w-24"
             onClick={HandleRunRequest}
           >
             {loading ? <Loader /> : <p>Run Code</p>}
@@ -431,7 +439,7 @@ const Playground = () => {
           <Button
             size="sm"
             variant="personal"
-            className="mx-auto cursor-pointer"
+            className="mx-auto cursor-pointer w-24"
             onClick={HandleSubmitRequest}
           >
             {submitLoading ? <Loader /> : <p>Submit</p>}
@@ -476,7 +484,7 @@ const Playground = () => {
             defaultSize={40}
             className=" border-r-3 min-h-[85vh] max-h-[85vh] border-zinc-600 dark:bg-white/10"
           >
-            {loading ? (
+            {problemLoading ? (
               <Skeleton className="h-full w-full" />
             ) : err ? (
               <p>Some Error Occur</p>
@@ -522,7 +530,6 @@ const Playground = () => {
                     </Badge>
                     <p className="mt-6 tracking-normal">
                       {problems[idx]?.problemDescription}
-                      as minus magnam. Eius, error distinctio!
                     </p>
                     <div className="mt-2">
                       {problemTestCasses[idx]?.testCases?.map((elem, idx) => (

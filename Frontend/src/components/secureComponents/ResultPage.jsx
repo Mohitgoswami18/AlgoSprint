@@ -39,6 +39,10 @@ const ResultPage = () => {
   const timeLeft = startTime + totalTime - Math.floor(Date.now() / 1000);
 
   useEffect(() => {
+    document.documentElement.classList.add("light")
+  }, [])
+
+  useEffect(() => {
     console.log("We are fetching the user dashboard", realUsername);
     const fetchUserProfile = async () => {
       try {
@@ -150,35 +154,46 @@ const ResultPage = () => {
   }, [userProfile, roomid, realUsername, score, timeTake]);
 
   useEffect(() => {
-    // Fetch the current room participants
-    console.log("FEtCHING ksjdhfvliduhvuhzvjnzuvhlzdvn;uvh");
-    const fetchRoomParticipants = async () => {
-      console.log("INSIDE THE FECTHIN USER PARTICIPANT API CALL FUNCTION");
-      try {
-        console.log("fetching paetucipants");
-        const response = await axios.get(
-          `https://algosprint-vxi4.onrender.com/api/v1/user/rooms/participants`,
-          {
-            params: { roomid },
-          }
-        );
+  // Fetch the current room participants
+  console.log("Fetching participants...");
+  const fetchRoomParticipants = async () => {
+    try {
+      console.log("Calling API to fetch participants...");
+      const response = await axios.get(
+        `https://algosprint-vxi4.onrender.com/api/v1/user/rooms/participants`,
+        {
+          params: { roomid },
+        }
+      );
 
-        console.log(response);
-        const participants = response.data.data.participants
-          .filter((participant) => participant.finished === true)
-          .map((participant, index) => ({
+      const participants = response.data.data.participants
+        .filter((participant) => participant.finished === true)
+        .map((participant, index) => {
+          let timeTakenInSeconds = participant.timeTaken;
+          const hours = Math.floor(timeTakenInSeconds / 3600);
+          timeTakenInSeconds %= 3600;
+          const minutes = Math.floor(timeTakenInSeconds / 60);
+          const seconds = timeTakenInSeconds % 60;
+
+          const formattedTime = `${hours.toString().padStart(2, "0")}:${minutes
+            .toString()
+            .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+
+          return {
             ...participant,
             position: index + 1,
-          }));
+            formattedTime,
+          };
+        });
 
-        setUserFinished(participants);
-      } catch (error) {
-        console.error("Error fetching room participants:", error);
-      }
-    };
+      setUserFinished(participants);
+    } catch (error) {
+      console.error("Error fetching room participants:", error);
+    }
+  };
 
-    fetchRoomParticipants();
-  }, [roomid]);
+  fetchRoomParticipants();
+}, [roomid]);
 
   console.log(userFinished);
 

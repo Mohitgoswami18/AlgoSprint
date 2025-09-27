@@ -177,6 +177,7 @@ const CodingLobby = () => {
           {
             roomCode: roomid,
             questions: codingQuestions,
+            
           }
         );
       };
@@ -260,7 +261,7 @@ const CodingLobby = () => {
 
           <div className="flex items-center gap-4 justify-center">
             <Button
-              className="border-3 shadow-md hover:bg-white/20"
+              className="border-3 shadow-md hover:bg-white/20 cursor-pointer"
               variant="outline"
               size="sm"
               onClick={() => handleReadyLogic(username)}
@@ -270,7 +271,7 @@ const CodingLobby = () => {
                 : "Ready"}
             </Button>
             <Button
-              className="border-3 shadow-md"
+              className="border-3 shadow-md cursor-pointer"
               variant="destructive"
               size="sm"
               onClick={() => {
@@ -281,7 +282,7 @@ const CodingLobby = () => {
               leave
             </Button>
             <Button
-              className="border-3 shadow-md hover:bg-white/20"
+              className="border-3 shadow-md cursor-pointer hover:bg-white/20"
               size="sm"
               onClick={() => handleCopyTask()}
             >

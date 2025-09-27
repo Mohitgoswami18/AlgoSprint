@@ -175,7 +175,7 @@ const Leaderboard = () => {
             {data ? (
               <div className="bg-white/10 ring-[0.5px] dark:ring-white/20 text-sm text-black dark:text-white backdrop-blur-2xl px-5 basis-[30%] rounded-md shadow-xl">
                 <div className="flex items-center flex-col p-2 justify-center">
-                  <h1 className="p-1">#3</h1>
+                  <h1 className="p-1 text-2xl font-extrabold">#3</h1>
                   <img
                     src={leaderboardData.top10[2]?.profilePicture || "#"}
                     alt=""
@@ -215,7 +215,7 @@ const Leaderboard = () => {
             {data ? (
               <div className="bg-white/10 py-8 ring-[0.5px] dark:ring-white/20 text-sm text-black dark:text-white backdrop-blur-2xl p-5 basis-[30%] rounded-md shadow-xl">
                 <div className="flex items-center flex-col p-2 justify-center">
-                  <h1 className="p-1">#1</h1>
+                  <h1 className="p-1 text-2xl font-extrabold">#1</h1>
                   <img
                     src={leaderboardData.top10[0]?.profilePicture || "#"}
                     alt=""
@@ -255,7 +255,7 @@ const Leaderboard = () => {
             {data ? (
               <div className="bg-white/10 ring-[0.5px] dark:ring-white/20 text-sm text-black dark:text-white backdrop-blur-2xl px-5 basis-[30%] rounded-md shadow-xl">
                 <div className="flex items-center flex-col p-2 justify-center">
-                  <h1 className="p-1">#2</h1>
+                  <h1 className="p-1 text-2xl font-extrabold">#2</h1>
                   <img
                     src={leaderboardData.top10[1]?.profilePicture || "#"}
                     alt=""
@@ -292,42 +292,57 @@ const Leaderboard = () => {
             )}
           </div>
 
-          <div className="backdrop-blur-2xl m-3 rounded-xl bg-white/10 p-4">
-            <h1 className="py-6">Rankings</h1>
+          <div className="backdrop-blur-2xl m-3 rounded-xl mt-10 max-w-[600px] mx-auto bg-white/10 p-4">
+            <h1 className="py-2">Under Top 10</h1>
             <div>
               {leaderboardTop10.length > 0 &&
                 leaderboardTop10.map((elem, idx) => (
                   <div
                     key={idx}
-                    className="bg-white/10 rounded-md p-2 pr-5 m-1 flex"
+                    className="bg-white/10 dark:bg-white/5 rounded-xl p-3 my-2 flex items-center justify-between shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] transform"
                   >
-                    <div className="flex w-full">
-                      <h1 className="p-2">{elem.rank}</h1>
-                      <div className="bg-white w-10 mx-4 rounded-full ">
+                    <div className="flex items-center gap-4">
+                      {/* Rank */}
+                      <div className="font-bold text-sm text-gray-700 dark:text-gray-300 w-6 text-center">
+                        {elem.rank}
+                      </div>
+
+                      {/* Profile */}
+                      <div className="w-12 h-12 rounded-full overflow-hidden ring-1 ring-gray-200 dark:ring-gray-600 flex-shrink-0">
                         <img
-                          src={elem.img}
-                          alt="profilepic"
-                          className="w-full rounded-full"
+                          src={elem.img || "#"}
+                          alt="profile"
+                          className="w-full h-full object-cover"
                         />
                       </div>
+
+                      {/* Name and Stats */}
                       <div className="flex flex-col">
                         <div className="flex items-center gap-2">
-                          <div className="text-black dark:text-white font-semibold text-md p-1 ">
+                          <span className="font-semibold text-md text-black dark:text-white">
                             {elem.name}
-                          </div>
-                          <h1 className="text-[10px] dark:bg-white/4 bg-black/4 rounded-md px-1">
-                            {elem.title}
-                          </h1>
+                          </span>
+                          {elem.title && (
+                            <span className="text-[10px] dark:bg-white/10 bg-black/10 rounded-full px-2 py-0.5 uppercase font-medium">
+                              {elem.title}
+                            </span>
+                          )}
                         </div>
-                        <div className="flex items-center gap-4 text-slate-600 dark:text-gray-300">
-                          <div className="text-sm px-2">Lvl.{elem.level}</div>
-                          <div className="text-sm">{elem.points} Pts</div>
+                        <div className="flex gap-4 text-gray-500 dark:text-gray-400 text-xs">
+                          <span>Lvl. {elem.level}</span>
+                          <span>{elem.points} Pts</span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="text-white text-lg font-bold my-auto ">
-                      {elem.BattleWon}
+                    {/* Wins */}
+                    <div className="flex flex-col items-center text-right">
+                      <span className="text-[10px] text-gray-400 dark:text-gray-500 uppercase mb-1">
+                        Wins
+                      </span>
+                      <span className="font-bold text-green-500">
+                        {elem.BattleWon}
+                      </span>
                     </div>
                   </div>
                 ))}

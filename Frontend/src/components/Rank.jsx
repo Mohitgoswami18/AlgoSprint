@@ -16,7 +16,7 @@ const ranks = [
   { name: "Platinum", min: 500, max: 1000, img: platinum },
   { name: "Diamond", min: 1000, max: 1500, img: daimond },
   { name: "Ace", min: 1500, max: 2000, img: ace },
-  { name: "Legend", min: 2000, max:2000, img: legend },
+  { name: "Legend", min: 2000, max:3000, img: legend },
 ];
 
 const RankLine = () => {

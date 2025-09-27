@@ -6,6 +6,7 @@ const mcqRoomSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
+  topic: {type: String, required:true},
   question: [
     {
       type: mongoose.Schema.Types.ObjectId,

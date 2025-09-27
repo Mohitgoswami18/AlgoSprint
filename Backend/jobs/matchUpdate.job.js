@@ -73,12 +73,28 @@ cron.schedule("0 */2 * * *", async () => {
           if (user.currentRating < 0) user.currentRating = 0;
         }
 
-        // Handle leveling
-        if (user.xp >= user.totalXp) {
-          user.level += 1;
-          user.xp -= user.totalXp;
-          user.totalXp += 50;
+        if(user.currentRating >=0 && user.currentRating <= 100) {
+          user.rank = "Bronze"
+        } else if (user.currentRating >= 100 && user.currentRating <= 300) {
+          user.rank = "Silver";
+        } else if (user.currentRating >= 300 && user.currentRating <= 500) {
+          user.rank = "Gold";
+        } else if (user.currentRating >= 500 && user.currentRating <= 1000) {
+          user.rank = "Platinum";
+        } else if (user.currentRating >= 1000 && user.currentRating <= 1500) {
+          user.rank = "Diamond";
+        } else if (user.currentRating >= 1500 && user.currentRating <= 2000) {
+          user.rank = "Ace";
+        } else if (user.currentRating >= 200) {
+          user.rank = "Legend";
         }
+
+          if (user.xp >= user.totalXp) {
+            // Handle leveling
+            user.level += 1;
+            user.xp -= user.totalXp;
+            user.totalXp += 50;
+          }
 
         // Update highest rating
         if (user.currentRating > user.highestRating) {

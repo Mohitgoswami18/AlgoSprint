@@ -1,65 +1,76 @@
 import Avatar from "react-avatar";
 import { useEffect, useRef, useState } from "react";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useParams, useNavigate } from "react-router-dom";
 import { initialiseSocket } from "../../socket.io";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
-import axios from "axios"
+import axios from "axios";
 import { Button } from "@/components/ui/button";
 import lobbybackground from "../../assets/images/lobbyBackground.png";
 
 const CodingLobby = () => {
   const [players, setPlayers] = useState([]);
-  const [data, setData] = useState([]);
+  const [copied, setCopied] = useState(false);
+  const [topic, setTopic] = useState("");
+  const [questionsFetched, setQuestionsFetched] = useState(false);
+
   const socketRef = useRef();
   const location = useLocation();
-  const param = useParams();
-  const roomid = param.roomid;
+  const params = useParams();
+  const navigate = useNavigate();
+
+  const roomid = params.roomid;
   const username = location.state?.username;
   const realUsername = location.state?.realUsername;
-  const [mcqQuestions, setMcqQuestions] = useState();
-  const [copied, setCopied] = useState(false);
-  const navigate = useNavigate();
-  const topic = location.state?.topic || " ";
   const time = location.state?.time || " ";
-  
 
-  console.log(time)
 
   useEffect(() => {
-    const ConnectSocket = async () => {
+    const findRoomTopic = async () => {
+      try {
+        const res = await axios.get(
+          "https://algosprint-vxi4.onrender.com/api/v1/user/mcqRoomTopics",
+          { params: { roomid } }
+        );
+        setTopic(res.data.data.topic); 
+      } catch (err) {
+        console.log("Error fetching topic", err);
+      }
+    };
+    findRoomTopic();
+  }, [roomid]);
+
+
+  useEffect(() => {
+    const connectSocket = async () => {
       socketRef.current = await initialiseSocket();
 
       socketRef.current.emit("userJoin", { roomid, username });
 
       const handleError = (err) => {
-        console.log("socket error", err);
+        console.error("Socket error:", err);
         toast.error("Socket connection failed, try again later");
-        navigate(`/${username }/mcqroom`, { replace: true });
+        navigate(`/${username}/mcqrooms`, { replace: true });
       };
 
       socketRef.current.on("connect_error", handleError);
       socketRef.current.on("connect_failed", handleError);
 
-      socketRef.current.on(
-        "userJoined",
-        ({ connectedPlayers, user, socketId }) => {
-          if (user !== username) {
-            toast.success(`${user} joined the room`);
-          } else {
-            toast.success(`You joined the room`);
-          }
-
-          setPlayers(
-            connectedPlayers.map((elem) => ({
-              socketId: elem.socketId,
-              name: elem.username,
-              ready: false,
-              avatar: <Avatar name={elem.username} size="50" round={true} />,
-            }))
-          );
+      socketRef.current.on("userJoined", ({ connectedPlayers, user }) => {
+        if (user !== username) {
+          toast.success(`${user} joined the room`);
+        } else {
+          toast.success(`You joined the room`);
         }
-      );
+
+        setPlayers(
+          connectedPlayers.map((elem) => ({
+            socketId: elem.socketId,
+            name: elem.username,
+            ready: false,
+            avatar: <Avatar name={elem.username} size="50" round={true} />,
+          }))
+        );
+      });
 
       socketRef.current.on("ready", ({ username }) => {
         setPlayers((prev) =>
@@ -70,22 +81,22 @@ const CodingLobby = () => {
           )
         );
       });
+
+      socketRef.current.on("user-disconnected", ({ username, socketId }) => {
+        setPlayers((prev) => prev.filter((user) => user.socketId !== socketId));
+        toast.success(`${username} left the room`);
+      });
     };
 
-    socketRef.current?.on("user-disconnected", ({ username, socketId }) => {
-      setUsers((prev) => prev.filter((user) => user.socketId !== socketId));
-      toast.success(`${username} left the room`);
-    });
-    ConnectSocket();
+    connectSocket();
 
     return () => {
       socketRef.current.emit("leave", { username, roomid });
       socketRef.current?.disconnect();
     };
-  }, [roomid, username]);
+  }, [roomid, username, navigate]);
 
-
-  const handleReadyLogic = (username) => {
+  const handleReadyLogic = () => {
     setPlayers((prev) =>
       prev.map((player) =>
         player.name === username ? { ...player, ready: !player.ready } : player
@@ -97,85 +108,62 @@ const CodingLobby = () => {
   useEffect(() => {
     if (players.length < 2) return;
 
-    for (let i = 0; i < players.length; i++) {
-      if (!players[i].ready) return;
-    }
+    const allReady = players.every((p) => p.ready);
+    if (!allReady || questionsFetched) return;
 
-    const FetchQuestionsFromTheBackend = async () => {
+    const fetchQuestionsAndStart = async () => {
       try {
-
-        console.log(topic)
+        console.log("fetching questions for the first time...")
         const res = await axios.get(
           `https://algosprint-vxi4.onrender.com/api/v1/user/mcqroom/arena/topic/problems`,
-          {
-            params: {
-              topic: topic,
-            },
-          }
+          { params: { topic } }
         );
 
-        console.log(res)
         const mcqQuestions = res.data.data.Questions;
-        console.log("THE MIHFISHDVIJICJNC:IJ:OICNSDIJC \n\n\n\n\n\n\n\n\n\n\n",mcqQuestions)
-        setData(true);
+        await axios.post(
+          "https://algosprint-vxi4.onrender.com/api/v1/user/mcqrooms/updateroomdetails",
+          { roomCode: roomid, questions: mcqQuestions }
+        );
 
-        await updateCurrentRoomSettings(mcqQuestions);
+        setQuestionsFetched(true);
+
+        navigate(`/mcqrooms/${roomid}/arena`, {
+          state: {
+            username,
+            startTime: Math.floor(Date.now() / 1000),
+            topic,
+            roomid,
+            totalParticipants: players.length,
+            realUsername,
+          },
+        });
       } catch (err) {
-        console.log("some error occurred", err);
-        setData(false);
+        console.log("Error fetching questions", err);
+        toast.error("Failed to fetch questions");
       }
     };
 
-    FetchQuestionsFromTheBackend();
+    fetchQuestionsAndStart();
+  }, [
+    players,
+    topic,
+    roomid,
+    navigate,
+    username,
+    realUsername,
+    questionsFetched,
+  ]);
 
-    const updateCurrentRoomSettings = async (mcqQuestions) => {
-      console.log("Final data going to backend:", mcqQuestions);
-      const res = await axios.post(
-        "https://algosprint-vxi4.onrender.com/api/v1/user/mcqrooms/updateroomdetails",
-        {
-          roomCode: roomid,
-          questions: mcqQuestions,
-        }
-      );
-
-      console.log(res)
-    };
-
-    if(data) {
-      updateCurrentRoomSettings();
-    }
-
-    if(data) {
-      navigate(`/mcqrooms/${roomid}/arena`, {
-        state: {
-          username: username,
-          startTime: Math.floor(Date.now() / 1000),
-          topic: topic,
-          roomid,
-          totalParticipants: players.length,
-          realUsername,
-        },
-      });
-    } else {
-      return;
-    }
-    
-  }, [players]);
-
-  const handleCopyRoomId = async() => {
-
-    if (!copied) {
-      await navigator.clipboard.writeText(roomid);
-      setCopied(true);
-    }
-    toast.success("Room Id copied")
+  const handleCopyRoomId = async () => {
+    await navigator.clipboard.writeText(roomid);
+    setCopied(true);
+    toast.success("Room ID copied!");
     setTimeout(() => setCopied(false), 3000);
   };
 
   return (
-    <div className="h-screen font-[Inter] animate-fadeIn text-white ">
     <div
-      className="min-h-screen relative font-[Inter] text-white"
+      className="h-screen font-[Inter] text-white"
       style={{
         backgroundImage: `url(${lobbybackground})`,
         backgroundSize: "cover",
@@ -183,30 +171,26 @@ const CodingLobby = () => {
         backgroundRepeat: "no-repeat",
       }}
     >
-      <div className="absolute inset-0 bg-white/2" />
-      <h1 className="text-center text-4xl font-bold p-4 text-white">
-        Waiting Lobby
-      </h1>
+      <h1 className="text-center text-4xl font-bold p-4">Waiting Lobby</h1>
       <p className="text-center font-bold text-sm underline px-2">
-          atleast 2 coders are needed to begin the battle
-
+        At least 2 coders are needed to begin the battle
       </p>
 
-      <div>
-        <div className="text-center mt-16 flex items-center gap-4 font-bold justify-center text-slate-xinc-600">
-          <p>Topic: {topic}</p>
-          <p>Time Limit: {time}</p>
-        </div>
+      <div className="text-center mt-6 flex items-center gap-4 justify-center">
+        <p>Topic: {topic}</p>
+        <p>Time Limit: {time}</p>
       </div>
 
-      <div className="flex border-2 h-[40vh] backdrop-blur-sm overflow-y-auto max-w-[600px] mx-auto flex-wrap border-red-300 items-center justify-center p-10 m-10 mt-4 mb-4 rounded-md">
+      <div className="flex border-2 h-[40vh] backdrop-blur-sm overflow-y-auto max-w-[600px] mx-auto flex-wrap border-red-300 items-center justify-center p-10 m-10 rounded-md">
         {players.map((elem, idx) => (
           <div key={idx} className="basis-[24%] text-center">
             {elem.avatar}
             <p
-              className={`${
-                elem.ready ? "text-green-500" : "text-red-500"
-              } text-sm font-bold`}
+              className={
+                elem.ready
+                  ? "text-green-500 font-bold text-sm"
+                  : "text-red-500 font-bold text-sm"
+              }
             >
               {elem.name}
             </p>
@@ -214,36 +198,28 @@ const CodingLobby = () => {
         ))}
       </div>
 
-      <div className="font-bold test-sm pb-4 text-center">
-        coders Joined : <span>{players.length}</span>
+      <div className="font-bold text-sm pb-4 text-center">
+        Coders Joined : <span>{players.length}</span>
       </div>
+
       <div className="flex items-center gap-4 justify-center">
-        <Button
-          className="border-3 shadow-md"
-          variant="outline"
-          size="sm"
-          onClick={() => handleReadyLogic(username)}
-        >
-          {players.find((player) => player.name === username)?.ready
-            ? "Cancel"
-            : "Ready"}
+        <Button variant="outline" size="sm" onClick={handleReadyLogic}>
+          {players.find((p) => p.name === username)?.ready ? "Cancel" : "Ready"}
         </Button>
         <Button
-          className="border-3 shadow-md"
           variant="destructive"
           size="sm"
           onClick={() => {
-            toast.success("Leaved the room successfully!");
-            navigate(`/${username}/mcqroom`, { replace: true });
+            toast.success("Left the room successfully!");
+            navigate(`/${username}/mcqrooms`, { replace: true });
           }}
         >
-          leave
+          Leave
         </Button>
-        <Button className="border-3 shadow-md" onClick={() => handleCopyRoomId()}>
-          Copy Id
+        <Button onClick={handleCopyRoomId}>
+          {copied ? "Copied!" : "Copy Id"}
         </Button>
       </div>
-    </div>
     </div>
   );
 };

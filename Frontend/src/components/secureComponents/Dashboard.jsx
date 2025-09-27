@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { Line, LineChart } from "recharts";
+import { Line, LineChart, XAxis } from "recharts";
 import {
   ChartContainer,
   ChartTooltip,
@@ -46,12 +46,13 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { CiEdit } from "react-icons/ci";
+import Loader from "../Loader"
 import {useUser} from "@clerk/clerk-react"
 
 const Dashboard = () => {
   const params = useParams();
   const [username, setUsername] = useState(params.username);
-  const user = useUser();
+  const {user} = useUser();
   const [userDetails, setUserDetails] = useState({});
   const [data, setData] = useState(false);
   const [err, setErr] = useState(false);
@@ -59,6 +60,7 @@ const Dashboard = () => {
   const [error, setError] = useState("");
   const [changeUsername, setChangeUsername] = useState("");
   const [selectedFile, setSelectedFile] = useState();
+  const [loading, setLoading] = useState(false);
   let feature = [];
 
   if (data) {
@@ -90,16 +92,18 @@ const Dashboard = () => {
   let chartDataExtractedVersion = [];
   if (userDetails && data) {
     chartDataExtractedVersion = userDetails.ratingHistory?.map((elem) => ({
-      date: elem.date,
+      date: elem.date.substr(0,10),
       value: elem.value,
     }));
   }
+
+  console.log(userDetails)
   let recentMatchDataTable = [];
   if (userDetails.recentMatches && data) {
     recentMatchDataTable = userDetails.recentMatches.map((elem) => ({
       style: elem.style,
       result: elem.outcome,
-      numberOfParticipants: "",
+      numberOfParticipants: elem.participants,
       xpChanged: elem.xpGained,
     }));
   }
@@ -137,65 +141,6 @@ const Dashboard = () => {
     handleFetchRequest();
   }, [username]);
 
-  const handleImageUpdation = async (e) => {
-    e.preventDefault();
-    // UPDATE THE USER PROFILE PICTURE
-    if (!selectedFile) {
-      console.log("Select a file first");
-      return
-    }
-
-    console.log(selectedFile)
-
-    console.log(username);
-    console.log("Changing the image of the user");
-
-    const formData = new FormData();
-
-    formData.append("username", "mohit");
-    formData.append("profilePic", selectedFile);
-
-    await axios
-      .post("/api/v1/user/updateuserprofilepicture", formData)
-
-      .then((res) => {
-        console.log(res);
-        setUserDetails(res.data.data);
-        setData(true);
-      })
-      .catch((err) => {
-        console.log("An error occurred", err);
-        setErr(true);
-      });
-  };
-
-  console.log("skduhvlsuhvlzushvi",userDetails.playstyle)
-
-  const handleUsernameChangeLogic = async (e) => {
-    e.preventDefault();
-    console.log("Enter the function");
-
-   await axios
-     .post("https://algosprint-vxi4.onrender.com/api/v1/user/updatename", {
-       newUsername: changeUsername,
-       username,
-     })
-     .then((res) => {
-       console.log(res.data);
-       if (res.data === "Username already in use") {
-         setError("This username is already taken!! try with another username");
-       } else {
-         setError("Username Updated");
-         setUserId(userId);
-         navigate(`/${userId}/dashboard`, { replace: true });
-       }
-     })
-     .catch((err) => {
-       console.log("An error occurred", err);
-     });
-}
-
-
   return (
     <div>
       {err ? (
@@ -211,59 +156,6 @@ const Dashboard = () => {
                   <div className="transition-all duration-500">
                     <h1 className="text-4xl p-1 font-bold flex items-center">
                       Welcome Back, {userDetails.username}{" "}
-                      {
-                        user.user.username === username ? (
-                          <Dialog>
-                        <form onSubmit={(e) => handleUsernameChangeLogic(e)}>
-                          <DialogTrigger asChild>
-                            <Button variant="outline">
-                              <CiEdit className="cursor-pointer underline "></CiEdit>
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="">
-                            <DialogHeader>
-                              <DialogTitle>change Username</DialogTitle>
-                              <DialogDescription>
-                                <p className="text-red-500 font-bold">
-                                  {error}
-                                </p>
-                              </DialogDescription>
-                            </DialogHeader>
-
-                            <div className="grid gap-4">
-                              <div className="grid gap-3">
-                                <Label htmlFor="username">enter new name</Label>
-                                <Input
-                                  id="username"
-                                  name="username"
-                                  value={changeUsername}
-                                  placeholder={"enter new username"}
-                                  onChange={(e) =>
-                                    setChangeUsername(e.target.value)
-                                  }
-                                />
-                              </div>
-                            </div>
-                            <DialogFooter>
-                              <DialogClose asChild>
-                                <Button variant="outline">Cancel</Button>
-                              </DialogClose>
-                              <Button
-                                type="submit"
-                                onClick={(e) => {
-                                  handleUsernameChangeLogic(e);
-                                }}
-                              >
-                                Change
-                              </Button>
-                            </DialogFooter>
-                          </DialogContent>
-                        </form>
-                      </Dialog>
-                        ) : (
-                          <h1> </h1>
-                        )
-                      }
                     </h1>
                     <p className="text-sm px-3 text-[#4a5568] dark:text-[#A0AEC0]">
                       Ready for some new challenges today
@@ -298,59 +190,6 @@ const Dashboard = () => {
                   alt="profile"
                   className="w-42 h-40 relative rounded-full"
                 />
-
-                {/* Edit Icon & Dialog */}
-                <div className="absolute bottom-0 right-0 cursor-pointer transition-all">
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <TbUserEdit className="text-xl hover:fill-black hover:underline" />
-                    </DialogTrigger>
-
-                    <DialogContent>
-                      <form
-                        onSubmit={(e) => {
-                          handleImageUpdation(e);
-                        }}
-                      >
-                        <DialogHeader>
-                          <DialogTitle>Change Profile Image</DialogTitle>
-                          <DialogDescription>
-                            <p className="text-red-500 font-bold">{error}</p>
-                          </DialogDescription>
-                        </DialogHeader>
-
-                        <div className="grid gap-4">
-                          <div className="grid gap-3">
-                            <Label htmlFor="profilePic">Upload new image</Label>
-                            <Input
-                              id="profilePic"
-                              name="profilePic"
-                              type="file"
-                              accept="image/*"
-                              onChange={(e) =>
-                                setSelectedFile(e.target.files[0])
-                              }
-                            />
-                          </div>
-                        </div>
-
-                        <DialogFooter>
-                          <DialogClose asChild>
-                            <Button variant="outline">Cancel</Button>
-                          </DialogClose>
-                          <Button
-                            type="submit"
-                            onClick={(e) => {
-                              handleImageUpdation(e);
-                            }}
-                          >
-                            Change
-                          </Button>
-                        </DialogFooter>
-                      </form>
-                    </DialogContent>
-                  </Dialog>
-                </div>
               </div>
             </div>
           ) : (
@@ -383,9 +222,10 @@ const Dashboard = () => {
                         }
                         margin={{ left: 12, right: 12 }}
                       >
+                        <XAxis dataKey="date" />
                         <ChartTooltip
                           cursor={false}
-                          content={<ChartTooltipContent hideLabel />}
+                          content={<ChartTooltipContent />}
                         />
                         <Line
                           dataKey="value"
@@ -430,13 +270,11 @@ const Dashboard = () => {
               <div className="bg-white w-[30rem] h-[13rem] shadow-md ring-[0.5px] dark:ring-white/20 dark:bg-white/4 p-4 rounded-md">
                 <h1 className="text-center font-bold text-md">Badges Earned</h1>
                 <p className="gap-2 p-4 py-9 flex flex-wrap items-center justify-center">
-                  {
-                    userDetails.title.length > 0 ? (
-                      userDetails.title.map((elem, idx) => (
-                    <Badge>{elem}</Badge>
-                  ))
-                    ) : (<p> No Badges to Show </p>) 
-                  }
+                  {userDetails.title.length > 0 ? (
+                    userDetails.title.map((elem, idx) => <Badge>{elem}</Badge>)
+                  ) : (
+                    <p> No Badges to Show </p>
+                  )}
                 </p>
               </div>
             ) : (

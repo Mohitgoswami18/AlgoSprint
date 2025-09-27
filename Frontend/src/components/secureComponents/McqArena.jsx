@@ -204,12 +204,12 @@ const McqArena = () => {
             {options[index]?.map((elem, idx) => (
               <div
                 key={idx}
-                className={`rounded-md px-4 py-2 text-sm ${
+                className={`rounded-md gap-2 px-4 py-2 text-sm ${
                   selected[index][idx] ? "dark:bg-blue-500 bg-green-600" : ""
-                } dark:bg-green-600 bg-green-400 w-[15rem] h-[3rem] flex items-center justify-center font-semibold hover:scale-105 transition-all duration-100 cursor-pointer`}
+                } dark:bg-green-600 bg-green-400 w-[16rem] h-[4rem] flex items-center justify-center font-semibold hover:scale-105 transition-all duration-100 cursor-pointer`}
                 onClick={() => handleChoosedOptionLogic(idx)}
               >
-                {"A" + idx} <span className="mx-auto">{elem}</span>
+                {idx+1} <span className="mx-auto text-center px-2">{elem}</span>
               </div>
             ))}
           </div>

@@ -8,6 +8,8 @@ import Editor from "@monaco-editor/react";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { Switch } from "@/components/ui/switch";
+import { CiDark } from "react-icons/ci";
+import { CiLight } from "react-icons/ci";
 import Loader from "../Loader";
 import Avatar from "react-avatar";
 import { toast } from "sonner";
@@ -58,6 +60,7 @@ const EditorLayout = () => {
   const [code, setCode] = useState(starterCode[language]);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
+  const [theme, setTheme] = useState(false)
   const [output, setOutput] = useState("");
   const editorRef = useRef();
   const navigate = useNavigate();
@@ -180,6 +183,12 @@ useEffect(() => {
   };
 
   const HandleSubmitRequest = async () => {
+
+    if(language.length <= 0) {
+      toast.error("Please select a language first.");
+      setLoading(false);
+      return;
+    }
     setLoading(true);
 
     await axios
@@ -290,7 +299,11 @@ useEffect(() => {
                 );
 
                 console.log(lang, ver);
-                socketRef.current.emit("langChange", {roomid: param.roomid, lang, ver})
+                socketRef.current.emit("langChange", {
+                  roomid: param.roomid,
+                  lang,
+                  ver,
+                });
               }}
             >
               <SelectTrigger className="w-[180px]">
@@ -328,14 +341,30 @@ useEffect(() => {
               <Clock />
             </div>
           </div>
-          <Switch
-            id="darkThemeToggler"
-            onClick={() => {
-              document.documentElement.classList.toggle("dark");
-              setTheme((prev) => !prev);
-            }}
-            className="cursor-pointer"
-          />
+          <div className="gap-2 flex justify-center items-center">
+            <CiLight
+              className={`text-2xl ${
+                theme === false
+                  ? "text-yellow-600 "
+                  : " "
+              }`}
+            />
+            <Switch
+              id="darkThemeToggler"
+              onClick={() => {
+                document.documentElement.classList.toggle("dark");
+                setTheme((prev) => !prev);
+              }}
+              className="cursor-pointer"
+            />
+            <CiDark
+              className={`text-2xl ${
+                theme === true
+                  ? "text-cyan-600 "
+                  : " "
+              }`}
+            />
+          </div>
         </div>
         <ResizablePanelGroup
           direction="vertical"

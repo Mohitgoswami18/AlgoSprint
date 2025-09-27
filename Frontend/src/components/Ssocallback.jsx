@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useUser, useSignUp } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios"
 
 const SsoCallback = () => {
   const { user, isLoaded, isSignedIn } = useUser();

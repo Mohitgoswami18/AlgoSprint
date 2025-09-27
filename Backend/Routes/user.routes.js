@@ -22,6 +22,7 @@ import { updateMcqRoomParticipantDetails } from "../controllers/mcqRooms.control
 import { fetchmcqParticipants } from "../controllers/mcqRooms.controller.js";
 import { findRoomSetting } from "../controllers/codingRooms.controller.js";
 import dotenv from "dotenv"
+import { fetchRoomTitle } from "../controllers/mcqRooms.controller.js"
 import { clerkMiddleware} from "@clerk/express";
 import {handlePostReply} from "../controllers/user.controller.js"
 import { initialChangeRequest } from "../controllers/user.controller.js";
@@ -72,6 +73,7 @@ router
 router.route("/user/mcqroom/arena/topic/problems").get(mcqQuestionFetcher);
 router.route("/user/mcqrooms/createmcqroom").post(createMcqRoom);
 router.route("/user/mcqrooms/joinmcqroom").post(mcqRoomJoiningHandler);
+router.route("/user/mcqRoomTopics").get(fetchRoomTitle);
 router.route("/user/mcqrooms/updateroomdetails").post(updateMcqRoomDetails);
 router
   .route("/user/mcqrooms/updateroomparticipantsdetails")

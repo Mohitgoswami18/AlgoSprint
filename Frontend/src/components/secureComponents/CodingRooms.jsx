@@ -70,6 +70,7 @@ const CodingRooms = () => {
 
   const handleCreateLogic = async () => {
     try {
+      setLoading(true)
       const token = await getToken();
       if (!token) {
         toast.error("No auth token found. Please sign in again.");
@@ -91,6 +92,8 @@ const CodingRooms = () => {
           },
         }
       );
+
+      setLoading(false)
 
       navigate(`/codingroom/${roomid}/lobby`, {
         state: {
@@ -115,6 +118,8 @@ const CodingRooms = () => {
       toast.error("Please enter a username and room ID");
       return;
     }
+
+    setLoading(true)
 
     const token = await getToken();
     if (!token) {
@@ -149,6 +154,8 @@ const CodingRooms = () => {
           redirectedFrom: "codingRoom",
         },
       });
+
+      setLoading(false)
   }
 
   const [open, setOpen] = useState(false);
@@ -234,7 +241,7 @@ const CodingRooms = () => {
               </p>
               <div className="flex items-center justify-between gap-2">
                 <Dialog className="" open={open}>
-                  <DialogTrigger asChild  onClick={() => setOpen(true)}>
+                  <DialogTrigger asChild onClick={() => setOpen(true)}>
                     <p className="bg-zinc-300 dark:bg-white/10 p-2 mt-3 w-full rounded-md">
                       Customize settings
                     </p>
@@ -250,7 +257,11 @@ const CodingRooms = () => {
                       <Label>PlayStyle</Label>
                       <Select
                         onValueChange={(value) =>
-                          setSettings({ ...settings, playStyle: value, time: timeMapping[value] })
+                          setSettings({
+                            ...settings,
+                            playStyle: value,
+                            time: timeMapping[value],
+                          })
                         }
                       >
                         <SelectTrigger>
@@ -284,8 +295,10 @@ const CodingRooms = () => {
                       </Select>
                     </div>
 
-                    <Button className="w-full mt-4 rounded-2xl shadow-md" 
-                    onClick={() => setOpen(false)}>
+                    <Button
+                      className="w-full mt-4 rounded-2xl shadow-md"
+                      onClick={() => setOpen(false)}
+                    >
                       Save Settings
                     </Button>
                   </DialogContent>
@@ -369,7 +382,7 @@ const CodingRooms = () => {
                   handleJoinLogic(username, "join");
                 }}
               >
-                Join
+                {loading ? <Loader /> : <p>Join</p>}
               </Button>
             </div>
           </div>

@@ -4,11 +4,10 @@ import { User } from "../models/user.model.js";
 import { mcqRoom } from "../models/mcqRoom.models.js";
 import { Question } from "../models/mcq.model.js";
 
-
 const createMcqRoom = async (req, res) => {
   try {
-    const { roomCode, username } = req.body;
-    if (!roomCode || !username) {
+    const { roomCode, username, topic } = req.body;
+    if (!roomCode || !username || !topic) {
       return res
         .status(200)
         .json(
@@ -26,6 +25,7 @@ const createMcqRoom = async (req, res) => {
 
     const userRoomDetail = {
       roomCode,
+      topic,
       participants: {
         userId: userData,
         username: username,
@@ -46,7 +46,7 @@ const createMcqRoom = async (req, res) => {
 
     return res
       .status(200)
-      .json(new ApiResponse(200, "Room Created Successfully"));
+      .json(new ApiResponse(200, "Room Created Successfully", {UpdatingToDatabase}));
   } catch (error) {
     console.log("Unexpected error occured ", error);
     return res.status(500).json(new ApiResponse(500, "Internal Server Error"));
@@ -96,6 +96,30 @@ const mcqRoomJoiningHandler = async (req, res) => {
   } catch (error) {
     console.error("Unexpected error occurred", error);
     res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const fetchRoomTitle = async (req, res) => {
+  try {
+    const { roomid } = req.query;
+    if (!roomid) {
+      throw new ApiError(404, "room id not found int he request parameters");
+    }
+
+    const currentRoom = await mcqRoom.findOne({ roomCode: roomid });
+    if (!currentRoom) {
+      throw new ApiError(404, "cant find a room with the gioven room id");
+    }
+
+    console.log(currentRoom)
+
+    res.status(200).json(
+      new ApiResponse(200, "fetched the room data successfully", {
+        topic: currentRoom.topic
+      })
+    );
+  } catch (error) {
+    console.log("an error occured while finding the room details");
   }
 };
 
@@ -157,7 +181,7 @@ const mcqQuestionFetcher = async (req, res) => {
     console.log("finding questions from the backend");
     const response = await Question.aggregate([
       {
-        $match: { topic: topic.tpLowerCase() },
+        $match: { topic: topic.toLowerCase() },
       },
       {
         $sample: { size: 20 },
@@ -303,4 +327,5 @@ export {
   findMcqQuestionsFromBackend,
   updateMcqRoomParticipantDetails,
   fetchmcqParticipants,
+  fetchRoomTitle,
 };
