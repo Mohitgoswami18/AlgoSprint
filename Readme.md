@@ -1,9 +1,7 @@
-# 🧠 AlgoSprint (Coming Soon)
+# 🧠 AlgoSprint  
 
-> **Status:** 🚧 Currently under development  
-
----
-
+## Live Link
+- You can Check out the project here - https://algo-sprint.vercel.app/4
 ## 🎯 About the Project
 
 **AlgoSprint** is a gamified coding learning platform where you can:
@@ -15,28 +13,32 @@
 
 ---
 
-## 🧩 Core Features (Planned)
+## 🧩 Core Features
 
-- 🔐 Room creation via link or code
+- 🔐 Room creation via code
 - 💬 Real-time interaction with **Socket.IO**
 - 🧠 Code battles using **Monaco Editor**
-- ✅ Code evaluation via **Judge0 API**
+- ✅ Code evaluation via **Piston API**
 - 📈 Dashboard with ranks, ratings
 - 🎨 Clean and modern UI using **React + Tailwind CSS**
 
 ---
 
-## 🧠 Tech Stack (Planned)
-
-- **Frontend:** React, Tailwind CSS, Monaco Editor
-- **Backend:** Node.js, Express, Socket.IO
-- **Code Evaluation:** Judge0 API
+## 🧠 Tech Stack
+- **Frontend:** React, Tailwind CSS, Monaco Editor, shadCn UI
+- **Backend:** Node.js, Express
+- **Code Evaluation:** Piston API
 - **Database:** MongoDB
-- **Authentication:** OAuth/ JWT tokens
+- **Authentication:** Clerk
+- **Other Integrations:** Webhooks CronJob for post match stats updation, Socket.IO
 
 ---
 
-## 🛠 Current Progress
+## Deployment
+- **Frontend:** Vercel
+- **Backend**: Render
 
-The project is currently in the planning and initial development phase.  
+---
+
+The project is currently in the initial development phase.  
 ---
