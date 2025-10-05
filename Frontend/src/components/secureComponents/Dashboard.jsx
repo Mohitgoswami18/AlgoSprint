@@ -1,31 +1,16 @@
 import { Badge } from "@/components/ui/badge";
-import { Line, LineChart, XAxis } from "recharts";
+import { Line, LineChart} from "recharts";
 import {
   ChartContainer,
   ChartTooltip,
-  ChartTooltipContent,
 } from "@/components/ui/chart";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { MdOutlineEventRepeat } from "react-icons/md";
 import { FaRankingStar } from "react-icons/fa6";
 import { GiBattleGear } from "react-icons/gi";
 import { SiStylelint } from "react-icons/si";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
-import { TbUserEdit } from "react-icons/tb";
-import { replace, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -45,22 +30,13 @@ import {
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import { CiEdit } from "react-icons/ci";
-import Loader from "../Loader"
-import {useUser} from "@clerk/clerk-react"
 
 const Dashboard = () => {
   const params = useParams();
-  const [username, setUsername] = useState(params.username);
-  const {user} = useUser();
+  const username = params.username;
   const [userDetails, setUserDetails] = useState({});
   const [data, setData] = useState(false);
   const [err, setErr] = useState(false);
-  const navigate = useNavigate();
-  const [error, setError] = useState("");
-  const [changeUsername, setChangeUsername] = useState("");
-  const [selectedFile, setSelectedFile] = useState();
-  const [loading, setLoading] = useState(false);
   let feature = [];
 
   if (data) {
@@ -218,10 +194,9 @@ const Dashboard = () => {
                         }
                         margin={{ left: 12, right: 12 }}
                       >
-                        <XAxis dataKey="date" />
                         <ChartTooltip
                           cursor={false}
-                          content={<ChartTooltipContent />}
+                          content={null}
                         />
                         <Line
                           dataKey="value"

@@ -21,6 +21,7 @@ const CollaborativeRooms = () => {
   const [roomid, setRoomid] = useState("");
   const realUsername = params.username;
   const user = useUser();
+  const navigate = useNavigate();
 
   if (!user) {
     return;
@@ -36,7 +37,6 @@ const CollaborativeRooms = () => {
     setRoomid(id);
   };
 
-  const navigate = useNavigate();
   const HandleJoin = () => {
     navigate(`/room/${roomid}`, {
       state: { username },

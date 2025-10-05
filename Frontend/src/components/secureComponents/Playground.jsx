@@ -466,7 +466,7 @@ const Playground = () => {
             {problemLoading ? (
               <Skeleton className="h-full w-full" />
             ) : err ? (
-              <p>Some Error Occur</p>
+              <p className="text-bold text-2xl text-center">Some Error Occur Please Refresh to see the questions</p>
             ) : data ? (
               <div className="h-full overflow-y-auto no-scrollbar">
                 <div className="p-6">

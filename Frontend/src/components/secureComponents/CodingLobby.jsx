@@ -269,7 +269,7 @@ const CodingLobby = () => {
               size="sm"
               onClick={() => {
                 toast.success("Leaved the room successfully!");
-                navigate(`/${realUsername}/codingroom`, { replace: true });
+                navigate(`/${realUsername}/codingrooms`, { replace: true });
               }}
             >
               leave

@@ -23,6 +23,10 @@ const CommunityRooms = () => {
   const navigate = useNavigate();
   const username = params.username;
 
+  const handleNavigateToUserProfile = (url) => {
+    navigate(`/${url}/dashboard`)
+  }
+
   useEffect(() => {
     if (userLoaded && isSignedIn) {
       if (user?.username !== username) {
@@ -128,7 +132,10 @@ const CommunityRooms = () => {
                   <img
                     src={elem.user?.profilePicture}
                     alt=""
-                    className="w-6 h-6 rounded-full"
+                    className="w-6 h-6 rounded-full cursor-pointer"
+                    onClick={() => {
+                      handleNavigateToUserProfile(elem.user?.username);
+                    }}
                   />
                   <p>{elem.user?.username}</p>
                   <p>Lvl {elem.user?.level}</p>
@@ -163,13 +170,19 @@ const CommunityRooms = () => {
                   <div className="mt-2 border-t border-gray-600 pt-2 space-y-1">
                     {elem.reply && elem.reply.length > 0 ? (
                       elem.reply.map((r, rIdx) => (
-                        <p key={rIdx} className="text-sm text-gray-200">
+                        <p
+                          key={rIdx}
+                          className="text-sm dark:text-gray-200 text-gray-600"
+                        >
                           {r.user && (
                             <div className="flex gap-4 m-2 items-center justify-start">
                               <img
-                                className="w-5 rounded-full"
+                                className="w-5 rounded-full cursor-pointer"
                                 src={r.user.profilePicture}
                                 alt=""
+                                onClick={() => {
+                                  handleNavigateToUserProfile(r.user?.username);
+                                }}
                               />
                               <strong>{r.user?.username}&nbsp;:</strong>{" "}
                               {r.message}

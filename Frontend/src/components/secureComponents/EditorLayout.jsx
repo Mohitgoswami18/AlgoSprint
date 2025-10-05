@@ -35,6 +35,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {useUser} from "@clerk/clerk-react"
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -68,6 +69,7 @@ const EditorLayout = () => {
   const param = useParams();
   const socketRef = useRef();
   const [users, setUsers] = useState([]);
+  const {user} = useUser();
   const isRemoteChange = useRef(false);
 
   useEffect(() => {
@@ -219,6 +221,11 @@ useEffect(() => {
     setLoading(false);
   };
 
+  const handleLeaveLogic = () => {
+    toast.success("Leaved the room successfully!");
+    navigate(`/${user.username}/collaborativerooms`, { replace: true });
+  };
+
   return (
     <div className="flex items-center gap-2 justify-between px-2 font-[Inter]">
       {/* Left Section of the collaborative screen */}
@@ -271,8 +278,7 @@ useEffect(() => {
             className="m-1"
             variant="destructive"
             onClick={() => {
-              toast.success("Leaved the room successfully!");
-              navigate(`/${username}/collaborativerooms`, { replace: true });
+              handleLeaveLogic()
             }}
           >
             Leave
