@@ -6,7 +6,7 @@ import php from "../assets/images/php.jpg";
 import js from "../assets/images/js.jpg";
 import java from "../assets/images/java.jpg";
 import javaLogo from "../assets/images/javaLogo.png";
-import pistonLogo from "../assets/images/piston.png"
+import pistonLogo from "../assets/images/piston.png";
 import { TbArrowBarBoth } from "react-icons/tb";
 import {
   Carousel,
@@ -17,36 +17,30 @@ import Autoplay from "embla-carousel-autoplay";
 
 const LanguagesAvailable = () => {
   return (
-    <div className="bg-slate-50 py-30 dark:bg-black font-[Inter] px-20 transition-colors duration-500">
-      <h1 className="text-center font-bold text-4xl text-[#0e1d2e] dark:text-[#F7FAFC] pt-20 transition-colors duration-500">
+    <div className="bg-slate-50 dark:bg-black font-[Inter] transition-colors duration-500 py-20 px-4 sm:px-10 lg:px-20">
+      <h1 className="text-center font-bold text-3xl sm:text-4xl text-[#0e1d2e] dark:text-[#F7FAFC] pt-10 mb-4 transition-colors duration-500">
         Seamless Coding, Submission & Testing
       </h1>
-      <p className="text-center font-bold p-2 text-sm text-[#4A5568] dark:text-[#A0AEC0] px-[300px] tracking-tight">
+      <p className="text-center font-semibold text-sm sm:text-md text-[#4A5568] dark:text-[#A0AEC0] max-w-2xl mx-auto tracking-tight">
         Write your code in your dominant language, compile it instantly, and
         validate it against real test cases — With built-in Judge0 integration,
         experience a smooth flow from coding to execution to verification.
       </p>
 
-      <div className="flex items-center justify-center gap-4 mt-12">
-        <div className="max-w-[500px] basis-[40%] items-center justify-center flex flex-col">
-          <h1 className="text-center font-semibold text-xl text-[#0e1d2e] dark:text-[#F7FAFC] transition-colors duration-500">
+      <div className="flex flex-col md:flex-row items-center justify-center gap-6 mt-12">
+        <div className="flex flex-col items-center md:basis-2/5 w-full">
+          <h2 className="text-center font-semibold text-xl text-[#0e1d2e] dark:text-[#F7FAFC] mb-4 transition-colors duration-500">
             Languages Available
-          </h1>
-          <div className="flex items-center justify-center gap-4 mt-4">
-            {/* Logos Carousel */}
-            <div className="max-w-[100px] h-20 flex items-center justify-center text-center p-4 ring-[0.5px] ring-zinc-600 dark:ring-white/20 bg-white/50 dark:bg-white/10 rounded-full mx-auto  transition-colors duration-500">
-              <Carousel
-                plugins={[
-                  Autoplay({
-                    delay: 2000,
-                  }),
-                ]}
-              >
+          </h2>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full">
+            <div className="max-w-[100px] sm:max-w-[120px] h-20 flex items-center justify-center text-center p-2 sm:p-4 ring-[0.5px] ring-zinc-600 dark:ring-white/20 bg-white/50 dark:bg-white/10 rounded-full mx-auto transition-colors duration-500">
+              <Carousel plugins={[Autoplay({ delay: 2000 })]}>
                 <CarouselContent>
                   <CarouselItem>
                     <img
                       src="https://cdn.simpleicons.org/c/00599C"
-                      alt="C logo"
+                      alt="C"
                       width="50"
                       className="rounded-md"
                     />
@@ -54,7 +48,7 @@ const LanguagesAvailable = () => {
                   <CarouselItem>
                     <img
                       src="https://cdn.simpleicons.org/cplusplus/00599C"
-                      alt="C++ logo"
+                      alt="C++"
                       width="50"
                       className="rounded-md"
                     />
@@ -62,7 +56,7 @@ const LanguagesAvailable = () => {
                   <CarouselItem>
                     <img
                       src="https://cdn.simpleicons.org/javascript/F7DF1E"
-                      alt="JavaScript logo"
+                      alt="JS"
                       width="50"
                       className="rounded-md"
                     />
@@ -70,7 +64,7 @@ const LanguagesAvailable = () => {
                   <CarouselItem>
                     <img
                       src="https://cdn.simpleicons.org/python/3776AB"
-                      alt="Python logo"
+                      alt="Python"
                       width="50"
                       className="rounded-md"
                     />
@@ -78,7 +72,7 @@ const LanguagesAvailable = () => {
                   <CarouselItem>
                     <img
                       src="https://cdn.simpleicons.org/go/00ADD8"
-                      alt="Go logo"
+                      alt="Go"
                       width="50"
                       className="rounded-md"
                     />
@@ -86,7 +80,7 @@ const LanguagesAvailable = () => {
                   <CarouselItem>
                     <img
                       src="https://cdn.simpleicons.org/php/777BB4"
-                      alt="PHP logo"
+                      alt="PHP"
                       width="50"
                       className="rounded-md"
                     />
@@ -94,7 +88,7 @@ const LanguagesAvailable = () => {
                   <CarouselItem>
                     <img
                       src={javaLogo}
-                      alt="Java logo"
+                      alt="Java"
                       width="50"
                       className="rounded-md"
                     />
@@ -103,83 +97,36 @@ const LanguagesAvailable = () => {
               </Carousel>
             </div>
 
-            {/* Code Type Carousel */}
-            <div className="max-w-[300px] h-[200px] shadow-md flex items-center justify-center text-center px-2 py-1 ring-[0.5px] ring-zinc-600 dark:ring-white/20 bg-white/50 dark:bg-white/10 rounded-xl mx-auto transition-colors duration-500">
-              <Carousel
-                plugins={[
-                  Autoplay({
-                    delay: 2000,
-                  }),
-                ]}
-              >
+            <div className="max-w-[300px] sm:max-w-[350px] h-[200px] sm:h-[220px] shadow-md flex items-center justify-center text-center px-2 py-1 ring-[0.5px] ring-zinc-600 dark:ring-white/20 bg-white/50 dark:bg-white/10 rounded-xl mx-auto transition-colors duration-500">
+              <Carousel plugins={[Autoplay({ delay: 2000 })]}>
                 <CarouselContent>
-                  <CarouselItem>
-                    <img
-                      src={c}
-                      alt=""
-                      className="rounded-md shadow-md w-full"
-                    />
-                  </CarouselItem>
-                  <CarouselItem>
-                    <img
-                      src={cpp}
-                      alt=""
-                      className="rounded-md shadow-md w-full"
-                    />
-                  </CarouselItem>
-                  <CarouselItem>
-                    <img
-                      src={js}
-                      alt=""
-                      className="rounded-md shadow-md w-full"
-                    />
-                  </CarouselItem>
-                  <CarouselItem>
-                    <img
-                      src={python}
-                      alt=""
-                      className="rounded-md shadow-md w-full"
-                    />
-                  </CarouselItem>
-                  <CarouselItem>
-                    <img
-                      src={go}
-                      alt=""
-                      className="rounded-md shadow-md w-full"
-                    />
-                  </CarouselItem>
-                  <CarouselItem>
-                    <img
-                      src={php}
-                      alt=""
-                      className="rounded-md shadow-md w-full"
-                    />
-                  </CarouselItem>
-                  <CarouselItem>
-                    <img
-                      src={java}
-                      alt=""
-                      className="rounded-md shadow-md w-full"
-                    />
-                  </CarouselItem>
+                  {[c, cpp, js, python, go, php, java].map((langImg, idx) => (
+                    <CarouselItem key={idx}>
+                      <img
+                        src={langImg}
+                        alt=""
+                        className="rounded-md shadow-md w-full h-full object-cover"
+                      />
+                    </CarouselItem>
+                  ))}
                 </CarouselContent>
               </Carousel>
             </div>
           </div>
         </div>
 
-        <p className="text-7xl basis-[10%]">
+        <div className="text-5xl sm:text-6xl my-6 md:my-0 flex justify-center items-center">
           <TbArrowBarBoth />
-        </p>
+        </div>
 
-        <div className="basis-[40%] flex flex-col">
-          <h1 className="text-center font-semibold text-xl text-[#0e1d2e] dark:text-[#F7FAFC] transition-colors duration-500">
-            Validate againts Test cases with
-          </h1>
+        <div className="flex flex-col items-center md:basis-2/5 w-full">
+          <h2 className="text-center font-semibold text-xl text-[#0e1d2e] dark:text-[#F7FAFC] mb-4 transition-colors duration-500">
+            Validate against Test Cases
+          </h2>
           <img
             src={pistonLogo}
-            alt=""
-            className="rounded-md animate-pulse my-3 animation-duration-[4s]"
+            alt="Piston"
+            className="rounded-md animate-pulse my-3 w-full max-w-[300px] sm:max-w-[350px]"
           />
         </div>
       </div>
