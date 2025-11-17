@@ -75,34 +75,38 @@ const App = () => {
       </Route>
 
       {/* Protected Routes */}
-      <Route
-        path="/:username/*"
-        element={
-          <SignedIn>
-            <ProfileLayout />
-          </SignedIn>
-        }
-      >
-        <Route path="dashboard" element={<Dashboard />} />
-        <Route path="leaderboard" element={<Leaderboard />} />
-        <Route path="codingrooms" element={<CodingRooms />} />
-        <Route path="mcqrooms" element={<McqRooms />} />
-        <Route path="community" element={<Community />} />
-        <Route path="collaborativerooms" element={<CollaborativeRooms />} />
-        <Route path="*" element={<NotFound />} />
-      </Route>
+        {isLoaded && user && (
+          <Route
+            path="/:username/*"
+            element={
+              <SignedIn>
+                <ProfileLayout />
+              </SignedIn>
+            }
+          >
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="leaderboard" element={<Leaderboard />} />
+            <Route path="codingrooms" element={<CodingRooms />} />
+            <Route path="mcqrooms" element={<McqRooms />} />
+            <Route path="community" element={<Community />} />
+            <Route path="collaborativerooms" element={<CollaborativeRooms />} />
+            <Route path="*" element={<NotFound />} />
+          </Route>
+        )}
+
 
         {/* Shortcut /dashboard */}
-        <Route
-          path="/dashboard"
-          element={
-            isLoaded && user ? (
-              <Navigate to={`/${user.username}/dashboard`} replace />
-            ) : (
-              <Dashboard /> // fallback if user not loaded yet
-            )
-          }
-        />
+       <Route
+        path="/dashboard"
+        element={
+          isLoaded && user ? (
+            <Navigate to={`/${user.username}/dashboard`} replace />
+          ) : (
+            <NotFound /> // or maybe navigate to /auth/signin
+          )
+        }
+      />
+
 
       <Route
         path="/codingroom/:roomid/result"
