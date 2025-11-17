@@ -63,38 +63,61 @@ const App = () => {
         </span>
       ))}
 
+    <Routes>
       {/* Public Routes */}
-      <Routes>
-        <Route path="/" element={<WebsiteLayout />} />
-        <Route path="/sso-callback" element={<SsoCallback />} />
-        <Route path="/auth/*" element={<AuthenticationLayout />}>
-          <Route path="signin" element={<Signin />} />
-          <Route path="signup" element={<Signup />} />
-        </Route>
-      </Routes>
+      <Route path="/" element={<WebsiteLayout />} />
+      <Route path="/sso-callback" element={<SsoCallback />} />
+      <Route path="/auth/*" element={<AuthenticationLayout />}>
+        <Route path="signin" element={<Signin />} />
+        <Route path="signup" element={<Signup />} />
+        <Route path="*" element={<NotFound />} />
+      </Route>
 
       {/* Protected Routes */}
-      <SignedIn>
-        <Routes>
-          <Route path="/:username/" element={<ProfileLayout />}>
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="leaderboard" element={<Leaderboard />} />
-            <Route path="codingrooms" element={<CodingRooms />} />
-            <Route path="mcqrooms" element={<McqRooms />} />
-            <Route path="community" element={<Community />} />
-            <Route path="collaborativerooms" element={<CollaborativeRooms />} />
-          </Route>
+      <Route
+        path="/:username"
+        element={
+          <SignedIn>
+            <ProfileLayout />
+          </SignedIn>
+        }
+      >
+        <Route index element={<NotFound />} />
 
-          <Route path="/codingroom/:roomid/result" element={<ResultPage />} />
-          <Route path="/mcqroom/:roomid/result" element={<McqResultPage />} />
-          <Route path="/codingroom/:roomid/lobby" element={<CodingLobby />} />
-          <Route path="/mcq/:roomid/lobby" element={<McqLobby />} />
-          <Route path="/room/:roomid" element={<CollabEditor />} />
-          <Route path="/codingroom/:roomid/arena" element={<Playground />} />
-          <Route path="/mcqrooms/:roomid/arena" element={<McqArena />} />
-          {/* <Route path="*" element={<NotFound />} /> */}
-        </Routes>
-      </SignedIn>
+        <Route path="dashboard" element={<Dashboard />} />
+        <Route path="leaderboard" element={<Leaderboard />} />
+        <Route path="codingrooms" element={<CodingRooms />} />
+        <Route path="mcqrooms" element={<McqRooms />} />
+        <Route path="community" element={<Community />} />
+        <Route path="collaborativerooms" element={<CollaborativeRooms />} />
+
+        <Route path="*" element={<NotFound />} />
+
+      </Route>
+
+      {/* Other protected */}
+      <Route
+        path="/codingroom/:roomid/result"
+        element={
+          <SignedIn>
+            <ResultPage />
+          </SignedIn>
+        }
+      />
+      
+      <Route
+        path="/mcqroom/:roomid/result"
+        element={
+          <SignedIn>
+            <McqResultPage />
+          </SignedIn>
+        }
+      />
+
+      {/* Always keep at the bottom */}
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+
     </div>
   );
 };
