@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Dashboard from "./components/secureComponents/Dashboard";
 import ProfileLayout from "./components/secureComponents/ProfileLayout";
 import WebsiteLayout from "./components/WebsiteLayout";
@@ -11,7 +11,7 @@ import AuthenticationLayout from "./components/AuthenticationLayout";
 import Signin from "./components/Signin";
 import Signup from "./components/Signup";
 import { useEffect, useState } from "react";
-import { SignedIn } from "@clerk/clerk-react";
+import { SignedIn, useUser } from "@clerk/clerk-react";
 import NotFound from "./components/NotFound";
 import CollabEditor from "./components/secureComponents/EditorLayout";
 import CodingLobby from "./components/secureComponents/CodingLobby";
@@ -24,6 +24,7 @@ import SsoCallback from "./components/Ssocallback"
 
 const App = () => {
   const [clickEffects, setClickEffects] = useState([]);
+  const { user, isLoaded } = useUser();
 
   const handleClick = (e) => {
     const newEffect = {
@@ -75,27 +76,34 @@ const App = () => {
 
       {/* Protected Routes */}
       <Route
-        path="/:username"
+        path="/:username/*"
         element={
           <SignedIn>
             <ProfileLayout />
           </SignedIn>
         }
       >
-        <Route index element={<NotFound />} />
-
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="leaderboard" element={<Leaderboard />} />
         <Route path="codingrooms" element={<CodingRooms />} />
         <Route path="mcqrooms" element={<McqRooms />} />
         <Route path="community" element={<Community />} />
         <Route path="collaborativerooms" element={<CollaborativeRooms />} />
-
         <Route path="*" element={<NotFound />} />
-
       </Route>
 
-      {/* Other protected */}
+        {/* Shortcut /dashboard */}
+        <Route
+          path="/dashboard"
+          element={
+            isLoaded && user ? (
+              <Navigate to={`/${user.username}/dashboard`} replace />
+            ) : (
+              <Dashboard /> // fallback if user not loaded yet
+            )
+          }
+        />
+
       <Route
         path="/codingroom/:roomid/result"
         element={
@@ -104,7 +112,6 @@ const App = () => {
           </SignedIn>
         }
       />
-      
       <Route
         path="/mcqroom/:roomid/result"
         element={
@@ -113,8 +120,48 @@ const App = () => {
           </SignedIn>
         }
       />
+      <Route
+        path="/codingroom/:roomid/lobby"
+        element={
+          <SignedIn>
+            <CodingLobby />
+          </SignedIn>
+        }
+      />
+      <Route
+        path="/mcq/:roomid/lobby"
+        element={
+          <SignedIn>
+            <McqLobby />
+          </SignedIn>
+        }
+      />
+      <Route
+        path="/room/:roomid"
+        element={
+          <SignedIn>
+            <CollabEditor />
+          </SignedIn>
+        }
+      />
+      <Route
+        path="/codingroom/:roomid/arena"
+        element={
+          <SignedIn>
+            <Playground />
+          </SignedIn>
+        }
+      />
+      <Route
+        path="/mcqrooms/:roomid/arena"
+        element={
+          <SignedIn>
+            <McqArena />
+          </SignedIn>
+        }
+      />
 
-      {/* Always keep at the bottom */}
+      {/* Catch-all 404 */}
       <Route path="*" element={<NotFound />} />
     </Routes>
 
